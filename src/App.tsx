@@ -563,7 +563,7 @@ export default function App() {
       <section className="metric-rail" aria-label="Visible sightings summary">
         <div>
           <strong>{visibleStats.sightings.toLocaleString()}</strong>
-          <span>Sightings</span>
+          <span>Locations</span>
         </div>
         <div>
           <strong>{visibleStats.checklists.toLocaleString()}</strong>
@@ -638,18 +638,20 @@ export default function App() {
             />
           </div>
 
-          <div className="segmented">
+          <div className="segmented" role="group" aria-label="Timeline mode">
             <button
               type="button"
               className={timelineMode === "daily" ? "active" : ""}
               onClick={() => setTimelineMode("daily")}
+              title="Only locations whose most recent eBird report falls on the selected day. A spot seen all week shows once, on its newest date."
             >
-              Daily
+              New
             </button>
             <button
               type="button"
               className={timelineMode === "cumulative" ? "active" : ""}
               onClick={() => setTimelineMode("cumulative")}
+              title="Every location reported across the window, building up to the selected day, colored by how recent each report is. This is the full picture."
             >
               Trail
             </button>
@@ -663,6 +665,25 @@ export default function App() {
             <span className="legend-caption">older → fresh</span>
           </div>
         </div>
+
+        <p className="mode-note">
+          {timelineMode === "cumulative" ? (
+            <>
+              <strong>{visibleStats.sightings.toLocaleString()}</strong> locations · all reports through{" "}
+              {formatDateKey(selectedDateKey)}
+              <span className="mode-note-dim"> · eBird gives the most recent report per location</span>
+            </>
+          ) : (
+            <>
+              <strong>{visibleStats.sightings.toLocaleString()}</strong> locations newly reported on{" "}
+              {formatDateKey(selectedDateKey)}
+              {" · "}
+              <button type="button" className="link-button" onClick={() => setTimelineMode("cumulative")}>
+                see all {allFeatures.length.toLocaleString()} in the {lookbackDays}d window
+              </button>
+            </>
+          )}
+        </p>
       </section>
     </main>
   );

@@ -1009,6 +1009,40 @@ input[type="range"] {
   color: var(--text-faint);
 }
 
+.mode-note {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--hair);
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.mode-note strong {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--brass-bright);
+}
+
+.mode-note-dim {
+  color: var(--text-faint);
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--teal-bright);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link-button:hover {
+  color: var(--teal);
+}
+
 /* Loading pill ------------------------------------------------------------*/
 .loading-pill {
   position: absolute;
