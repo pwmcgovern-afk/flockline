@@ -942,6 +942,55 @@ input[type="range"] {
   accent-color: var(--brass);
 }
 
+/* Per-day "new detections" histogram above the timeline scrubber */
+.day-histogram {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 30px;
+  padding: 0 1px;
+}
+
+.day-bar {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px 2px 0 0;
+  background: var(--teal);
+  transition: opacity 0.16s var(--ease), transform 0.16s var(--ease);
+}
+
+.day-bar.old {
+  background: var(--dusk);
+  color: var(--dusk);
+}
+.day-bar.mid {
+  background: var(--teal);
+  color: var(--teal);
+}
+.day-bar.new {
+  background: var(--brass);
+  color: var(--brass);
+}
+
+.day-bar.past {
+  opacity: 0.9;
+}
+.day-bar.future {
+  opacity: 0.24;
+}
+.day-bar.current {
+  opacity: 1;
+  box-shadow: 0 0 9px -1px currentColor;
+}
+
+.day-bar:hover {
+  opacity: 1;
+  transform: scaleY(1.06);
+}
+
 .segmented {
   display: grid;
   grid-template-columns: repeat(2, minmax(72px, 1fr));

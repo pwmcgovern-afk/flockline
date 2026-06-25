@@ -74,6 +74,18 @@ export default function App() {
   const earliestDateKey = dateKeys[0] ?? selectedDateKey;
   const allFeatures = payload?.featureCollection.features ?? [];
 
+  // New detections per day in the window (each feature = one location at its
+  // most-recent report date), aligned to dateKeys for the timeline histogram.
+  const dailyCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const feature of payload?.featureCollection.features ?? []) {
+      const day = feature.properties.obsDt.slice(0, 10);
+      counts.set(day, (counts.get(day) ?? 0) + 1);
+    }
+    return dateKeys.map((key) => counts.get(key) ?? 0);
+  }, [payload, dateKeys]);
+  const maxDaily = dailyCounts.reduce((max, count) => Math.max(max, count), 0);
+
   const visibleFeatures = useMemo(() => {
     return allFeatures.filter((feature) => {
       const observationDate = feature.properties.obsDt.slice(0, 10);
@@ -625,6 +637,29 @@ export default function App() {
               <span>Timeline</span>
               <strong>{formatDateKey(selectedDateKey)}</strong>
             </div>
+            <div className="day-histogram" role="group" aria-label="New detections per day">
+              {dateKeys.map((key, index) => {
+                const count = dailyCounts[index];
+                const height = maxDaily ? Math.max(7, Math.round((count / maxDaily) * 100)) : 7;
+                const bucket = recencyBucket(index, dateKeys.length);
+                const position =
+                  index === selectedDayIndex ? "current" : index < selectedDayIndex ? "past" : "future";
+                return (
+                  <button
+                    type="button"
+                    key={key}
+                    className={`day-bar ${bucket} ${position}`}
+                    style={{ height: `${height}%` }}
+                    onClick={() => {
+                      setPlaying(false);
+                      setSelectedDayIndex(index);
+                    }}
+                    aria-label={`${formatDateKey(key)}: ${count.toLocaleString()} new ${count === 1 ? "location" : "locations"}`}
+                    title={`${formatDateKey(key)} · ${count.toLocaleString()} new`}
+                  />
+                );
+              })}
+            </div>
             <input
               type="range"
               min={0}
@@ -725,6 +760,17 @@ function formatShortDateTime(value: string | null) {
 
 function normalizeSpecies(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function recencyBucket(index: number, length: number) {
+  const ratio = length <= 1 ? 1 : index / (length - 1);
+  if (ratio > 0.72) {
+    return "new";
+  }
+  if (ratio > 0.36) {
+    return "mid";
+  }
+  return "old";
 }
 
 function getFeatureColor(feature: SightingFeature, dateKeys: string[]) {
