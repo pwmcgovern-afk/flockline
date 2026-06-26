@@ -282,7 +282,7 @@ export default function App() {
       preferCanvas: true
     }).setView([42.55, -73.45], 6);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap &copy; CARTO"
     }).addTo(map);
@@ -312,11 +312,11 @@ export default function App() {
       const count = feature.properties.howMany ?? 1;
       const marker = L.circleMarker([lat, lng], {
         radius: Math.min(11, 4.5 + Math.sqrt(count) * 1.8),
-        color,
+        color: "#ffffff",
         fillColor: color,
-        fillOpacity: feature.properties.obsReviewed ? 0.76 : 0.48,
-        opacity: 0.95,
-        weight: feature.properties.locationPrivate ? 1 : 1.8
+        fillOpacity: feature.properties.obsReviewed ? 0.95 : 0.62,
+        opacity: 1,
+        weight: feature.properties.locationPrivate ? 1 : 1.6
       });
       marker.bindPopup(buildPopup(feature), {
         className: "sighting-popup",
@@ -378,6 +378,10 @@ export default function App() {
       return [...current, regionCode];
     });
   };
+
+  const selectAllRegions = () => setSelectedRegions(states.map((state) => state.code));
+  const clearRegions = () => setSelectedRegions([]);
+  const allRegionsSelected = selectedRegions.length === states.length;
 
   const startPlayback = () => {
     if (selectedDayIndex >= lookbackDays - 1) {
@@ -587,7 +591,14 @@ export default function App() {
           <div className="block-title">
             <MapIcon size={16} />
             <span>Region</span>
-            <span className="section-no">02</span>
+            <span className="region-actions">
+              <button type="button" onClick={selectAllRegions} disabled={allRegionsSelected}>
+                Select all
+              </button>
+              <button type="button" onClick={clearRegions} disabled={!selectedRegions.length}>
+                Clear
+              </button>
+            </span>
           </div>
           <div className="state-grid">
             {states.map((state) => (
@@ -611,7 +622,10 @@ export default function App() {
             <span className="section-no">03</span>
           </div>
           <label className="switch-row">
-            <span>Provisional</span>
+            <span className="switch-text">
+              <span className="switch-label">Provisional</span>
+              <span className="switch-sub">Include recent reports not yet reviewed by eBird editors.</span>
+            </span>
             <input
               type="checkbox"
               checked={includeProvisional}
@@ -619,7 +633,10 @@ export default function App() {
             />
           </label>
           <label className="switch-row">
-            <span>Hotspots</span>
+            <span className="switch-text">
+              <span className="switch-label">Hotspots only</span>
+              <span className="switch-sub">Show sightings at public eBird hotspots, not personal locations.</span>
+            </span>
             <input type="checkbox" checked={hotspotsOnly} onChange={(event) => setHotspotsOnly(event.target.checked)} />
           </label>
         </section>
@@ -934,12 +951,12 @@ function getFeatureColor(feature: SightingFeature, dateKeys: string[]) {
   const dateIndex = dateKeys.indexOf(feature.properties.obsDt.slice(0, 10));
   const ratio = dateIndex < 0 || dateKeys.length <= 1 ? 1 : dateIndex / (dateKeys.length - 1);
   if (ratio > 0.72) {
-    return "#f4b24a";
+    return "#cc2b1d";
   }
   if (ratio > 0.36) {
-    return "#3fc59a";
+    return "#e8a317";
   }
-  return "#7e9bd6";
+  return "#3b7dd8";
 }
 
 function buildPopup(feature: SightingFeature) {
