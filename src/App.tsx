@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import L from "leaflet";
 import {
   Bird,
@@ -11,11 +11,13 @@ import {
   Layers,
   Map as MapIcon,
   MapPin,
+  MessageCircle,
   Pause,
   Play,
   Radar,
   RefreshCw,
   Search,
+  Send,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
@@ -27,6 +29,8 @@ import {
 } from "lucide-react";
 import speciesCatalog from "../shared/speciesCatalog.json";
 import type {
+  ChatMessage,
+  ChatSpeciesRef,
   ConfigResponse,
   Insight,
   InsightKind,
@@ -70,6 +74,34 @@ const underreportedCommon = new Set([
 
 type TimelineMode = "daily" | "cumulative";
 
+// A pool the chat panel samples from on each open, so the starter questions
+// feel fresh and hint at the range of things the assistant can answer.
+const CHAT_PROMPTS = [
+  "What rare birds have shown up in Connecticut this week?",
+  "Where can I see a Scarlet Tanager right now?",
+  "What's being reported around New Haven lately?",
+  "Are Ospreys still active in the area?",
+  "Show me notable sightings across New England",
+  "What warblers are moving through right now?",
+  "Where have Bald Eagles been seen recently?",
+  "What's unusual on the Connecticut coast?",
+  "Any good shorebird spots active this week?",
+  "What hummingbirds are around right now?",
+  "What's the most active birding spot near me?",
+  "Has anything rare turned up in Massachusetts?",
+  "What ducks are on the water right now?",
+  "What should I look for this weekend?"
+];
+
+function samplePrompts(pool: string[], count: number) {
+  const copy = [...pool];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swap = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swap]] = [copy[swap], copy[index]];
+  }
+  return copy.slice(0, count);
+}
+
 export default function App() {
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -87,7 +119,7 @@ export default function App() {
   const [speciesGroup, setSpeciesGroup] = useState("All");
   const [lookbackDays, setLookbackDays] = useState(7);
   const [selectedDayIndex, setSelectedDayIndex] = useState(6);
-  const [timelineMode, setTimelineMode] = useState<TimelineMode>("daily");
+  const [timelineMode, setTimelineMode] = useState<TimelineMode>("cumulative");
   const [playing, setPlaying] = useState(false);
   const [includeProvisional, setIncludeProvisional] = useState(true);
   const [hotspotsOnly, setHotspotsOnly] = useState(false);
@@ -101,6 +133,13 @@ export default function App() {
   const [insights, setInsights] = useState<InsightsResponse | null>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [insightsError, setInsightsError] = useState("");
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState("");
+  const [chatSuggestions, setChatSuggestions] = useState<string[]>([]);
+  const chatScrollRef = useRef<HTMLDivElement | null>(null);
 
   const loadInsights = useCallback(async () => {
     setInsightsLoading(true);
@@ -122,8 +161,11 @@ export default function App() {
   const toggleInsights = () => {
     setInsightsOpen((open) => {
       const next = !open;
-      if (next && !insights && !insightsLoading) {
-        void loadInsights();
+      if (next) {
+        setChatOpen(false);
+        if (!insights && !insightsLoading) {
+          void loadInsights();
+        }
       }
       return next;
     });
@@ -373,6 +415,70 @@ export default function App() {
     setSearchFocused(false);
   };
 
+  const openChat = () => {
+    setInsightsOpen(false);
+    setChatSuggestions(samplePrompts(CHAT_PROMPTS, 4));
+    setChatOpen(true);
+  };
+
+  const toggleChat = () => {
+    if (chatOpen) {
+      setChatOpen(false);
+    } else {
+      openChat();
+    }
+  };
+
+  const sendChat = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || chatLoading) {
+        return;
+      }
+      const history = [...chatMessages, { role: "user", content: trimmed } as ChatMessage];
+      setChatMessages(history);
+      setChatInput("");
+      setChatError("");
+      setChatLoading(true);
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: history.map((message) => ({ role: message.role, content: message.content })),
+            regions: selectedRegions
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Chat request failed.");
+        }
+        setChatMessages((current) => [
+          ...current,
+          { role: "assistant", content: data.reply, speciesRefs: data.speciesRefs ?? [] }
+        ]);
+      } catch (requestError) {
+        setChatError(requestError instanceof Error ? requestError.message : "Chat request failed.");
+      } finally {
+        setChatLoading(false);
+      }
+    },
+    [chatMessages, chatLoading, selectedRegions]
+  );
+
+  const viewSpeciesFromChat = (ref: ChatSpeciesRef) => {
+    selectSpecies({ speciesCode: ref.speciesCode, comName: ref.comName, sciName: "", group: "Species" });
+    setChatOpen(false);
+  };
+
+  // Keep the transcript pinned to the latest message as it grows.
+  useEffect(() => {
+    const scroller = chatScrollRef.current;
+    if (scroller) {
+      scroller.scrollTop = scroller.scrollHeight;
+    }
+  }, [chatMessages, chatLoading, chatOpen]);
+
   const commitSearch = () => {
     const match =
       suggestions.find((species) => normalizeSpecies(species.comName) === normalizeSpecies(speciesQuery)) ||
@@ -493,6 +599,15 @@ export default function App() {
           >
             <Sparkles size={14} />
             Insights
+          </button>
+          <button
+            type="button"
+            className={`status-badge chat-trigger ${chatOpen ? "active" : ""}`}
+            onClick={toggleChat}
+            aria-expanded={chatOpen}
+          >
+            <MessageCircle size={14} />
+            Ask
           </button>
         </div>
 
@@ -762,6 +877,113 @@ export default function App() {
         </aside>
       ) : null}
 
+      {chatOpen ? (
+        <aside className="chat-panel" aria-label="Ask Flockline">
+          <header className="chat-head">
+            <div className="chat-head-id">
+              <span className="chat-avatar">
+                <Bird size={18} />
+              </span>
+              <div>
+                <p className="eyebrow">Flockline Assistant</p>
+                <h2>Ask about birds</h2>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="insights-close"
+              onClick={() => setChatOpen(false)}
+              aria-label="Close chat"
+            >
+              <X size={18} />
+            </button>
+          </header>
+
+          <div className="chat-scroll" ref={chatScrollRef}>
+            {chatMessages.length === 0 ? (
+              <div className="chat-intro">
+                <p>
+                  Ask about recent sightings, rare birds, or what's active near you. Answers come live from eBird
+                  checklists across the Northeast.
+                </p>
+              </div>
+            ) : (
+              chatMessages.map((message, index) => (
+                <div className={`chat-msg ${message.role}`} key={index}>
+                  {message.role === "assistant" ? (
+                    <span className="chat-msg-avatar">
+                      <Bird size={14} />
+                    </span>
+                  ) : null}
+                  <div className="chat-bubble">
+                    {renderChatText(message.content)}
+                    {message.role === "assistant" && message.speciesRefs && message.speciesRefs.length ? (
+                      <div className="chat-refs">
+                        {message.speciesRefs.map((ref) => (
+                          <button
+                            type="button"
+                            key={ref.speciesCode}
+                            className="chat-ref"
+                            onClick={() => viewSpeciesFromChat(ref)}
+                          >
+                            <MapPin size={12} />
+                            {ref.comName}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              ))
+            )}
+
+            {chatLoading ? (
+              <div className="chat-msg assistant">
+                <span className="chat-msg-avatar">
+                  <Bird size={14} />
+                </span>
+                <div className="chat-bubble chat-typing" aria-label="Assistant is checking eBird">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              </div>
+            ) : null}
+
+            {chatError ? <p className="chat-error">{chatError}</p> : null}
+          </div>
+
+          {chatMessages.length === 0 && chatSuggestions.length ? (
+            <div className="chat-suggestions">
+              {chatSuggestions.map((prompt) => (
+                <button type="button" key={prompt} className="chat-suggestion" onClick={() => void sendChat(prompt)}>
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          <form
+            className="chat-composer"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void sendChat(chatInput);
+            }}
+          >
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(event) => setChatInput(event.target.value)}
+              placeholder="Ask about birds in the area…"
+              aria-label="Ask the Flockline assistant"
+            />
+            <button type="submit" className="chat-send" disabled={chatLoading || !chatInput.trim()} aria-label="Send">
+              <Send size={16} />
+            </button>
+          </form>
+        </aside>
+      ) : null}
+
       <section className="metric-rail" aria-label="Sightings summary">
         <div title="Locations plotted right now (the dots on the map)">
           <strong>{visibleStats.sightings.toLocaleString()}</strong>
@@ -977,6 +1199,43 @@ function insightIcon(kind: InsightKind) {
     return <TrendingUp size={16} />;
   }
   return <Feather size={16} />;
+}
+
+// Render the assistant's plain-text reply: paragraphs for prose, and grouped
+// <ul> lists for runs of "- " bullet lines. We never interpret it as HTML, so
+// the model's output can't inject markup.
+function renderChatText(text: string): ReactNode {
+  const lines = text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const blocks: ReactNode[] = [];
+  let bullets: string[] = [];
+
+  const flushBullets = () => {
+    if (bullets.length) {
+      blocks.push(
+        <ul key={`ul-${blocks.length}`}>
+          {bullets.map((bullet, index) => (
+            <li key={index}>{bullet}</li>
+          ))}
+        </ul>
+      );
+      bullets = [];
+    }
+  };
+
+  for (const line of lines) {
+    const bullet = line.match(/^[-•*]\s+(.*)/);
+    if (bullet) {
+      bullets.push(bullet[1]);
+    } else {
+      flushBullets();
+      blocks.push(<p key={`p-${blocks.length}`}>{line}</p>);
+    }
+  }
+  flushBullets();
+  return blocks;
 }
 
 function getFeatureColor(feature: SightingFeature, dateKeys: string[]) {

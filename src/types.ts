@@ -86,3 +86,24 @@ export type InsightsResponse = {
   regions: string[];
   findings: Insight[];
 };
+
+export type ChatRole = "user" | "assistant";
+
+export type ChatSpeciesRef = {
+  speciesCode: string;
+  comName: string;
+};
+
+export type ChatMessage = {
+  role: ChatRole;
+  content: string;
+  speciesRefs?: ChatSpeciesRef[];
+};
+
+export type ChatResponse = {
+  reply: string;
+  speciesRefs: ChatSpeciesRef[];
+  toolsUsed: string[];
+  generator: "llm" | "template";
+  source: "ebird" | "demo";
+};
