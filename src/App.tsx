@@ -6,6 +6,7 @@ import {
   Clock,
   Database,
   ExternalLink,
+  Info,
   KeyRound,
   Layers,
   Map as MapIcon,
@@ -57,6 +58,15 @@ const groupOrder = [
   "Warblers", "Sparrows", "Grosbeaks", "Blackbirds", "Flycatchers", "Vireos",
   "Woodpeckers", "Corvids", "Aerial", "Upland", "Owls", "Backyard", "Other"
 ];
+
+// Ubiquitous species birders routinely don't bother logging, so eBird shows
+// far fewer locations than where they actually are. We flag these in the UI.
+const underreportedCommon = new Set([
+  "amecro", "fiscro", "blujay", "amerob", "eursta", "houspa", "rocpig", "cangoo",
+  "moudov", "rewbla", "comgra", "bnhcow", "mallar3", "dowwoo", "rebwoo", "bcchic",
+  "tuftit", "whbnut", "norcar", "houfin", "amegfi", "ribgul", "amhgul1", "gbbgul1",
+  "turvul", "doccor", "graycat", "carwre", "cedwax", "chiswi"
+]);
 
 type TimelineMode = "daily" | "cumulative";
 
@@ -162,6 +172,18 @@ export default function App() {
       latestObsDt: latest ?? payload?.stats.latestObsDt ?? null
     };
   }, [payload?.stats.latestObsDt, visibleFeatures]);
+
+  // Whole-window totals (independent of New/Trail or the scrubbed day): the
+  // count for the entire selected period. Birds sums each location's reported
+  // count (a report with no number, "X", counts as at least 1).
+  const windowStats = useMemo(() => {
+    const features = payload?.featureCollection.features ?? [];
+    const birds = features.reduce(
+      (sum, feature) => sum + Math.max(1, Number(feature.properties.howMany) || 0),
+      0
+    );
+    return { locations: features.length, birds };
+  }, [payload]);
 
   const selectedRegionLabels = useMemo(() => {
     return states.filter((state) => selectedRegions.includes(state.code)).map((state) => state.abbr);
@@ -483,6 +505,16 @@ export default function App() {
           <code>{selectedSpecies.speciesCode}</code>
         </section>
 
+        {underreportedCommon.has(selectedSpecies.speciesCode) ? (
+          <p className="common-note">
+            <Info size={15} />
+            <span>
+              {selectedSpecies.comName} is one of the most under-reported birds on eBird. Birders often
+              skip logging common species, so the map shows far fewer spots than where they really are.
+            </span>
+          </p>
+        ) : null}
+
         <section className={`api-key-card ${hasApiKey ? "ready" : ""}`}>
           <div className="block-title">
             <KeyRound size={16} />
@@ -730,18 +762,18 @@ export default function App() {
         </aside>
       ) : null}
 
-      <section className="metric-rail" aria-label="Visible sightings summary">
-        <div>
+      <section className="metric-rail" aria-label="Sightings summary">
+        <div title="Locations plotted right now (the dots on the map)">
           <strong>{visibleStats.sightings.toLocaleString()}</strong>
-          <span>Locations</span>
+          <span>On map</span>
         </div>
-        <div>
-          <strong>{visibleStats.checklists.toLocaleString()}</strong>
-          <span>Checklists</span>
+        <div title={`Locations reported across the whole ${lookbackDays}-day window`}>
+          <strong>{windowStats.locations.toLocaleString()}</strong>
+          <span>In window</span>
         </div>
-        <div>
-          <strong>{visibleStats.reviewedRate}%</strong>
-          <span>Reviewed</span>
+        <div title="Total individual birds reported across the window">
+          <strong>{windowStats.birds.toLocaleString()}</strong>
+          <span>Birds</span>
         </div>
         <div>
           <strong>{selectedRegionLabels.length}</strong>

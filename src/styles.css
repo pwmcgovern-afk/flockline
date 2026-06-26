@@ -339,6 +339,25 @@ h1 {
   text-transform: uppercase;
 }
 
+.common-note {
+  display: flex;
+  gap: 9px;
+  margin: 0 0 16px;
+  padding: 11px 13px;
+  border: 1px solid rgba(47, 111, 208, 0.22);
+  border-radius: var(--radius-sm);
+  background: var(--blue-soft);
+  color: #2c4f86;
+  font-size: 0.76rem;
+  line-height: 1.42;
+}
+
+.common-note svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--blue);
+}
+
 /* eBird key card */
 .api-key-card {
   display: grid;
