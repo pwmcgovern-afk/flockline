@@ -444,7 +444,7 @@ export default function App() {
             <Bird size={22} />
           </div>
           <div className="brand-text">
-            <p className="eyebrow">Northeast Migration Almanac</p>
+            <p className="eyebrow">Live Northeast Sightings</p>
             <h1>Flockline</h1>
             <p className="brand-tag">Live bird movement, charted from eBird checklists.</p>
           </div>
