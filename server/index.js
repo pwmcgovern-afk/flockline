@@ -3,7 +3,7 @@ import cors from "cors";
 import express from "express";
 import fs from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
-import { getInsights } from "../lib/ebirdCore.js";
+import { getInsights, chatWithBirds } from "../lib/ebirdCore.js";
 
 const PORT = Number(process.env.PORT || 8787);
 let ebirdApiKey = process.env.EBIRD_API_KEY || "";
@@ -15,7 +15,7 @@ const speciesPresets = JSON.parse(fs.readFileSync(new URL("../shared/speciesCata
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "8kb" }));
+app.use(express.json({ limit: "64kb" }));
 
 const northeastStates = [
   { code: "US-ME", abbr: "ME", name: "Maine", center: [44.6939, -69.3819] },
@@ -156,6 +156,15 @@ app.get("/api/insights", async (request, response) => {
     response.json(payload);
   } catch (error) {
     response.status(502).json({ error: "Unable to build insights.", detail: error.message });
+  }
+});
+
+app.post("/api/chat", async (request, response) => {
+  try {
+    const payload = await chatWithBirds(request.body || {});
+    response.json(payload);
+  } catch (error) {
+    response.status(error.statusCode || 502).json({ error: error.message || "Chat failed." });
   }
 });
 
