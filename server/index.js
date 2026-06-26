@@ -3,6 +3,7 @@ import cors from "cors";
 import express from "express";
 import fs from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
+import { getInsights } from "../lib/ebirdCore.js";
 
 const PORT = Number(process.env.PORT || 8787);
 let ebirdApiKey = process.env.EBIRD_API_KEY || "";
@@ -146,6 +147,15 @@ app.get("/api/sightings", async (request, response) => {
       error: "Unable to fetch eBird sightings.",
       detail: error.message
     });
+  }
+});
+
+app.get("/api/insights", async (request, response) => {
+  try {
+    const payload = await getInsights(request.query);
+    response.json(payload);
+  } catch (error) {
+    response.status(502).json({ error: "Unable to build insights.", detail: error.message });
   }
 });
 

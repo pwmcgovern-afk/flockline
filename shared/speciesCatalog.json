@@ -1,102 +1,4286 @@
 [
-  { "speciesCode": "cangoo", "comName": "Canada Goose", "sciName": "Branta canadensis", "group": "Waterfowl" },
-  { "speciesCode": "wooduc", "comName": "Wood Duck", "sciName": "Aix sponsa", "group": "Waterfowl" },
-  { "speciesCode": "mallar3", "comName": "Mallard", "sciName": "Anas platyrhynchos", "group": "Waterfowl" },
-  { "speciesCode": "ambduc", "comName": "American Black Duck", "sciName": "Anas rubripes", "group": "Waterfowl" },
-  { "speciesCode": "commer", "comName": "Common Merganser", "sciName": "Mergus merganser", "group": "Waterfowl" },
-  { "speciesCode": "hoomer", "comName": "Hooded Merganser", "sciName": "Lophodytes cucullatus", "group": "Waterfowl" },
-  { "speciesCode": "wiltur", "comName": "Wild Turkey", "sciName": "Meleagris gallopavo", "group": "Upland" },
-  { "speciesCode": "rocpig", "comName": "Rock Pigeon", "sciName": "Columba livia", "group": "Urban" },
-  { "speciesCode": "moudov", "comName": "Mourning Dove", "sciName": "Zenaida macroura", "group": "Backyard" },
-  { "speciesCode": "rthhum", "comName": "Ruby-throated Hummingbird", "sciName": "Archilochus colubris", "group": "Backyard" },
-  { "speciesCode": "chiswi", "comName": "Chimney Swift", "sciName": "Chaetura pelagica", "group": "Aerial" },
-  { "speciesCode": "killde", "comName": "Killdeer", "sciName": "Charadrius vociferus", "group": "Shorebirds" },
-  { "speciesCode": "sposan", "comName": "Spotted Sandpiper", "sciName": "Actitis macularius", "group": "Shorebirds" },
-  { "speciesCode": "amhgul1", "comName": "American Herring Gull", "sciName": "Larus smithsonianus", "group": "Coastal" },
-  { "speciesCode": "ribgul", "comName": "Ring-billed Gull", "sciName": "Larus delawarensis", "group": "Coastal" },
-  { "speciesCode": "gbbgul", "comName": "Great Black-backed Gull", "sciName": "Larus marinus", "group": "Coastal" },
-  { "speciesCode": "comloo", "comName": "Common Loon", "sciName": "Gavia immer", "group": "Waterbirds" },
-  { "speciesCode": "doccor", "comName": "Double-crested Cormorant", "sciName": "Nannopterum auritum", "group": "Waterbirds" },
-  { "speciesCode": "grbher3", "comName": "Great Blue Heron", "sciName": "Ardea herodias", "group": "Waders" },
-  { "speciesCode": "greegr", "comName": "Great Egret", "sciName": "Ardea alba", "group": "Waders" },
-  { "speciesCode": "grnher", "comName": "Green Heron", "sciName": "Butorides virescens", "group": "Waders" },
-  { "speciesCode": "turvul", "comName": "Turkey Vulture", "sciName": "Cathartes aura", "group": "Raptors" },
-  { "speciesCode": "osprey", "comName": "Osprey", "sciName": "Pandion haliaetus", "group": "Raptors" },
-  { "speciesCode": "baleag", "comName": "Bald Eagle", "sciName": "Haliaeetus leucocephalus", "group": "Raptors" },
-  { "speciesCode": "norhar2", "comName": "Northern Harrier", "sciName": "Circus hudsonius", "group": "Raptors" },
-  { "speciesCode": "shshaw", "comName": "Sharp-shinned Hawk", "sciName": "Accipiter striatus", "group": "Raptors" },
-  { "speciesCode": "coohaw", "comName": "Cooper's Hawk", "sciName": "Astur cooperii", "group": "Raptors" },
-  { "speciesCode": "reshaw", "comName": "Red-shouldered Hawk", "sciName": "Buteo lineatus", "group": "Raptors" },
-  { "speciesCode": "brwhaw", "comName": "Broad-winged Hawk", "sciName": "Buteo platypterus", "group": "Raptors" },
-  { "speciesCode": "rethaw", "comName": "Red-tailed Hawk", "sciName": "Buteo jamaicensis", "group": "Raptors" },
-  { "speciesCode": "easowl1", "comName": "Eastern Screech-Owl", "sciName": "Megascops asio", "group": "Owls" },
-  { "speciesCode": "grhowl", "comName": "Great Horned Owl", "sciName": "Bubo virginianus", "group": "Owls" },
-  { "speciesCode": "brdowl", "comName": "Barred Owl", "sciName": "Strix varia", "group": "Owls" },
-  { "speciesCode": "belkin1", "comName": "Belted Kingfisher", "sciName": "Megaceryle alcyon", "group": "Waterbirds" },
-  { "speciesCode": "yebsap", "comName": "Yellow-bellied Sapsucker", "sciName": "Sphyrapicus varius", "group": "Woodpeckers" },
-  { "speciesCode": "rebwoo", "comName": "Red-bellied Woodpecker", "sciName": "Melanerpes carolinus", "group": "Woodpeckers" },
-  { "speciesCode": "dowwoo", "comName": "Downy Woodpecker", "sciName": "Dryobates pubescens", "group": "Woodpeckers" },
-  { "speciesCode": "haiwoo", "comName": "Hairy Woodpecker", "sciName": "Leuconotopicus villosus", "group": "Woodpeckers" },
-  { "speciesCode": "pilwoo", "comName": "Pileated Woodpecker", "sciName": "Dryocopus pileatus", "group": "Woodpeckers" },
-  { "speciesCode": "norfli", "comName": "Northern Flicker", "sciName": "Colaptes auratus", "group": "Woodpeckers" },
-  { "speciesCode": "amekes", "comName": "American Kestrel", "sciName": "Falco sparverius", "group": "Raptors" },
-  { "speciesCode": "merlin", "comName": "Merlin", "sciName": "Falco columbarius", "group": "Raptors" },
-  { "speciesCode": "perfal", "comName": "Peregrine Falcon", "sciName": "Falco peregrinus", "group": "Raptors" },
-  { "speciesCode": "eawpew", "comName": "Eastern Wood-Pewee", "sciName": "Contopus virens", "group": "Flycatchers" },
-  { "speciesCode": "easpho", "comName": "Eastern Phoebe", "sciName": "Sayornis phoebe", "group": "Flycatchers" },
-  { "speciesCode": "grcfly", "comName": "Great Crested Flycatcher", "sciName": "Myiarchus crinitus", "group": "Flycatchers" },
-  { "speciesCode": "easkin", "comName": "Eastern Kingbird", "sciName": "Tyrannus tyrannus", "group": "Flycatchers" },
-  { "speciesCode": "buhvir", "comName": "Blue-headed Vireo", "sciName": "Vireo solitarius", "group": "Vireos" },
-  { "speciesCode": "eawvir1", "comName": "Eastern Warbling Vireo", "sciName": "Vireo gilvus", "group": "Vireos" },
-  { "speciesCode": "reevir1", "comName": "Red-eyed Vireo", "sciName": "Vireo olivaceus", "group": "Vireos" },
-  { "speciesCode": "blujay", "comName": "Blue Jay", "sciName": "Cyanocitta cristata", "group": "Corvids" },
-  { "speciesCode": "amecro", "comName": "American Crow", "sciName": "Corvus brachyrhynchos", "group": "Corvids" },
-  { "speciesCode": "fiscro", "comName": "Fish Crow", "sciName": "Corvus ossifragus", "group": "Corvids" },
-  { "speciesCode": "comrav", "comName": "Common Raven", "sciName": "Corvus corax", "group": "Corvids" },
-  { "speciesCode": "bkcchi", "comName": "Black-capped Chickadee", "sciName": "Poecile atricapillus", "group": "Backyard" },
-  { "speciesCode": "tuftit", "comName": "Tufted Titmouse", "sciName": "Baeolophus bicolor", "group": "Backyard" },
-  { "speciesCode": "treswa", "comName": "Tree Swallow", "sciName": "Tachycineta bicolor", "group": "Aerial" },
-  { "speciesCode": "barswa", "comName": "Barn Swallow", "sciName": "Hirundo rustica", "group": "Aerial" },
-  { "speciesCode": "cliswa", "comName": "Cliff Swallow", "sciName": "Petrochelidon pyrrhonota", "group": "Aerial" },
-  { "speciesCode": "gockin", "comName": "Golden-crowned Kinglet", "sciName": "Regulus satrapa", "group": "Woodland" },
-  { "speciesCode": "ruckin", "comName": "Ruby-crowned Kinglet", "sciName": "Corthylio calendula", "group": "Woodland" },
-  { "speciesCode": "rebnut", "comName": "Red-breasted Nuthatch", "sciName": "Sitta canadensis", "group": "Backyard" },
-  { "speciesCode": "whbnut", "comName": "White-breasted Nuthatch", "sciName": "Sitta carolinensis", "group": "Backyard" },
-  { "speciesCode": "brncre", "comName": "Brown Creeper", "sciName": "Certhia americana", "group": "Woodland" },
-  { "speciesCode": "houwre", "comName": "Northern House Wren", "sciName": "Troglodytes aedon", "group": "Wrens" },
-  { "speciesCode": "carwre", "comName": "Carolina Wren", "sciName": "Thryothorus ludovicianus", "group": "Wrens" },
-  { "speciesCode": "eursta", "comName": "European Starling", "sciName": "Sturnus vulgaris", "group": "Urban" },
-  { "speciesCode": "grycat", "comName": "Gray Catbird", "sciName": "Dumetella carolinensis", "group": "Backyard" },
-  { "speciesCode": "normoc", "comName": "Northern Mockingbird", "sciName": "Mimus polyglottos", "group": "Backyard" },
-  { "speciesCode": "easblu", "comName": "Eastern Bluebird", "sciName": "Sialia sialis", "group": "Backyard" },
-  { "speciesCode": "veery", "comName": "Veery", "sciName": "Catharus fuscescens", "group": "Thrushes" },
-  { "speciesCode": "herthr", "comName": "Hermit Thrush", "sciName": "Catharus guttatus", "group": "Thrushes" },
-  { "speciesCode": "woothr", "comName": "Wood Thrush", "sciName": "Hylocichla mustelina", "group": "Thrushes" },
-  { "speciesCode": "amerob", "comName": "American Robin", "sciName": "Turdus migratorius", "group": "Backyard" },
-  { "speciesCode": "cedwax", "comName": "Cedar Waxwing", "sciName": "Bombycilla cedrorum", "group": "Backyard" },
-  { "speciesCode": "houspa", "comName": "House Sparrow", "sciName": "Passer domesticus", "group": "Urban" },
-  { "speciesCode": "houfin", "comName": "House Finch", "sciName": "Haemorhous mexicanus", "group": "Backyard" },
-  { "speciesCode": "purfin", "comName": "Purple Finch", "sciName": "Haemorhous purpureus", "group": "Backyard" },
-  { "speciesCode": "amegfi", "comName": "American Goldfinch", "sciName": "Spinus tristis", "group": "Backyard" },
-  { "speciesCode": "chispa", "comName": "Chipping Sparrow", "sciName": "Spizella passerina", "group": "Sparrows" },
-  { "speciesCode": "daejun", "comName": "Dark-eyed Junco", "sciName": "Junco hyemalis", "group": "Sparrows" },
-  { "speciesCode": "whtspa", "comName": "White-throated Sparrow", "sciName": "Zonotrichia albicollis", "group": "Sparrows" },
-  { "speciesCode": "sonspa", "comName": "Song Sparrow", "sciName": "Melospiza melodia", "group": "Sparrows" },
-  { "speciesCode": "swaspa", "comName": "Swamp Sparrow", "sciName": "Melospiza georgiana", "group": "Sparrows" },
-  { "speciesCode": "eastow", "comName": "Eastern Towhee", "sciName": "Pipilo erythrophthalmus", "group": "Sparrows" },
-  { "speciesCode": "balori", "comName": "Baltimore Oriole", "sciName": "Icterus galbula", "group": "Blackbirds" },
-  { "speciesCode": "rewbla", "comName": "Red-winged Blackbird", "sciName": "Agelaius phoeniceus", "group": "Blackbirds" },
-  { "speciesCode": "bnhcow", "comName": "Brown-headed Cowbird", "sciName": "Molothrus ater", "group": "Blackbirds" },
-  { "speciesCode": "comgra", "comName": "Common Grackle", "sciName": "Quiscalus quiscula", "group": "Blackbirds" },
-  { "speciesCode": "ovenbi1", "comName": "Ovenbird", "sciName": "Seiurus aurocapilla", "group": "Warblers" },
-  { "speciesCode": "bawwar", "comName": "Black-and-white Warbler", "sciName": "Mniotilta varia", "group": "Warblers" },
-  { "speciesCode": "comyel", "comName": "Common Yellowthroat", "sciName": "Geothlypis trichas", "group": "Warblers" },
-  { "speciesCode": "amered", "comName": "American Redstart", "sciName": "Setophaga ruticilla", "group": "Warblers" },
-  { "speciesCode": "norpar", "comName": "Northern Parula", "sciName": "Setophaga americana", "group": "Warblers" },
-  { "speciesCode": "yelwar1", "comName": "Northern Yellow Warbler", "sciName": "Setophaga aestiva", "group": "Warblers" },
-  { "speciesCode": "pinwar", "comName": "Pine Warbler", "sciName": "Setophaga pinus", "group": "Warblers" },
-  { "speciesCode": "scatan", "comName": "Scarlet Tanager", "sciName": "Piranga olivacea", "group": "Grosbeaks" },
-  { "speciesCode": "norcar", "comName": "Northern Cardinal", "sciName": "Cardinalis cardinalis", "group": "Backyard" },
-  { "speciesCode": "robgro", "comName": "Rose-breasted Grosbeak", "sciName": "Pheucticus ludovicianus", "group": "Grosbeaks" },
-  { "speciesCode": "indbun", "comName": "Indigo Bunting", "sciName": "Passerina cyanea", "group": "Grosbeaks" }
+  {
+    "speciesCode": "banswa",
+    "comName": "Bank Swallow",
+    "sciName": "Riparia riparia",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "barswa",
+    "comName": "Barn Swallow",
+    "sciName": "Hirundo rustica",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "blkswi",
+    "comName": "Black Swift",
+    "sciName": "Cypseloides niger",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "brcmar1",
+    "comName": "Brown-chested Martin",
+    "sciName": "Progne tapera",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "cavswa",
+    "comName": "Cave Swallow",
+    "sciName": "Petrochelidon fulva",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "chiswi",
+    "comName": "Chimney Swift",
+    "sciName": "Chaetura pelagica",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "chwwid",
+    "comName": "Chuck-will's-widow",
+    "sciName": "Antrostomus carolinensis",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "cliswa",
+    "comName": "Cliff Swallow",
+    "sciName": "Petrochelidon pyrrhonota",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "comnig",
+    "comName": "Common Nighthawk",
+    "sciName": "Chordeiles minor",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "comswi",
+    "comName": "Common Swift",
+    "sciName": "Apus apus",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "easwpw1",
+    "comName": "Eastern Whip-poor-will",
+    "sciName": "Antrostomus vociferus",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "gybmar",
+    "comName": "Gray-breasted Martin",
+    "sciName": "Progne chalybea",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "lesnig",
+    "comName": "Lesser Nighthawk",
+    "sciName": "Chordeiles acutipennis",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "nrwswa",
+    "comName": "Northern Rough-winged Swallow",
+    "sciName": "Stelgidopteryx serripennis",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "purmar",
+    "comName": "Purple Martin",
+    "sciName": "Progne subis",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "treswa",
+    "comName": "Tree Swallow",
+    "sciName": "Tachycineta bicolor",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "vigswa",
+    "comName": "Violet-green Swallow",
+    "sciName": "Tachycineta thalassina",
+    "group": "Aerial"
+  },
+  {
+    "speciesCode": "afcdov1",
+    "comName": "African Collared-Dove",
+    "sciName": "Streptopelia roseogrisea",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "allhum",
+    "comName": "Allen's Hummingbird",
+    "sciName": "Selasphorus sasin",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "amegfi",
+    "comName": "American Goldfinch",
+    "sciName": "Spinus tristis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "amepip",
+    "comName": "American Pipit",
+    "sciName": "Anthus rubescens",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "amerob",
+    "comName": "American Robin",
+    "sciName": "Turdus migratorius",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "annhum",
+    "comName": "Anna's Hummingbird",
+    "sciName": "Calypte anna",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "bahwoo",
+    "comName": "Bahama Woodstar",
+    "sciName": "Nesophlox evelynae",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "batpig1",
+    "comName": "Band-tailed Pigeon",
+    "sciName": "Patagioenas fasciata",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "bewwre",
+    "comName": "Bewick's Wren",
+    "sciName": "Thryomanes bewickii",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "bicthr",
+    "comName": "Bicknell's Thrush",
+    "sciName": "Catharus bicknelli",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "bkcchi",
+    "comName": "Black-capped Chickadee",
+    "sciName": "Poecile atricapillus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "bkchum",
+    "comName": "Black-chinned Hummingbird",
+    "sciName": "Archilochus alexandri",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "buggna",
+    "comName": "Blue-gray Gnatcatcher",
+    "sciName": "Polioptila caerulea",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "bohwax",
+    "comName": "Bohemian Waxwing",
+    "sciName": "Bombycilla garrulus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "borchi2",
+    "comName": "Boreal Chickadee",
+    "sciName": "Poecile hudsonicus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "brambl",
+    "comName": "Brambling",
+    "sciName": "Fringilla montifringilla",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "brbhum",
+    "comName": "Broad-billed Hummingbird",
+    "sciName": "Cynanthus latirostris",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "brthum",
+    "comName": "Broad-tailed Hummingbird",
+    "sciName": "Selasphorus platycercus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "brncre",
+    "comName": "Brown Creeper",
+    "sciName": "Certhia americana",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "brnthr",
+    "comName": "Brown Thrasher",
+    "sciName": "Toxostoma rufum",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "bnhnut",
+    "comName": "Brown-headed Nuthatch",
+    "sciName": "Sitta pusilla",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "calhum",
+    "comName": "Calliope Hummingbird",
+    "sciName": "Selasphorus calliope",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "carchi",
+    "comName": "Carolina Chickadee",
+    "sciName": "Poecile carolinensis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "carwre",
+    "comName": "Carolina Wren",
+    "sciName": "Thryothorus ludovicianus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "cedwax",
+    "comName": "Cedar Waxwing",
+    "sciName": "Bombycilla cedrorum",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "comcha",
+    "comName": "Common Chaffinch",
+    "sciName": "Fringilla coelebs",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "cogdov",
+    "comName": "Common Ground Dove",
+    "sciName": "Columbina passerina",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "cremyn",
+    "comName": "Crested Myna",
+    "sciName": "Acridotheres cristatellus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "diadov1",
+    "comName": "Diamond Dove",
+    "sciName": "Geopelia cuneata",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "easblu",
+    "comName": "Eastern Bluebird",
+    "sciName": "Sialia sialis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eaywag",
+    "comName": "Eastern Yellow Wagtail",
+    "sciName": "Motacilla tschutschensis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eucdov",
+    "comName": "Eurasian Collared-Dove",
+    "sciName": "Streptopelia decaocto",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eurlin1",
+    "comName": "Eurasian Linnet",
+    "sciName": "Linaria cannabina",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eursis",
+    "comName": "Eurasian Siskin",
+    "sciName": "Spinus spinus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "skylar",
+    "comName": "Eurasian Skylark",
+    "sciName": "Alauda arvensis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eutspa",
+    "comName": "Eurasian Tree Sparrow",
+    "sciName": "Passer montanus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eurgol",
+    "comName": "European Goldfinch",
+    "sciName": "Carduelis carduelis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eurgre1",
+    "comName": "European Greenfinch",
+    "sciName": "Chloris chloris",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eurser1",
+    "comName": "European Serin",
+    "sciName": "Serinus serinus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eursta",
+    "comName": "European Starling",
+    "sciName": "Sturnus vulgaris",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eutdov",
+    "comName": "European Turtle-Dove",
+    "sciName": "Streptopelia turtur",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "evegro",
+    "comName": "Evening Grosbeak",
+    "sciName": "Hesperiphona vespertina",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "fieldf",
+    "comName": "Fieldfare",
+    "sciName": "Turdus pilaris",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "gockin",
+    "comName": "Golden-crowned Kinglet",
+    "sciName": "Regulus satrapa",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "grycat",
+    "comName": "Gray Catbird",
+    "sciName": "Dumetella carolinensis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "gycthr",
+    "comName": "Gray-cheeked Thrush",
+    "sciName": "Catharus minimus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "eurgol2",
+    "comName": "Gray-crowned Goldfinch",
+    "sciName": "Carduelis caniceps",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "gcrfin",
+    "comName": "Gray-crowned Rosy-Finch",
+    "sciName": "Leucosticte tephrocotis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "gretit1",
+    "comName": "Great Tit",
+    "sciName": "Parus major",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "herthr",
+    "comName": "Hermit Thrush",
+    "sciName": "Catharus guttatus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "horlar",
+    "comName": "Horned Lark",
+    "sciName": "Eremophila alpestris",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "houfin",
+    "comName": "House Finch",
+    "sciName": "Haemorhous mexicanus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "houspa",
+    "comName": "House Sparrow",
+    "sciName": "Passer domesticus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "incdov",
+    "comName": "Inca Dove",
+    "sciName": "Columbina inca",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "comcan",
+    "comName": "Island Canary",
+    "sciName": "Serinus canaria",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "lesgol",
+    "comName": "Lesser Goldfinch",
+    "sciName": "Spinus psaltria",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "marwre",
+    "comName": "Marsh Wren",
+    "sciName": "Cistothorus palustris",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "grnvie1",
+    "comName": "Mexican Violetear",
+    "sciName": "Colibri thalassinus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "moublu",
+    "comName": "Mountain Bluebird",
+    "sciName": "Sialia currucoides",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "moudov",
+    "comName": "Mourning Dove",
+    "sciName": "Zenaida macroura",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "houwre",
+    "comName": "Northern House Wren",
+    "sciName": "Troglodytes aedon",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "normoc",
+    "comName": "Northern Mockingbird",
+    "sciName": "Mimus polyglottos",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "orabul1",
+    "comName": "Orange Bullfinch",
+    "sciName": "Pyrrhula aurantiaca",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "paspig",
+    "comName": "Passenger Pigeon",
+    "sciName": "Ectopistes migratorius",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "pingro",
+    "comName": "Pine Grosbeak",
+    "sciName": "Pinicola enucleator",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "pinsis",
+    "comName": "Pine Siskin",
+    "sciName": "Spinus pinus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "purfin",
+    "comName": "Purple Finch",
+    "sciName": "Haemorhous purpureus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "redcro",
+    "comName": "Red Crossbill",
+    "sciName": "Loxia curvirostra",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "redsis1",
+    "comName": "Red Siskin",
+    "sciName": "Spinus cucullatus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "rebnut",
+    "comName": "Red-breasted Nuthatch",
+    "sciName": "Sitta canadensis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "redpol1",
+    "comName": "Redpoll",
+    "sciName": "Acanthis flammea",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "redwin",
+    "comName": "Redwing",
+    "sciName": "Turdus iliacus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "rindov",
+    "comName": "Ring-necked Dove",
+    "sciName": "Streptopelia capicola",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "rocpig",
+    "comName": "Rock Pigeon",
+    "sciName": "Columba livia",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "rocwre",
+    "comName": "Rock Wren",
+    "sciName": "Salpinctes obsoletus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "ruckin",
+    "comName": "Ruby-crowned Kinglet",
+    "sciName": "Corthylio calendula",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "rthhum",
+    "comName": "Ruby-throated Hummingbird",
+    "sciName": "Archilochus colubris",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "rufhum",
+    "comName": "Rufous Hummingbird",
+    "sciName": "Selasphorus rufus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "sagthr",
+    "comName": "Sage Thrasher",
+    "sciName": "Oreoscoptes montanus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "sedwre1",
+    "comName": "Sedge Wren",
+    "sciName": "Cistothorus stellaris",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "spodov",
+    "comName": "Spotted Dove",
+    "sciName": "Spilopelia chinensis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "sprpip",
+    "comName": "Sprague's Pipit",
+    "sciName": "Anthus spragueii",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "swathr",
+    "comName": "Swainson's Thrush",
+    "sciName": "Catharus ustulatus",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "towsol",
+    "comName": "Townsend's Solitaire",
+    "sciName": "Myadestes townsendi",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "tuftit",
+    "comName": "Tufted Titmouse",
+    "sciName": "Baeolophus bicolor",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "varthr",
+    "comName": "Varied Thrush",
+    "sciName": "Ixoreus naevius",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "veery",
+    "comName": "Veery",
+    "sciName": "Catharus fuscescens",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "whiwag",
+    "comName": "White Wagtail",
+    "sciName": "Motacilla alba",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "whbnut",
+    "comName": "White-breasted Nuthatch",
+    "sciName": "Sitta carolinensis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "whwcro",
+    "comName": "White-winged Crossbill",
+    "sciName": "Loxia leucoptera",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "whwdov",
+    "comName": "White-winged Dove",
+    "sciName": "Zenaida asiatica",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "winwre3",
+    "comName": "Winter Wren",
+    "sciName": "Troglodytes hiemalis",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "woothr",
+    "comName": "Wood Thrush",
+    "sciName": "Hylocichla mustelina",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "yefcan",
+    "comName": "Yellow-fronted Canary",
+    "sciName": "Crithagra mozambica",
+    "group": "Backyard"
+  },
+  {
+    "speciesCode": "balori",
+    "comName": "Baltimore Oriole",
+    "sciName": "Icterus galbula",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "blbori1",
+    "comName": "Black-backed Oriole",
+    "sciName": "Icterus abeillei",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "botgra",
+    "comName": "Boat-tailed Grackle",
+    "sciName": "Quiscalus major",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "boboli",
+    "comName": "Bobolink",
+    "sciName": "Dolichonyx oryzivorus",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "brebla",
+    "comName": "Brewer's Blackbird",
+    "sciName": "Euphagus cyanocephalus",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "brocow",
+    "comName": "Bronzed Cowbird",
+    "sciName": "Molothrus aeneus",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "bnhcow",
+    "comName": "Brown-headed Cowbird",
+    "sciName": "Molothrus ater",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "bulori",
+    "comName": "Bullock's Oriole",
+    "sciName": "Icterus bullockii",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "comgra",
+    "comName": "Common Grackle",
+    "sciName": "Quiscalus quiscula",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "easmea",
+    "comName": "Eastern Meadowlark",
+    "sciName": "Sturnella magna",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "grtgra",
+    "comName": "Great-tailed Grackle",
+    "sciName": "Quiscalus mexicanus",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "orcori",
+    "comName": "Orchard Oriole",
+    "sciName": "Icterus spurius",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "rewbla",
+    "comName": "Red-winged Blackbird",
+    "sciName": "Agelaius phoeniceus",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "rusbla",
+    "comName": "Rusty Blackbird",
+    "sciName": "Euphagus carolinus",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "scoori",
+    "comName": "Scott's Oriole",
+    "sciName": "Icterus parisorum",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "shicow",
+    "comName": "Shiny Cowbird",
+    "sciName": "Molothrus bonariensis",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "ventro1",
+    "comName": "Venezuelan Troupial",
+    "sciName": "Icterus icterus",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "wesmea",
+    "comName": "Western Meadowlark",
+    "sciName": "Sturnella neglecta",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "yehbla",
+    "comName": "Yellow-headed Blackbird",
+    "sciName": "Xanthocephalus xanthocephalus",
+    "group": "Blackbirds"
+  },
+  {
+    "speciesCode": "amhgul1",
+    "comName": "American Herring Gull",
+    "sciName": "Larus smithsonianus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "ancmur",
+    "comName": "Ancient Murrelet",
+    "sciName": "Synthliboramphus antiquus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "arcter",
+    "comName": "Arctic Tern",
+    "sciName": "Sterna paradisaea",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "atlpuf",
+    "comName": "Atlantic Puffin",
+    "sciName": "Fratercula arctica",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "blkgui",
+    "comName": "Black Guillemot",
+    "sciName": "Cepphus grylle",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "blkski",
+    "comName": "Black Skimmer",
+    "sciName": "Rynchops niger",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "blkter",
+    "comName": "Black Tern",
+    "sciName": "Chlidonias niger",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "bkhgul",
+    "comName": "Black-headed Gull",
+    "sciName": "Chroicocephalus ridibundus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "bklkit",
+    "comName": "Black-legged Kittiwake",
+    "sciName": "Rissa tridactyla",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "bktgul",
+    "comName": "Black-tailed Gull",
+    "sciName": "Larus crassirostris",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "bongul",
+    "comName": "Bonaparte's Gull",
+    "sciName": "Chroicocephalus philadelphia",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "briter1",
+    "comName": "Bridled Tern",
+    "sciName": "Onychoprion anaethetus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "brnnod",
+    "comName": "Brown Noddy",
+    "sciName": "Anous stolidus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "calgul",
+    "comName": "California Gull",
+    "sciName": "Larus californicus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "caster1",
+    "comName": "Caspian Tern",
+    "sciName": "Hydroprogne caspia",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "mewgul",
+    "comName": "Common Gull",
+    "sciName": "Larus canus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "commur",
+    "comName": "Common Murre",
+    "sciName": "Uria aalge",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "comter",
+    "comName": "Common Tern",
+    "sciName": "Sterna hirundo",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "doveki",
+    "comName": "Dovekie",
+    "sciName": "Alle alle",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "eleter1",
+    "comName": "Elegant Tern",
+    "sciName": "Thalasseus elegans",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "euhgul1",
+    "comName": "European Herring Gull",
+    "sciName": "Larus argentatus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "forter",
+    "comName": "Forster's Tern",
+    "sciName": "Sterna forsteri",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "fragul",
+    "comName": "Franklin's Gull",
+    "sciName": "Leucophaeus pipixcan",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "glagul",
+    "comName": "Glaucous Gull",
+    "sciName": "Larus hyperboreus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "glwgul",
+    "comName": "Glaucous-winged Gull",
+    "sciName": "Larus glaucescens",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "grhgul",
+    "comName": "Gray-hooded Gull",
+    "sciName": "Chroicocephalus cirrocephalus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "gbbgul",
+    "comName": "Great Black-backed Gull",
+    "sciName": "Larus marinus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "gresku1",
+    "comName": "Great Skua",
+    "sciName": "Stercorarius skua",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "gubter2",
+    "comName": "Gull-billed Tern",
+    "sciName": "Gelochelidon nilotica",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "heegul",
+    "comName": "Heermann's Gull",
+    "sciName": "Larus heermanni",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "y00478",
+    "comName": "Iceland Gull",
+    "sciName": "Larus glaucoides",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "ivogul",
+    "comName": "Ivory Gull",
+    "sciName": "Pagophila eburnea",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "kelgul",
+    "comName": "Kelp Gull",
+    "sciName": "Larus dominicanus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "labter1",
+    "comName": "Large-billed Tern",
+    "sciName": "Phaetusa simplex",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "laugul",
+    "comName": "Laughing Gull",
+    "sciName": "Leucophaeus atricilla",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "leater1",
+    "comName": "Least Tern",
+    "sciName": "Sternula antillarum",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "lbbgul",
+    "comName": "Lesser Black-backed Gull",
+    "sciName": "Larus fuscus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "litgul",
+    "comName": "Little Gull",
+    "sciName": "Hydrocoloeus minutus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "lobmur",
+    "comName": "Long-billed Murrelet",
+    "sciName": "Brachyramphus perdix",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "lotjae",
+    "comName": "Long-tailed Jaeger",
+    "sciName": "Stercorarius longicaudus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "parjae",
+    "comName": "Parasitic Jaeger",
+    "sciName": "Stercorarius parasiticus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "pomjae",
+    "comName": "Pomarine Jaeger",
+    "sciName": "Stercorarius pomarinus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "razorb",
+    "comName": "Razorbill",
+    "sciName": "Alca torda",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "ribgul",
+    "comName": "Ring-billed Gull",
+    "sciName": "Larus delawarensis",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "roster",
+    "comName": "Roseate Tern",
+    "sciName": "Sterna dougallii",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "rosgul",
+    "comName": "Ross's Gull",
+    "sciName": "Rhodostethia rosea",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "royter1",
+    "comName": "Royal Tern",
+    "sciName": "Thalasseus maximus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "sabgul",
+    "comName": "Sabine's Gull",
+    "sciName": "Xema sabini",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "santer1",
+    "comName": "Sandwich Tern",
+    "sciName": "Thalasseus sandvicensis",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "mewgul2",
+    "comName": "Short-billed Gull",
+    "sciName": "Larus brachyrhynchus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "silgul2",
+    "comName": "Silver Gull",
+    "sciName": "Chroicocephalus novaehollandiae",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "slbgul",
+    "comName": "Slaty-backed Gull",
+    "sciName": "Larus schistisagus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "sooter1",
+    "comName": "Sooty Tern",
+    "sciName": "Onychoprion fuscatus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "sopsku1",
+    "comName": "South Polar Skua",
+    "sciName": "Stercorarius maccormicki",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "thbmur",
+    "comName": "Thick-billed Murre",
+    "sciName": "Uria lomvia",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "tufpuf",
+    "comName": "Tufted Puffin",
+    "sciName": "Fratercula cirrhata",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "veggul1",
+    "comName": "Vega Gull",
+    "sciName": "Larus vegae",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "wesgul",
+    "comName": "Western Gull",
+    "sciName": "Larus occidentalis",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "whiter2",
+    "comName": "Whiskered Tern",
+    "sciName": "Chlidonias hybrida",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "whwter",
+    "comName": "White-winged Tern",
+    "sciName": "Chlidonias leucopterus",
+    "group": "Coastal"
+  },
+  {
+    "speciesCode": "amecro",
+    "comName": "American Crow",
+    "sciName": "Corvus brachyrhynchos",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "bkbmag1",
+    "comName": "Black-billed Magpie",
+    "sciName": "Pica hudsonia",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "btmjay",
+    "comName": "Black-throated Magpie-Jay",
+    "sciName": "Cyanocorax colliei",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "blujay",
+    "comName": "Blue Jay",
+    "sciName": "Cyanocitta cristata",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "gryjay",
+    "comName": "Canada Jay",
+    "sciName": "Perisoreus canadensis",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "comrav",
+    "comName": "Common Raven",
+    "sciName": "Corvus corax",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "eurjac",
+    "comName": "Eurasian Jackdaw",
+    "sciName": "Coloeus monedula",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "fiscro",
+    "comName": "Fish Crow",
+    "sciName": "Corvus ossifragus",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "hoocro1",
+    "comName": "Hooded Crow",
+    "sciName": "Corvus cornix",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "piecro1",
+    "comName": "Pied Crow",
+    "sciName": "Corvus albus",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "whnrav1",
+    "comName": "White-necked Raven",
+    "sciName": "Corvus albicollis",
+    "group": "Corvids"
+  },
+  {
+    "speciesCode": "acafly",
+    "comName": "Acadian Flycatcher",
+    "sciName": "Empidonax virescens",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "aldfly",
+    "comName": "Alder Flycatcher",
+    "sciName": "Empidonax alnorum",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "astfly",
+    "comName": "Ash-throated Flycatcher",
+    "sciName": "Myiarchus cinerascens",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "blkpho",
+    "comName": "Black Phoebe",
+    "sciName": "Sayornis nigricans",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "caskin",
+    "comName": "Cassin's Kingbird",
+    "sciName": "Tyrannus vociferans",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "coukin",
+    "comName": "Couch's Kingbird",
+    "sciName": "Tyrannus couchii",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "easkin",
+    "comName": "Eastern Kingbird",
+    "sciName": "Tyrannus tyrannus",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "easpho",
+    "comName": "Eastern Phoebe",
+    "sciName": "Sayornis phoebe",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "eawpew",
+    "comName": "Eastern Wood-Pewee",
+    "sciName": "Contopus virens",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "fotfly",
+    "comName": "Fork-tailed Flycatcher",
+    "sciName": "Tyrannus savana",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "gryfly",
+    "comName": "Gray Flycatcher",
+    "sciName": "Empidonax wrightii",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "grykin",
+    "comName": "Gray Kingbird",
+    "sciName": "Tyrannus dominicensis",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "grcfly",
+    "comName": "Great Crested Flycatcher",
+    "sciName": "Myiarchus crinitus",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "hamfly",
+    "comName": "Hammond's Flycatcher",
+    "sciName": "Empidonax hammondii",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "leafly",
+    "comName": "Least Flycatcher",
+    "sciName": "Empidonax minimus",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "olsfly",
+    "comName": "Olive-sided Flycatcher",
+    "sciName": "Contopus cooperi",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "saypho",
+    "comName": "Say's Phoebe",
+    "sciName": "Sayornis saya",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "sctfly",
+    "comName": "Scissor-tailed Flycatcher",
+    "sciName": "Tyrannus forficatus",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "subfly",
+    "comName": "Sulphur-bellied Flycatcher",
+    "sciName": "Myiodynastes luteiventris",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "trokin",
+    "comName": "Tropical Kingbird",
+    "sciName": "Tyrannus melancholicus",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "varfly",
+    "comName": "Variegated Flycatcher",
+    "sciName": "Empidonomus varius",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "verfly",
+    "comName": "Vermilion Flycatcher",
+    "sciName": "Pyrocephalus rubinus",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "wesfly",
+    "comName": "Western Flycatcher",
+    "sciName": "Empidonax difficilis",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "weskin",
+    "comName": "Western Kingbird",
+    "sciName": "Tyrannus verticalis",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "wewpew",
+    "comName": "Western Wood-Pewee",
+    "sciName": "Contopus sordidulus",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "wilfly",
+    "comName": "Willow Flycatcher",
+    "sciName": "Empidonax traillii",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "yebfly",
+    "comName": "Yellow-bellied Flycatcher",
+    "sciName": "Empidonax flaviventris",
+    "group": "Flycatchers"
+  },
+  {
+    "speciesCode": "bkhgro",
+    "comName": "Black-headed Grosbeak",
+    "sciName": "Pheucticus melanocephalus",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "blugrb1",
+    "comName": "Blue Grosbeak",
+    "sciName": "Passerina caerulea",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "chclon",
+    "comName": "Chestnut-collared Longspur",
+    "sciName": "Calcarius ornatus",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "chtsee1",
+    "comName": "Chestnut-throated Seedeater",
+    "sciName": "Sporophila telasco",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "dickci",
+    "comName": "Dickcissel",
+    "sciName": "Spiza americana",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "heptan",
+    "comName": "Hepatic Tanager",
+    "sciName": "Piranga flava",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "indbun",
+    "comName": "Indigo Bunting",
+    "sciName": "Passerina cyanea",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "laplon",
+    "comName": "Lapland Longspur",
+    "sciName": "Calcarius lapponicus",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "lazbun",
+    "comName": "Lazuli Bunting",
+    "sciName": "Passerina amoena",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "linsee1",
+    "comName": "Lined Seedeater",
+    "sciName": "Sporophila lineola",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "whcsee1",
+    "comName": "Morelet's Seedeater",
+    "sciName": "Sporophila morelleti",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "norcar",
+    "comName": "Northern Cardinal",
+    "sciName": "Cardinalis cardinalis",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "paibun",
+    "comName": "Painted Bunting",
+    "sciName": "Passerina ciris",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "reccar",
+    "comName": "Red-crested Cardinal",
+    "sciName": "Paroaria coronata",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "robgro",
+    "comName": "Rose-breasted Grosbeak",
+    "sciName": "Pheucticus ludovicianus",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "rubsee1",
+    "comName": "Ruddy-breasted Seedeater",
+    "sciName": "Sporophila minuta",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "saffin",
+    "comName": "Saffron Finch",
+    "sciName": "Sicalis flaveola",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "scatan",
+    "comName": "Scarlet Tanager",
+    "sciName": "Piranga olivacea",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "smilon",
+    "comName": "Smith's Longspur",
+    "sciName": "Calcarius pictus",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "snobun",
+    "comName": "Snow Bunting",
+    "sciName": "Plectrophenax nivalis",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "sumtan",
+    "comName": "Summer Tanager",
+    "sciName": "Piranga rubra",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "mcclon",
+    "comName": "Thick-billed Longspur",
+    "sciName": "Rhynchophanes mccownii",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "varbun",
+    "comName": "Varied Bunting",
+    "sciName": "Passerina versicolor",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "westan",
+    "comName": "Western Tanager",
+    "sciName": "Piranga ludoviciana",
+    "group": "Grosbeaks"
+  },
+  {
+    "speciesCode": "grefla2",
+    "comName": "American Flamingo",
+    "sciName": "Phoenicopterus ruber",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "anhing",
+    "comName": "Anhinga",
+    "sciName": "Anhinga anhinga",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "arcwar1",
+    "comName": "Arctic Warbler",
+    "sciName": "Phylloscopus borealis",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "belkin1",
+    "comName": "Belted Kingfisher",
+    "sciName": "Megaceryle alcyon",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "bkbcuc",
+    "comName": "Black-billed Cuckoo",
+    "sciName": "Coccyzus erythropthalmus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "baymac",
+    "comName": "Blue-and-yellow Macaw",
+    "sciName": "Ara ararauna",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "budger",
+    "comName": "Budgerigar",
+    "sciName": "Melopsittacus undulatus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "chemun",
+    "comName": "Chestnut Munia",
+    "sciName": "Lonchura atricapilla",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "chifla1",
+    "comName": "Chilean Flamingo",
+    "sciName": "Phoenicopterus chilensis",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "cockat",
+    "comName": "Cockatiel",
+    "sciName": "Nymphicus hollandicus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "comcuc",
+    "comName": "Common Cuckoo",
+    "sciName": "Cuculus canorus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "comwax",
+    "comName": "Common Waxbill",
+    "sciName": "Estrilda astrild",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "eapwhy1",
+    "comName": "Eastern Paradise-Whydah",
+    "sciName": "Vidua paradisaea",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "emu1",
+    "comName": "Emu",
+    "sciName": "Dromaius novaehollandiae",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "eurrob1",
+    "comName": "European Robin",
+    "sciName": "Erithacus rubecula",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "galah",
+    "comName": "Galah",
+    "sciName": "Eolophus roseicapilla",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "grepar",
+    "comName": "Gray Parrot",
+    "sciName": "Psittacus erithacus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "grgmac",
+    "comName": "Great Green Macaw",
+    "sciName": "Ara ambiguus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "grrpar1",
+    "comName": "Green-rumped Parrotlet",
+    "sciName": "Forpus passerinus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "grbani",
+    "comName": "Groove-billed Ani",
+    "sciName": "Crotophaga sulcirostris",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "javspa",
+    "comName": "Java Sparrow",
+    "sciName": "Padda oryzivora",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "laukoo1",
+    "comName": "Laughing Kookaburra",
+    "sciName": "Dacelo novaeguineae",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "logshr",
+    "comName": "Loggerhead Shrike",
+    "sciName": "Lanius ludovicianus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "mitpar",
+    "comName": "Mitred Parakeet",
+    "sciName": "Psittacara mitratus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "monpar",
+    "comName": "Monk Parakeet",
+    "sciName": "Myiopsitta monachus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "bkhpar",
+    "comName": "Nanday Parakeet",
+    "sciName": "Aratinga nenday",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "orabis1",
+    "comName": "Northern Red Bishop",
+    "sciName": "Euplectes franciscanus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "norshr4",
+    "comName": "Northern Shrike",
+    "sciName": "Lanius borealis",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "norwhe",
+    "comName": "Northern Wheatear",
+    "sciName": "Oenanthe oenanthe",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "orcwax",
+    "comName": "Orange-cheeked Waxbill",
+    "sciName": "Estrilda melpoda",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "orfpar",
+    "comName": "Orange-fronted Parakeet",
+    "sciName": "Eupsittula canicularis",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "pefpar1",
+    "comName": "Peach-fronted Parakeet",
+    "sciName": "Eupsittula aurea",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "phaino",
+    "comName": "Phainopepla",
+    "sciName": "Phainopepla nitens",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "pitwhy",
+    "comName": "Pin-tailed Whydah",
+    "sciName": "Vidua macroura",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "reccor",
+    "comName": "Red-cheeked Cordonbleu",
+    "sciName": "Uraeginthus bengalus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "recwid3",
+    "comName": "Red-collared Widowbird",
+    "sciName": "Euplectes ardens",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "refblu1",
+    "comName": "Red-flanked Bluetail",
+    "sciName": "Tarsiger cyanurus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "rehlov1",
+    "comName": "Red-headed Lovebird",
+    "sciName": "Agapornis pullarius",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "relpar10",
+    "comName": "Red-lored Amazon",
+    "sciName": "Amazona autumnalis",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "rempar",
+    "comName": "Red-masked Parakeet",
+    "sciName": "Psittacara erythrogenys",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "rewbul",
+    "comName": "Red-whiskered Bulbul",
+    "sciName": "Pycnonotus jocosus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "rorpar",
+    "comName": "Rose-ringed Parakeet",
+    "sciName": "Psittacula krameri",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "peflov",
+    "comName": "Rosy-faced Lovebird",
+    "sciName": "Agapornis roseicollis",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "nutman",
+    "comName": "Scaly-breasted Munia",
+    "sciName": "Lonchura punctulata",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "senpar",
+    "comName": "Senegal Parrot",
+    "sciName": "Poicephalus senegalus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "redbis",
+    "comName": "Southern Red Bishop",
+    "sciName": "Euplectes orix",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "succoc",
+    "comName": "Sulphur-crested Cockatoo",
+    "sciName": "Cacatua galerita",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "sunpar1",
+    "comName": "Sun Parakeet",
+    "sciName": "Aratinga solstitialis",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "whfpar1",
+    "comName": "White-fronted Amazon",
+    "sciName": "Amazona albifrons",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "whwpar",
+    "comName": "White-winged Parakeet",
+    "sciName": "Brotogeris versicolurus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "whwwid1",
+    "comName": "White-winged Widowbird",
+    "sciName": "Euplectes albonotatus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "yebcuc",
+    "comName": "Yellow-billed Cuckoo",
+    "sciName": "Coccyzus americanus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "yebcha",
+    "comName": "Yellow-breasted Chat",
+    "sciName": "Icteria virens",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "yecpar",
+    "comName": "Yellow-chevroned Parakeet",
+    "sciName": "Brotogeris chiriri",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "yeclov",
+    "comName": "Yellow-collared Lovebird",
+    "sciName": "Agapornis personatus",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "yecbis",
+    "comName": "Yellow-crowned Bishop",
+    "sciName": "Euplectes afer",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "yehpar",
+    "comName": "Yellow-headed Amazon",
+    "sciName": "Amazona oratrix",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "zebfin2",
+    "comName": "Zebra Finch",
+    "sciName": "Taeniopygia guttata",
+    "group": "Other"
+  },
+  {
+    "speciesCode": "brnowl",
+    "comName": "American Barn Owl",
+    "sciName": "Tyto furcata",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "brdowl",
+    "comName": "Barred Owl",
+    "sciName": "Strix varia",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "borowl",
+    "comName": "Boreal Owl",
+    "sciName": "Aegolius funereus",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "burowl",
+    "comName": "Burrowing Owl",
+    "sciName": "Athene cunicularia",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "easowl1",
+    "comName": "Eastern Screech-Owl",
+    "sciName": "Megascops asio",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "eueowl1",
+    "comName": "Eurasian Eagle-Owl",
+    "sciName": "Bubo bubo",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "grgowl",
+    "comName": "Great Gray Owl",
+    "sciName": "Strix nebulosa",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "grhowl",
+    "comName": "Great Horned Owl",
+    "sciName": "Bubo virginianus",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "loeowl",
+    "comName": "Long-eared Owl",
+    "sciName": "Asio otus",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "nohowl",
+    "comName": "Northern Hawk Owl",
+    "sciName": "Surnia ulula",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "nswowl",
+    "comName": "Northern Saw-whet Owl",
+    "sciName": "Aegolius acadicus",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "sheowl",
+    "comName": "Short-eared Owl",
+    "sciName": "Asio flammeus",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "snoowl1",
+    "comName": "Snowy Owl",
+    "sciName": "Bubo scandiacus",
+    "group": "Owls"
+  },
+  {
+    "speciesCode": "norgos",
+    "comName": "American Goshawk",
+    "sciName": "Astur atricapillus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "amekes",
+    "comName": "American Kestrel",
+    "sciName": "Falco sparverius",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "baleag",
+    "comName": "Bald Eagle",
+    "sciName": "Haliaeetus leucocephalus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "blkvul",
+    "comName": "Black Vulture",
+    "sciName": "Coragyps atratus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "brwhaw",
+    "comName": "Broad-winged Hawk",
+    "sciName": "Buteo platypterus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "coohaw",
+    "comName": "Cooper's Hawk",
+    "sciName": "Astur cooperii",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "y00678",
+    "comName": "Crested Caracara",
+    "sciName": "Caracara plancus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "eurhob",
+    "comName": "Eurasian Hobby",
+    "sciName": "Falco subbuteo",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "eurkes",
+    "comName": "Eurasian Kestrel",
+    "sciName": "Falco tinnunculus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "ferhaw",
+    "comName": "Ferruginous Hawk",
+    "sciName": "Buteo regalis",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "goleag",
+    "comName": "Golden Eagle",
+    "sciName": "Aquila chrysaetos",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "grbhaw1",
+    "comName": "Great Black Hawk",
+    "sciName": "Buteogallus urubitinga",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "gyrfal",
+    "comName": "Gyrfalcon",
+    "sciName": "Falco rusticolus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "hrshaw",
+    "comName": "Harris's Hawk",
+    "sciName": "Parabuteo unicinctus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "merlin",
+    "comName": "Merlin",
+    "sciName": "Falco columbarius",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "miskit",
+    "comName": "Mississippi Kite",
+    "sciName": "Ictinia mississippiensis",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "norhar2",
+    "comName": "Northern Harrier",
+    "sciName": "Circus hudsonius",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "osprey",
+    "comName": "Osprey",
+    "sciName": "Pandion haliaetus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "perfal",
+    "comName": "Peregrine Falcon",
+    "sciName": "Falco peregrinus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "prafal",
+    "comName": "Prairie Falcon",
+    "sciName": "Falco mexicanus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "reffal1",
+    "comName": "Red-footed Falcon",
+    "sciName": "Falco vespertinus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "reshaw",
+    "comName": "Red-shouldered Hawk",
+    "sciName": "Buteo lineatus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "rethaw",
+    "comName": "Red-tailed Hawk",
+    "sciName": "Buteo jamaicensis",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "rolhaw",
+    "comName": "Rough-legged Hawk",
+    "sciName": "Buteo lagopus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "sakfal1",
+    "comName": "Saker Falcon",
+    "sciName": "Falco cherrug",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "shshaw",
+    "comName": "Sharp-shinned Hawk",
+    "sciName": "Accipiter striatus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "snakit",
+    "comName": "Snail Kite",
+    "sciName": "Rostrhamus sociabilis",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "stseag",
+    "comName": "Steller's Sea-Eagle",
+    "sciName": "Haliaeetus pelagicus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "swahaw",
+    "comName": "Swainson's Hawk",
+    "sciName": "Buteo swainsoni",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "swtkit",
+    "comName": "Swallow-tailed Kite",
+    "sciName": "Elanoides forficatus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "turvul",
+    "comName": "Turkey Vulture",
+    "sciName": "Cathartes aura",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "wemhar1",
+    "comName": "Western Marsh Harrier",
+    "sciName": "Circus aeruginosus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "whteag",
+    "comName": "White-tailed Eagle",
+    "sciName": "Haliaeetus albicilla",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "whthaw",
+    "comName": "White-tailed Hawk",
+    "sciName": "Geranoaetus albicaudatus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "whtkit",
+    "comName": "White-tailed Kite",
+    "sciName": "Elanus leucurus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "zothaw",
+    "comName": "Zone-tailed Hawk",
+    "sciName": "Buteo albonotatus",
+    "group": "Raptors"
+  },
+  {
+    "speciesCode": "ameavo",
+    "comName": "American Avocet",
+    "sciName": "Recurvirostra americana",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "amgplo",
+    "comName": "American Golden-Plover",
+    "sciName": "Pluvialis dominica",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "ameoys",
+    "comName": "American Oystercatcher",
+    "sciName": "Haematopus palliatus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "amewoo",
+    "comName": "American Woodcock",
+    "sciName": "Scolopax minor",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "baisan",
+    "comName": "Baird's Sandpiper",
+    "sciName": "Calidris bairdii",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "batgod",
+    "comName": "Bar-tailed Godwit",
+    "sciName": "Limosa lapponica",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "bkbplo",
+    "comName": "Black-bellied Plover",
+    "sciName": "Pluvialis squatarola",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "bknsti",
+    "comName": "Black-necked Stilt",
+    "sciName": "Himantopus mexicanus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "bktgod",
+    "comName": "Black-tailed Godwit",
+    "sciName": "Limosa limosa",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "brbsan",
+    "comName": "Broad-billed Sandpiper",
+    "sciName": "Calidris falcinellus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "bubsan",
+    "comName": "Buff-breasted Sandpiper",
+    "sciName": "Calidris subruficollis",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "comgre",
+    "comName": "Common Greenshank",
+    "sciName": "Tringa nebularia",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "comred1",
+    "comName": "Common Redshank",
+    "sciName": "Tringa totanus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "corplo",
+    "comName": "Common Ringed Plover",
+    "sciName": "Charadrius hiaticula",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "comsni",
+    "comName": "Common Snipe",
+    "sciName": "Gallinago gallinago",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "cursan",
+    "comName": "Curlew Sandpiper",
+    "sciName": "Calidris ferruginea",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "dunlin",
+    "comName": "Dunlin",
+    "sciName": "Calidris alpina",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "eskcur",
+    "comName": "Eskimo Curlew",
+    "sciName": "Numenius borealis",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "eurcur",
+    "comName": "Eurasian Curlew",
+    "sciName": "Numenius arquata",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "whimbr5",
+    "comName": "Eurasian Whimbrel",
+    "sciName": "Numenius phaeopus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "eugplo",
+    "comName": "European Golden-Plover",
+    "sciName": "Pluvialis apricaria",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "gyttat1",
+    "comName": "Gray-tailed Tattler",
+    "sciName": "Tringa brevipes",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "grekno",
+    "comName": "Great Knot",
+    "sciName": "Calidris tenuirostris",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "greyel",
+    "comName": "Greater Yellowlegs",
+    "sciName": "Tringa melanoleuca",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "hudgod",
+    "comName": "Hudsonian Godwit",
+    "sciName": "Limosa haemastica",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "whimbr3",
+    "comName": "Hudsonian Whimbrel",
+    "sciName": "Numenius hudsonicus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "kenplo1",
+    "comName": "Kentish Plover",
+    "sciName": "Anarhynchus alexandrinus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "killde",
+    "comName": "Killdeer",
+    "sciName": "Charadrius vociferus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "leasan",
+    "comName": "Least Sandpiper",
+    "sciName": "Calidris minutilla",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "lesyel",
+    "comName": "Lesser Yellowlegs",
+    "sciName": "Tringa flavipes",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "litsti",
+    "comName": "Little Stint",
+    "sciName": "Calidris minuta",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "lobcur",
+    "comName": "Long-billed Curlew",
+    "sciName": "Numenius americanus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "lobdow",
+    "comName": "Long-billed Dowitcher",
+    "sciName": "Limnodromus scolopaceus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "margod",
+    "comName": "Marbled Godwit",
+    "sciName": "Limosa fedoa",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "mouplo",
+    "comName": "Mountain Plover",
+    "sciName": "Anarhynchus montanus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "norlap",
+    "comName": "Northern Lapwing",
+    "sciName": "Vanellus vanellus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "pagplo",
+    "comName": "Pacific Golden-Plover",
+    "sciName": "Pluvialis fulva",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "pecsan",
+    "comName": "Pectoral Sandpiper",
+    "sciName": "Calidris melanotos",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "pipplo",
+    "comName": "Piping Plover",
+    "sciName": "Charadrius melodus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "pursan",
+    "comName": "Purple Sandpiper",
+    "sciName": "Calidris maritima",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "redkno",
+    "comName": "Red Knot",
+    "sciName": "Calidris canutus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "redpha1",
+    "comName": "Red Phalarope",
+    "sciName": "Phalaropus fulicarius",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "renpha",
+    "comName": "Red-necked Phalarope",
+    "sciName": "Phalaropus lobatus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "rensti",
+    "comName": "Red-necked Stint",
+    "sciName": "Calidris ruficollis",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "rudtur",
+    "comName": "Ruddy Turnstone",
+    "sciName": "Arenaria interpres",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "ruff",
+    "comName": "Ruff",
+    "sciName": "Calidris pugnax",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "sander",
+    "comName": "Sanderling",
+    "sciName": "Calidris alba",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "semplo",
+    "comName": "Semipalmated Plover",
+    "sciName": "Charadrius semipalmatus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "semsan",
+    "comName": "Semipalmated Sandpiper",
+    "sciName": "Calidris pusilla",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "shtsan",
+    "comName": "Sharp-tailed Sandpiper",
+    "sciName": "Calidris acuminata",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "shbdow",
+    "comName": "Short-billed Dowitcher",
+    "sciName": "Limnodromus griseus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "lessap2",
+    "comName": "Siberian Sand-Plover",
+    "sciName": "Anarhynchus mongolus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "snoplo5",
+    "comName": "Snowy Plover",
+    "sciName": "Anarhynchus nivosus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "solsan",
+    "comName": "Solitary Sandpiper",
+    "sciName": "Tringa solitaria",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "spored",
+    "comName": "Spotted Redshank",
+    "sciName": "Tringa erythropus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "sposan",
+    "comName": "Spotted Sandpiper",
+    "sciName": "Actitis macularius",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "stisan",
+    "comName": "Stilt Sandpiper",
+    "sciName": "Calidris himantopus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "surfbi",
+    "comName": "Surfbird",
+    "sciName": "Calidris virgata",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "tersan",
+    "comName": "Terek Sandpiper",
+    "sciName": "Xenus cinereus",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "uplsan",
+    "comName": "Upland Sandpiper",
+    "sciName": "Bartramia longicauda",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "wantat1",
+    "comName": "Wandering Tattler",
+    "sciName": "Tringa incana",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "wessan",
+    "comName": "Western Sandpiper",
+    "sciName": "Calidris mauri",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "whrsan",
+    "comName": "White-rumped Sandpiper",
+    "sciName": "Calidris fuscicollis",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "willet1",
+    "comName": "Willet",
+    "sciName": "Tringa semipalmata",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "wilpha",
+    "comName": "Wilson's Phalarope",
+    "sciName": "Phalaropus tricolor",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "wilplo",
+    "comName": "Wilson's Plover",
+    "sciName": "Anarhynchus wilsonia",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "wilsni1",
+    "comName": "Wilson's Snipe",
+    "sciName": "Gallinago delicata",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "woosan",
+    "comName": "Wood Sandpiper",
+    "sciName": "Tringa glareola",
+    "group": "Shorebirds"
+  },
+  {
+    "speciesCode": "amtspa",
+    "comName": "American Tree Sparrow",
+    "sciName": "Spizelloides arborea",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "bacspa",
+    "comName": "Bachman's Sparrow",
+    "sciName": "Peucaea aestivalis",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "baispa",
+    "comName": "Baird's Sparrow",
+    "sciName": "Centronyx bairdii",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "bktspa",
+    "comName": "Black-throated Sparrow",
+    "sciName": "Amphispiza bilineata",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "brespa",
+    "comName": "Brewer's Sparrow",
+    "sciName": "Spizella breweri",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "casspa",
+    "comName": "Cassin's Sparrow",
+    "sciName": "Peucaea cassinii",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "chispa",
+    "comName": "Chipping Sparrow",
+    "sciName": "Spizella passerina",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "clcspa",
+    "comName": "Clay-colored Sparrow",
+    "sciName": "Spizella pallida",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "daejun",
+    "comName": "Dark-eyed Junco",
+    "sciName": "Junco hyemalis",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "eastow",
+    "comName": "Eastern Towhee",
+    "sciName": "Pipilo erythrophthalmus",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "fiespa",
+    "comName": "Field Sparrow",
+    "sciName": "Spizella pusilla",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "foxspa",
+    "comName": "Fox Sparrow",
+    "sciName": "Passerella iliaca",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "gocspa",
+    "comName": "Golden-crowned Sparrow",
+    "sciName": "Zonotrichia atricapilla",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "graspa",
+    "comName": "Grasshopper Sparrow",
+    "sciName": "Ammodramus savannarum",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "gnttow",
+    "comName": "Green-tailed Towhee",
+    "sciName": "Pipilo chlorurus",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "harspa",
+    "comName": "Harris's Sparrow",
+    "sciName": "Zonotrichia querula",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "henspa",
+    "comName": "Henslow's Sparrow",
+    "sciName": "Centronyx henslowii",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "larbun",
+    "comName": "Lark Bunting",
+    "sciName": "Calamospiza melanocorys",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "larspa",
+    "comName": "Lark Sparrow",
+    "sciName": "Chondestes grammacus",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "lecspa",
+    "comName": "LeConte's Sparrow",
+    "sciName": "Ammospiza leconteii",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "linspa",
+    "comName": "Lincoln's Sparrow",
+    "sciName": "Melospiza lincolnii",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "nstspa",
+    "comName": "Nelson's Sparrow",
+    "sciName": "Ammospiza nelsoni",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "sstspa",
+    "comName": "Saltmarsh Sparrow",
+    "sciName": "Ammospiza caudacuta",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "savspa",
+    "comName": "Savannah Sparrow",
+    "sciName": "Passerculus sandwichensis",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "seaspa",
+    "comName": "Seaside Sparrow",
+    "sciName": "Ammospiza maritima",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "sonspa",
+    "comName": "Song Sparrow",
+    "sciName": "Melospiza melodia",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "spotow",
+    "comName": "Spotted Towhee",
+    "sciName": "Pipilo maculatus",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "swaspa",
+    "comName": "Swamp Sparrow",
+    "sciName": "Melospiza georgiana",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "vesspa",
+    "comName": "Vesper Sparrow",
+    "sciName": "Pooecetes gramineus",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "whcspa",
+    "comName": "White-crowned Sparrow",
+    "sciName": "Zonotrichia leucophrys",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "whtspa",
+    "comName": "White-throated Sparrow",
+    "sciName": "Zonotrichia albicollis",
+    "group": "Sparrows"
+  },
+  {
+    "speciesCode": "blbqua1",
+    "comName": "Blue-breasted Quail",
+    "sciName": "Synoicus chinensis",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "calqua",
+    "comName": "California Quail",
+    "sciName": "Callipepla californica",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "chukar",
+    "comName": "Chukar",
+    "sciName": "Alectoris chukar",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "comqua1",
+    "comName": "Common Quail",
+    "sciName": "Coturnix coturnix",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "gamqua",
+    "comName": "Gambel's Quail",
+    "sciName": "Callipepla gambelii",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "golphe",
+    "comName": "Golden Pheasant",
+    "sciName": "Chrysolophus pictus",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "grypar",
+    "comName": "Gray Partridge",
+    "sciName": "Perdix perdix",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "grpchi",
+    "comName": "Greater Prairie-Chicken",
+    "sciName": "Tympanuchus cupido",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "grepea1",
+    "comName": "Green Peafowl",
+    "sciName": "Pavo muticus",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "rinphe2",
+    "comName": "Green Pheasant",
+    "sciName": "Phasianus versicolor",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "helgui",
+    "comName": "Helmeted Guineafowl",
+    "sciName": "Numida meleagris",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "compea",
+    "comName": "Indian Peafowl",
+    "sciName": "Pavo cristatus",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "japqua",
+    "comName": "Japanese Quail",
+    "sciName": "Coturnix japonica",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "laaphe1",
+    "comName": "Lady Amherst's Pheasant",
+    "sciName": "Chrysolophus amherstiae",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "monqua",
+    "comName": "Montezuma Quail",
+    "sciName": "Cyrtonyx montezumae",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "norbob",
+    "comName": "Northern Bobwhite",
+    "sciName": "Colinus virginianus",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "redjun",
+    "comName": "Red Junglefowl",
+    "sciName": "Gallus gallus",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "relpar1",
+    "comName": "Red-legged Partridge",
+    "sciName": "Alectoris rufa",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "reephe1",
+    "comName": "Reeves's Pheasant",
+    "sciName": "Syrmaticus reevesii",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "rinphe1",
+    "comName": "Ring-necked Pheasant",
+    "sciName": "Phasianus colchicus",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "rufgro",
+    "comName": "Ruffed Grouse",
+    "sciName": "Bonasa umbellus",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "scaqua",
+    "comName": "Scaled Quail",
+    "sciName": "Callipepla squamata",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "shtgro",
+    "comName": "Sharp-tailed Grouse",
+    "sciName": "Tympanuchus phasianellus",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "silphe",
+    "comName": "Silver Pheasant",
+    "sciName": "Lophura nycthemera",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "sprgro",
+    "comName": "Spruce Grouse",
+    "sciName": "Canachites canadensis",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "wiltur",
+    "comName": "Wild Turkey",
+    "sciName": "Meleagris gallopavo",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "wilpta",
+    "comName": "Willow Ptarmigan",
+    "sciName": "Lagopus lagopus",
+    "group": "Upland"
+  },
+  {
+    "speciesCode": "belvir",
+    "comName": "Bell's Vireo",
+    "sciName": "Vireo bellii",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "bkwvir",
+    "comName": "Black-whiskered Vireo",
+    "sciName": "Vireo altiloquus",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "buhvir",
+    "comName": "Blue-headed Vireo",
+    "sciName": "Vireo solitarius",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "casvir",
+    "comName": "Cassin's Vireo",
+    "sciName": "Vireo cassinii",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "eawvir1",
+    "comName": "Eastern Warbling Vireo",
+    "sciName": "Vireo gilvus",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "phivir",
+    "comName": "Philadelphia Vireo",
+    "sciName": "Vireo philadelphicus",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "reevir1",
+    "comName": "Red-eyed Vireo",
+    "sciName": "Vireo olivaceus",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "wewvir2",
+    "comName": "Western Warbling Vireo",
+    "sciName": "Vireo swainsoni",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "whevir",
+    "comName": "White-eyed Vireo",
+    "sciName": "Vireo griseus",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "yegvir",
+    "comName": "Yellow-green Vireo",
+    "sciName": "Vireo flavoviridis",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "yetvir",
+    "comName": "Yellow-throated Vireo",
+    "sciName": "Vireo flavifrons",
+    "group": "Vireos"
+  },
+  {
+    "speciesCode": "amebit",
+    "comName": "American Bittern",
+    "sciName": "Botaurus lentiginosus",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "y00475",
+    "comName": "American Coot",
+    "sciName": "Fulica americana",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "azugal1",
+    "comName": "Azure Gallinule",
+    "sciName": "Porphyrio flavirostris",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "blkrai",
+    "comName": "Black Rail",
+    "sciName": "Laterallus jamaicensis",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "bcnher",
+    "comName": "Black-crowned Night Heron",
+    "sciName": "Nycticorax nycticorax",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "clarai11",
+    "comName": "Clapper Rail",
+    "sciName": "Rallus crepitans",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "comcra",
+    "comName": "Common Crane",
+    "sciName": "Grus grus",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "comgal1",
+    "comName": "Common Gallinule",
+    "sciName": "Gallinula galeata",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "corcra",
+    "comName": "Corn Crake",
+    "sciName": "Crex crex",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "gloibi",
+    "comName": "Glossy Ibis",
+    "sciName": "Plegadis falcinellus",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "grccra1",
+    "comName": "Gray Crowned-Crane",
+    "sciName": "Balearica regulorum",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "graher1",
+    "comName": "Gray Heron",
+    "sciName": "Ardea cinerea",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "grbher3",
+    "comName": "Great Blue Heron",
+    "sciName": "Ardea herodias",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "greegr",
+    "comName": "Great Egret",
+    "sciName": "Ardea alba",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "grnher",
+    "comName": "Green Heron",
+    "sciName": "Butorides virescens",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "kinrai4",
+    "comName": "King Rail",
+    "sciName": "Rallus elegans",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "leabit",
+    "comName": "Least Bittern",
+    "sciName": "Botaurus exilis",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "limpki",
+    "comName": "Limpkin",
+    "sciName": "Aramus guarauna",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "libher",
+    "comName": "Little Blue Heron",
+    "sciName": "Egretta caerulea",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "litegr",
+    "comName": "Little Egret",
+    "sciName": "Egretta garzetta",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "purgal2",
+    "comName": "Purple Gallinule",
+    "sciName": "Porphyrio martinica",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "redegr",
+    "comName": "Reddish Egret",
+    "sciName": "Egretta rufescens",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "rosspo1",
+    "comName": "Roseate Spoonbill",
+    "sciName": "Platalea ajaja",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "sancra",
+    "comName": "Sandhill Crane",
+    "sciName": "Antigone canadensis",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "scaibi",
+    "comName": "Scarlet Ibis",
+    "sciName": "Eudocimus ruber",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "snoegr",
+    "comName": "Snowy Egret",
+    "sciName": "Egretta thula",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "sora",
+    "comName": "Sora",
+    "sciName": "Porzana carolina",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "sporai",
+    "comName": "Spotted Rail",
+    "sciName": "Pardirallus maculatus",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "triher",
+    "comName": "Tricolored Heron",
+    "sciName": "Egretta tricolor",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "virrai",
+    "comName": "Virginia Rail",
+    "sciName": "Rallus limicola",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "categr1",
+    "comName": "Western Cattle-Egret",
+    "sciName": "Ardea ibis",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "werher",
+    "comName": "Western Reef-Heron",
+    "sciName": "Egretta gularis",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "whiibi",
+    "comName": "White Ibis",
+    "sciName": "Eudocimus albus",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "whfibi",
+    "comName": "White-faced Ibis",
+    "sciName": "Plegadis chihi",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "whocra",
+    "comName": "Whooping Crane",
+    "sciName": "Grus americana",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "yelrai",
+    "comName": "Yellow Rail",
+    "sciName": "Coturnicops noveboracensis",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "ycnher",
+    "comName": "Yellow-crowned Night Heron",
+    "sciName": "Nyctanassa violacea",
+    "group": "Waders"
+  },
+  {
+    "speciesCode": "amered",
+    "comName": "American Redstart",
+    "sciName": "Setophaga ruticilla",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "babwar",
+    "comName": "Bay-breasted Warbler",
+    "sciName": "Setophaga castanea",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "bawwar",
+    "comName": "Black-and-white Warbler",
+    "sciName": "Mniotilta varia",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "btbwar",
+    "comName": "Black-throated Blue Warbler",
+    "sciName": "Setophaga caerulescens",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "btywar",
+    "comName": "Black-throated Gray Warbler",
+    "sciName": "Setophaga nigrescens",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "btnwar",
+    "comName": "Black-throated Green Warbler",
+    "sciName": "Setophaga virens",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "bkbwar",
+    "comName": "Blackburnian Warbler",
+    "sciName": "Setophaga fusca",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "bkpwar",
+    "comName": "Blackpoll Warbler",
+    "sciName": "Setophaga striata",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "buwwar",
+    "comName": "Blue-winged Warbler",
+    "sciName": "Vermivora cyanoptera",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "canwar",
+    "comName": "Canada Warbler",
+    "sciName": "Cardellina canadensis",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "camwar",
+    "comName": "Cape May Warbler",
+    "sciName": "Setophaga tigrina",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "cerwar",
+    "comName": "Cerulean Warbler",
+    "sciName": "Setophaga cerulea",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "chswar",
+    "comName": "Chestnut-sided Warbler",
+    "sciName": "Setophaga pensylvanica",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "comyel",
+    "comName": "Common Yellowthroat",
+    "sciName": "Geothlypis trichas",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "conwar",
+    "comName": "Connecticut Warbler",
+    "sciName": "Oporornis agilis",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "gowwar",
+    "comName": "Golden-winged Warbler",
+    "sciName": "Vermivora chrysoptera",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "grawar",
+    "comName": "Grace's Warbler",
+    "sciName": "Setophaga graciae",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "herwar",
+    "comName": "Hermit Warbler",
+    "sciName": "Setophaga occidentalis",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "hoowar",
+    "comName": "Hooded Warbler",
+    "sciName": "Setophaga citrina",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "kenwar",
+    "comName": "Kentucky Warbler",
+    "sciName": "Geothlypis formosa",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "kirwar",
+    "comName": "Kirtland's Warbler",
+    "sciName": "Setophaga kirtlandii",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "louwat",
+    "comName": "Louisiana Waterthrush",
+    "sciName": "Parkesia motacilla",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "lucwar",
+    "comName": "Lucy's Warbler",
+    "sciName": "Leiothlypis luciae",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "macwar",
+    "comName": "MacGillivray's Warbler",
+    "sciName": "Geothlypis tolmiei",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "magwar",
+    "comName": "Magnolia Warbler",
+    "sciName": "Setophaga magnolia",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "mouwar",
+    "comName": "Mourning Warbler",
+    "sciName": "Geothlypis philadelphia",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "naswar",
+    "comName": "Nashville Warbler",
+    "sciName": "Leiothlypis ruficapilla",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "norpar",
+    "comName": "Northern Parula",
+    "sciName": "Setophaga americana",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "norwat",
+    "comName": "Northern Waterthrush",
+    "sciName": "Parkesia noveboracensis",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "yelwar1",
+    "comName": "Northern Yellow Warbler",
+    "sciName": "Setophaga aestiva",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "orcwar",
+    "comName": "Orange-crowned Warbler",
+    "sciName": "Leiothlypis celata",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "ovenbi1",
+    "comName": "Ovenbird",
+    "sciName": "Seiurus aurocapilla",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "paired",
+    "comName": "Painted Redstart",
+    "sciName": "Myioborus pictus",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "palwar",
+    "comName": "Palm Warbler",
+    "sciName": "Setophaga palmarum",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "pinwar",
+    "comName": "Pine Warbler",
+    "sciName": "Setophaga pinus",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "prawar",
+    "comName": "Prairie Warbler",
+    "sciName": "Setophaga discolor",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "prowar",
+    "comName": "Prothonotary Warbler",
+    "sciName": "Protonotaria citrea",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "swawar",
+    "comName": "Swainson's Warbler",
+    "sciName": "Limnothlypis swainsonii",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "tenwar",
+    "comName": "Tennessee Warbler",
+    "sciName": "Leiothlypis peregrina",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "towwar",
+    "comName": "Townsend's Warbler",
+    "sciName": "Setophaga townsendi",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "virwar",
+    "comName": "Virginia's Warbler",
+    "sciName": "Leiothlypis virginiae",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "wlswar",
+    "comName": "Wilson's Warbler",
+    "sciName": "Cardellina pusilla",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "woewar1",
+    "comName": "Worm-eating Warbler",
+    "sciName": "Helmitheros vermivorum",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "yerwar",
+    "comName": "Yellow-rumped Warbler",
+    "sciName": "Setophaga coronata",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "yetwar",
+    "comName": "Yellow-throated Warbler",
+    "sciName": "Setophaga dominica",
+    "group": "Warblers"
+  },
+  {
+    "speciesCode": "amwpel",
+    "comName": "American White Pelican",
+    "sciName": "Pelecanus erythrorhynchos",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "arcloo",
+    "comName": "Arctic Loon",
+    "sciName": "Gavia arctica",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "yenalb2",
+    "comName": "Atlantic Yellow-nosed Albatross",
+    "sciName": "Thalassarche chlororhynchos",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "barpet",
+    "comName": "Band-rumped Storm-Petrel",
+    "sciName": "Hydrobates castro",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "litshe1",
+    "comName": "Barolo Shearwater",
+    "sciName": "Puffinus baroli",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "berpet",
+    "comName": "Bermuda Petrel",
+    "sciName": "Pterodroma cahow",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "bkbalb",
+    "comName": "Black-browed Albatross",
+    "sciName": "Thalassarche melanophris",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "bkcpet",
+    "comName": "Black-capped Petrel",
+    "sciName": "Pterodroma hasitata",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "brnboo",
+    "comName": "Brown Booby",
+    "sciName": "Sula leucogaster",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "brnpel",
+    "comName": "Brown Pelican",
+    "sciName": "Pelecanus occidentalis",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "bulshe",
+    "comName": "Buller's Shearwater",
+    "sciName": "Ardenna bulleri",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "cavshe1",
+    "comName": "Cape Verde Shearwater",
+    "sciName": "Calonectris edwardsii",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "clagre",
+    "comName": "Clark's Grebe",
+    "sciName": "Aechmophorus clarkii",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "comloo",
+    "comName": "Common Loon",
+    "sciName": "Gavia immer",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "corshe1",
+    "comName": "Cory's Shearwater",
+    "sciName": "Calonectris borealis",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "feapet2",
+    "comName": "Desertas Petrel",
+    "sciName": "Pterodroma deserta",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "doccor",
+    "comName": "Double-crested Cormorant",
+    "sciName": "Nannopterum auritum",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "eargre",
+    "comName": "Eared Grebe",
+    "sciName": "Podiceps nigricollis",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "bripet",
+    "comName": "European Storm-Petrel",
+    "sciName": "Hydrobates pelagicus",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "grecor",
+    "comName": "Great Cormorant",
+    "sciName": "Phalacrocorax carbo",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "greshe",
+    "comName": "Great Shearwater",
+    "sciName": "Ardenna gravis",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "horgre",
+    "comName": "Horned Grebe",
+    "sciName": "Podiceps auritus",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "jufpet",
+    "comName": "Juan Fernandez Petrel",
+    "sciName": "Pterodroma externa",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "lcspet",
+    "comName": "Leach's Storm-Petrel",
+    "sciName": "Hydrobates leucorhous",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "lesfri",
+    "comName": "Lesser Frigatebird",
+    "sciName": "Fregata ariel",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "magfri",
+    "comName": "Magnificent Frigatebird",
+    "sciName": "Fregata magnificens",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "manshe",
+    "comName": "Manx Shearwater",
+    "sciName": "Puffinus puffinus",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "masboo",
+    "comName": "Masked Booby",
+    "sciName": "Sula dactylatra",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "motpet",
+    "comName": "Mottled Petrel",
+    "sciName": "Pterodroma inexpectata",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "neocor",
+    "comName": "Neotropic Cormorant",
+    "sciName": "Nannopterum brasilianum",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "norful",
+    "comName": "Northern Fulmar",
+    "sciName": "Fulmarus glacialis",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "norgan",
+    "comName": "Northern Gannet",
+    "sciName": "Morus bassanus",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "pacloo",
+    "comName": "Pacific Loon",
+    "sciName": "Gavia pacifica",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "pibgre",
+    "comName": "Pied-billed Grebe",
+    "sciName": "Podilymbus podiceps",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "rebtro",
+    "comName": "Red-billed Tropicbird",
+    "sciName": "Phaethon aethereus",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "refboo",
+    "comName": "Red-footed Booby",
+    "sciName": "Sula sula",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "rengre",
+    "comName": "Red-necked Grebe",
+    "sciName": "Podiceps grisegena",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "retloo",
+    "comName": "Red-throated Loon",
+    "sciName": "Gavia stellata",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "audshe",
+    "comName": "Sargasso Shearwater",
+    "sciName": "Puffinus lherminieri",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "scoshe1",
+    "comName": "Scopoli's Shearwater",
+    "sciName": "Calonectris diomedea",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "shtshe",
+    "comName": "Short-tailed Shearwater",
+    "sciName": "Ardenna tenuirostris",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "sooshe",
+    "comName": "Sooty Shearwater",
+    "sciName": "Ardenna grisea",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "strshe",
+    "comName": "Streaked Shearwater",
+    "sciName": "Calonectris leucomelas",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "tripet1",
+    "comName": "Trindade Petrel",
+    "sciName": "Pterodroma arminjoniana",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "wesgre",
+    "comName": "Western Grebe",
+    "sciName": "Aechmophorus occidentalis",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "wfspet",
+    "comName": "White-faced Storm-Petrel",
+    "sciName": "Pelagodroma marina",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "whttro",
+    "comName": "White-tailed Tropicbird",
+    "sciName": "Phaethon lepturus",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "wispet",
+    "comName": "Wilson's Storm-Petrel",
+    "sciName": "Oceanites oceanicus",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "woosto",
+    "comName": "Wood Stork",
+    "sciName": "Mycteria americana",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "yebloo",
+    "comName": "Yellow-billed Loon",
+    "sciName": "Gavia adamsii",
+    "group": "Waterbirds"
+  },
+  {
+    "speciesCode": "ambduc",
+    "comName": "American Black Duck",
+    "sciName": "Anas rubripes",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "amewig",
+    "comName": "American Wigeon",
+    "sciName": "Mareca americana",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "baepoc1",
+    "comName": "Baer's Pochard",
+    "sciName": "Aythya baeri",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "bahgoo",
+    "comName": "Bar-headed Goose",
+    "sciName": "Anser indicus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "bargoo",
+    "comName": "Barnacle Goose",
+    "sciName": "Branta leucopsis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "bargol",
+    "comName": "Barrow's Goldeneye",
+    "sciName": "Bucephala islandica",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "blksco2",
+    "comName": "Black Scoter",
+    "sciName": "Melanitta americana",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "blkswa",
+    "comName": "Black Swan",
+    "sciName": "Cygnus atratus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "bbwduc",
+    "comName": "Black-bellied Whistling-Duck",
+    "sciName": "Dendrocygna autumnalis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "blnswa2",
+    "comName": "Black-necked Swan",
+    "sciName": "Cygnus melancoryphus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "buwtea",
+    "comName": "Blue-winged Teal",
+    "sciName": "Spatula discors",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "brant",
+    "comName": "Brant",
+    "sciName": "Branta bernicla",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "buffle",
+    "comName": "Bufflehead",
+    "sciName": "Bucephala albeola",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "cacgoo1",
+    "comName": "Cackling Goose",
+    "sciName": "Branta hutchinsii",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "cangoo",
+    "comName": "Canada Goose",
+    "sciName": "Branta canadensis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "canvas",
+    "comName": "Canvasback",
+    "sciName": "Aythya valisineria",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "cintea",
+    "comName": "Cinnamon Teal",
+    "sciName": "Spatula cyanoptera",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "comeid",
+    "comName": "Common Eider",
+    "sciName": "Somateria mollissima",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "comgol",
+    "comName": "Common Goldeneye",
+    "sciName": "Bucephala clangula",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "commer",
+    "comName": "Common Merganser",
+    "sciName": "Mergus merganser",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "compoc",
+    "comName": "Common Pochard",
+    "sciName": "Aythya ferina",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "comshe",
+    "comName": "Common Shelduck",
+    "sciName": "Tadorna tadorna",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "egygoo",
+    "comName": "Egyptian Goose",
+    "sciName": "Alopochen aegyptiaca",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "empgoo",
+    "comName": "Emperor Goose",
+    "sciName": "Anser canagicus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "eurwig",
+    "comName": "Eurasian Wigeon",
+    "sciName": "Mareca penelope",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "fuwduc",
+    "comName": "Fulvous Whistling-Duck",
+    "sciName": "Dendrocygna bicolor",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "gadwal",
+    "comName": "Gadwall",
+    "sciName": "Mareca strepera",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "gargan",
+    "comName": "Garganey",
+    "sciName": "Spatula querquedula",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "gragoo",
+    "comName": "Graylag Goose",
+    "sciName": "Anser anser",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "gresca",
+    "comName": "Greater Scaup",
+    "sciName": "Aythya marila",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "gwfgoo",
+    "comName": "Greater White-fronted Goose",
+    "sciName": "Anser albifrons",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "gnwtea",
+    "comName": "Green-winged Teal",
+    "sciName": "Anas crecca",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "harduc",
+    "comName": "Harlequin Duck",
+    "sciName": "Histrionicus histrionicus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "hoomer",
+    "comName": "Hooded Merganser",
+    "sciName": "Lophodytes cucullatus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "kineid",
+    "comName": "King Eider",
+    "sciName": "Somateria spectabilis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "labduc",
+    "comName": "Labrador Duck",
+    "sciName": "Camptorhynchus labradorius",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "lessca",
+    "comName": "Lesser Scaup",
+    "sciName": "Aythya affinis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "lwfgoo",
+    "comName": "Lesser White-fronted Goose",
+    "sciName": "Anser erythropus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "lotduc",
+    "comName": "Long-tailed Duck",
+    "sciName": "Clangula hyemalis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "mallar3",
+    "comName": "Mallard",
+    "sciName": "Anas platyrhynchos",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "manduc",
+    "comName": "Mandarin Duck",
+    "sciName": "Aix galericulata",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "manduc1",
+    "comName": "Maned Duck",
+    "sciName": "Chenonetta jubata",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "masduc",
+    "comName": "Masked Duck",
+    "sciName": "Nomonyx dominicus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "motduc",
+    "comName": "Mottled Duck",
+    "sciName": "Anas fulvigula",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "musduc",
+    "comName": "Muscovy Duck",
+    "sciName": "Cairina moschata",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "mutswa",
+    "comName": "Mute Swan",
+    "sciName": "Cygnus olor",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "norpin",
+    "comName": "Northern Pintail",
+    "sciName": "Anas acuta",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "norsho",
+    "comName": "Northern Shoveler",
+    "sciName": "Spatula clypeata",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "parshe1",
+    "comName": "Paradise Shelduck",
+    "sciName": "Tadorna variegata",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "pifgoo",
+    "comName": "Pink-footed Goose",
+    "sciName": "Anser brachyrhynchus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "rebgoo1",
+    "comName": "Red-breasted Goose",
+    "sciName": "Branta ruficollis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "rebmer",
+    "comName": "Red-breasted Merganser",
+    "sciName": "Mergus serrator",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "recpoc",
+    "comName": "Red-crested Pochard",
+    "sciName": "Netta rufina",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "redhea",
+    "comName": "Redhead",
+    "sciName": "Aythya americana",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "rinduc",
+    "comName": "Ring-necked Duck",
+    "sciName": "Aythya collaris",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "rintea1",
+    "comName": "Ringed Teal",
+    "sciName": "Callonetta leucophrys",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "rosgoo",
+    "comName": "Ross's Goose",
+    "sciName": "Anser rossii",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "rudduc",
+    "comName": "Ruddy Duck",
+    "sciName": "Oxyura jamaicensis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "rudshe",
+    "comName": "Ruddy Shelduck",
+    "sciName": "Tadorna ferruginea",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "smew",
+    "comName": "Smew",
+    "sciName": "Mergellus albellus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "snogoo",
+    "comName": "Snow Goose",
+    "sciName": "Anser caerulescens",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "soashe1",
+    "comName": "South African Shelduck",
+    "sciName": "Tadorna cana",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "steeid",
+    "comName": "Steller's Eider",
+    "sciName": "Polysticta stelleri",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "sursco",
+    "comName": "Surf Scoter",
+    "sciName": "Melanitta perspicillata",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "swagoo1",
+    "comName": "Swan Goose",
+    "sciName": "Anser cygnoides",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "taibeg1",
+    "comName": "Taiga Bean-Goose",
+    "sciName": "Anser fabalis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "truswa",
+    "comName": "Trumpeter Swan",
+    "sciName": "Cygnus buccinator",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "tufduc",
+    "comName": "Tufted Duck",
+    "sciName": "Aythya fuligula",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "tunbeg1",
+    "comName": "Tundra Bean-Goose",
+    "sciName": "Anser serrirostris",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "tunswa",
+    "comName": "Tundra Swan",
+    "sciName": "Cygnus columbianus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "whcpin",
+    "comName": "White-cheeked Pintail",
+    "sciName": "Anas bahamensis",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "whwsco2",
+    "comName": "White-winged Scoter",
+    "sciName": "Melanitta deglandi",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "whoswa",
+    "comName": "Whooper Swan",
+    "sciName": "Cygnus cygnus",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "wooduc",
+    "comName": "Wood Duck",
+    "sciName": "Aix sponsa",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "yebtea1",
+    "comName": "Yellow-billed Teal",
+    "sciName": "Anas flavirostris",
+    "group": "Waterfowl"
+  },
+  {
+    "speciesCode": "attwoo1",
+    "comName": "American Three-toed Woodpecker",
+    "sciName": "Picoides dorsalis",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "bkbwoo",
+    "comName": "Black-backed Woodpecker",
+    "sciName": "Picoides arcticus",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "dowwoo",
+    "comName": "Downy Woodpecker",
+    "sciName": "Dryobates pubescens",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "haiwoo",
+    "comName": "Hairy Woodpecker",
+    "sciName": "Leuconotopicus villosus",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "lewwoo",
+    "comName": "Lewis's Woodpecker",
+    "sciName": "Melanerpes lewis",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "norfli",
+    "comName": "Northern Flicker",
+    "sciName": "Colaptes auratus",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "pilwoo",
+    "comName": "Pileated Woodpecker",
+    "sciName": "Dryocopus pileatus",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "rebwoo",
+    "comName": "Red-bellied Woodpecker",
+    "sciName": "Melanerpes carolinus",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "rehwoo",
+    "comName": "Red-headed Woodpecker",
+    "sciName": "Melanerpes erythrocephalus",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "wilsap",
+    "comName": "Williamson's Sapsucker",
+    "sciName": "Sphyrapicus thyroideus",
+    "group": "Woodpeckers"
+  },
+  {
+    "speciesCode": "yebsap",
+    "comName": "Yellow-bellied Sapsucker",
+    "sciName": "Sphyrapicus varius",
+    "group": "Woodpeckers"
+  }
 ]

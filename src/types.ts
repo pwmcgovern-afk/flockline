@@ -61,3 +61,28 @@ export type ConfigResponse = {
   presets: Species[];
   maxBackDays: number;
 };
+
+export type InsightKind = "rarity" | "wide" | "surge";
+
+export type Insight = {
+  kind: InsightKind;
+  title: string;
+  detail: string;
+  speciesCode?: string;
+  comName?: string;
+  locName?: string;
+  region?: string;
+  obsDt?: string;
+  subId?: string;
+  generatedBy?: "llm" | "template";
+};
+
+export type InsightsResponse = {
+  generatedAt: string;
+  source: "ebird" | "demo";
+  generator: "llm" | "template";
+  cached?: boolean;
+  back: number;
+  regions: string[];
+  findings: Insight[];
+};

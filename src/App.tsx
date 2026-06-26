@@ -17,11 +17,24 @@ import {
   Search,
   ShieldCheck,
   SlidersHorizontal,
+  Sparkles,
+  Feather,
+  TrendingUp,
+  X,
   Wifi,
   WifiOff
 } from "lucide-react";
 import speciesCatalog from "../shared/speciesCatalog.json";
-import type { ConfigResponse, Region, SightingFeature, SightingsResponse, Species } from "./types";
+import type {
+  ConfigResponse,
+  Insight,
+  InsightKind,
+  InsightsResponse,
+  Region,
+  SightingFeature,
+  SightingsResponse,
+  Species
+} from "./types";
 
 const defaultStates: Region[] = [
   { code: "US-ME", abbr: "ME", name: "Maine", center: [44.6939, -69.3819] },
@@ -37,7 +50,13 @@ const defaultStates: Region[] = [
 
 const defaultPresets = speciesCatalog as Species[];
 const defaultSpecies = defaultPresets.find((species) => species.speciesCode === "osprey") ?? defaultPresets[0];
-const libraryGroups = ["All", "Raptors", "Backyard", "Waterfowl", "Warblers", "Coastal"];
+// Browse-tab order: most birder-salient groups first, the long tail after.
+// Tabs are derived from whatever groups the catalog actually contains.
+const groupOrder = [
+  "Raptors", "Waterfowl", "Shorebirds", "Coastal", "Waders", "Waterbirds",
+  "Warblers", "Sparrows", "Grosbeaks", "Blackbirds", "Flycatchers", "Vireos",
+  "Woodpeckers", "Corvids", "Aerial", "Upland", "Owls", "Backyard", "Other"
+];
 
 type TimelineMode = "daily" | "cumulative";
 
@@ -58,7 +77,7 @@ export default function App() {
   const [speciesGroup, setSpeciesGroup] = useState("All");
   const [lookbackDays, setLookbackDays] = useState(7);
   const [selectedDayIndex, setSelectedDayIndex] = useState(6);
-  const [timelineMode, setTimelineMode] = useState<TimelineMode>("cumulative");
+  const [timelineMode, setTimelineMode] = useState<TimelineMode>("daily");
   const [playing, setPlaying] = useState(false);
   const [includeProvisional, setIncludeProvisional] = useState(true);
   const [hotspotsOnly, setHotspotsOnly] = useState(false);
@@ -68,6 +87,37 @@ export default function App() {
   const [payload, setPayload] = useState<SightingsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [insightsOpen, setInsightsOpen] = useState(false);
+  const [insights, setInsights] = useState<InsightsResponse | null>(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [insightsError, setInsightsError] = useState("");
+
+  const loadInsights = useCallback(async () => {
+    setInsightsLoading(true);
+    setInsightsError("");
+    try {
+      const response = await fetch("/api/insights");
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Insights request failed.");
+      }
+      setInsights(data);
+    } catch (requestError) {
+      setInsightsError(requestError instanceof Error ? requestError.message : "Insights request failed.");
+    } finally {
+      setInsightsLoading(false);
+    }
+  }, []);
+
+  const toggleInsights = () => {
+    setInsightsOpen((open) => {
+      const next = !open;
+      if (next && !insights && !insightsLoading) {
+        void loadInsights();
+      }
+      return next;
+    });
+  };
 
   const dateKeys = useMemo(() => buildDateKeys(lookbackDays), [lookbackDays]);
   const selectedDateKey = dateKeys[selectedDayIndex] ?? dateKeys[dateKeys.length - 1] ?? todayKey();
@@ -120,6 +170,12 @@ export default function App() {
   const filteredCatalog = useMemo(() => {
     return speciesGroup === "All" ? presets : presets.filter((species) => species.group === speciesGroup);
   }, [presets, speciesGroup]);
+  const libraryGroups = useMemo(() => {
+    const present = new Set(presets.map((species) => species.group));
+    const ordered = groupOrder.filter((group) => present.has(group));
+    const extras = [...present].filter((group) => !groupOrder.includes(group)).sort();
+    return ["All", ...ordered, ...extras];
+  }, [presets]);
 
   useEffect(() => {
     fetch("/api/config")
@@ -403,6 +459,15 @@ export default function App() {
             <Database size={14} />
             {presets.length} birds
           </span>
+          <button
+            type="button"
+            className={`status-badge insights-trigger ${insightsOpen ? "active" : ""}`}
+            onClick={toggleInsights}
+            aria-expanded={insightsOpen}
+          >
+            <Sparkles size={14} />
+            Insights
+          </button>
         </div>
 
         <section className="active-species-card" aria-label="Selected species">
@@ -572,6 +637,82 @@ export default function App() {
         </footer>
       </aside>
 
+      {insightsOpen ? (
+        <aside className="insights-panel" aria-label="Recent insights">
+          <header className="insights-head">
+            <div>
+              <p className="eyebrow">Field Notes · New England</p>
+              <h2>Recent Insights</h2>
+            </div>
+            <button
+              type="button"
+              className="insights-close"
+              onClick={() => setInsightsOpen(false)}
+              aria-label="Close insights"
+            >
+              <X size={18} />
+            </button>
+          </header>
+
+          {insightsLoading ? (
+            <p className="insights-status">Reading recent checklists…</p>
+          ) : insightsError ? (
+            <p className="insights-status error">{insightsError}</p>
+          ) : insights && insights.findings.length ? (
+            <>
+              <div className="insights-list">
+                {insights.findings.map((finding: Insight, index) => (
+                  <article className={`insight-card ${finding.kind}`} key={`${finding.speciesCode ?? "x"}-${index}`}>
+                    <span className="insight-icon">{insightIcon(finding.kind)}</span>
+                    <div className="insight-body">
+                      <h3>{finding.title}</h3>
+                      <p>{finding.detail}</p>
+                      <div className="insight-meta">
+                        {finding.region ? (
+                          <span className="insight-place">
+                            <MapPin size={12} />
+                            {finding.region}
+                          </span>
+                        ) : null}
+                        {finding.subId ? (
+                          <a href={`https://ebird.org/checklist/${finding.subId}`} target="_blank" rel="noreferrer">
+                            Checklist
+                            <ExternalLink size={12} />
+                          </a>
+                        ) : null}
+                      </div>
+                      {finding.speciesCode ? (
+                        <button
+                          type="button"
+                          className="insight-map"
+                          onClick={() => {
+                            selectSpecies({
+                              speciesCode: finding.speciesCode as string,
+                              comName: finding.comName || (finding.speciesCode as string),
+                              sciName: "",
+                              group: "Species"
+                            });
+                            setInsightsOpen(false);
+                          }}
+                        >
+                          View on map
+                        </button>
+                      ) : null}
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <footer className="insights-foot">
+                {insights.generator === "llm" ? "Written by Claude" : "From eBird notable sightings"} · updated{" "}
+                {formatShortDateTime(insights.generatedAt)}
+              </footer>
+            </>
+          ) : (
+            <p className="insights-status">No notable sightings in the last two weeks.</p>
+          )}
+        </aside>
+      ) : null}
+
       <section className="metric-rail" aria-label="Visible sightings summary">
         <div>
           <strong>{visibleStats.sightings.toLocaleString()}</strong>
@@ -678,17 +819,23 @@ export default function App() {
               type="button"
               className={timelineMode === "daily" ? "active" : ""}
               onClick={() => setTimelineMode("daily")}
-              title="Only locations whose most recent eBird report falls on the selected day. A spot seen all week shows once, on its newest date."
             >
               New
+              <span className="seg-tip" role="tooltip">
+                Only locations whose most recent report is the selected day. A spot seen all week appears
+                once, on its newest date.
+              </span>
             </button>
             <button
               type="button"
               className={timelineMode === "cumulative" ? "active" : ""}
               onClick={() => setTimelineMode("cumulative")}
-              title="Every location reported across the window, building up to the selected day, colored by how recent each report is. This is the full picture."
             >
               Trail
+              <span className="seg-tip" role="tooltip">
+                Every location reported through the selected day, colored by how recent each report is.
+                The full picture.
+              </span>
             </button>
           </div>
 
@@ -771,6 +918,16 @@ function recencyBucket(index: number, length: number) {
     return "mid";
   }
   return "old";
+}
+
+function insightIcon(kind: InsightKind) {
+  if (kind === "wide") {
+    return <MapPin size={16} />;
+  }
+  if (kind === "surge") {
+    return <TrendingUp size={16} />;
+  }
+  return <Feather size={16} />;
 }
 
 function getFeatureColor(feature: SightingFeature, dateKeys: string[]) {
