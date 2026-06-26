@@ -91,12 +91,27 @@ button {
   min-height: 100vh;
   background: var(--bg);
   overflow: hidden;
+  /* Width reserved on the right for a docked drawer. 0 = drawers overlay. */
+  --dock: 0px;
+}
+
+/* On wide screens an open drawer docks: it reserves a column and the map,
+   metric rail, and timeline slide over so nothing hides behind it. */
+@media (min-width: 1100px) {
+  .app-shell.shell-docked {
+    --dock: 404px;
+  }
 }
 
 .map-stage,
 .map-canvas {
   position: absolute;
   inset: 0;
+}
+
+.map-stage {
+  right: var(--dock);
+  transition: right 0.32s var(--ease);
 }
 
 .map-canvas {
@@ -200,6 +215,37 @@ h1 {
   color: var(--text-dim);
   font-size: 0.82rem;
   line-height: 1.35;
+}
+
+.brand-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.brand-action {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--hair-2);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  background: var(--panel);
+  cursor: pointer;
+  transition: color 0.16s var(--ease), border-color 0.16s var(--ease), background 0.16s var(--ease);
+}
+
+.brand-action:hover {
+  color: var(--green-deep);
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.brand-action:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 /* Status strip */
@@ -631,8 +677,7 @@ h1 {
 .library-tabs button,
 .species-library-grid button,
 .state-grid button,
-.segmented button,
-.refresh-button {
+.segmented button {
   min-height: 36px;
   border: 1px solid var(--hair-2);
   border-radius: var(--radius-sm);
@@ -787,28 +832,6 @@ h1 {
   transform: translateX(18px);
 }
 
-/* Refresh CTA — primary green button */
-.refresh-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 44px;
-  margin-top: 16px;
-  color: #fff;
-  background: var(--green);
-  border-color: transparent;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  box-shadow: 0 8px 18px -9px rgba(31, 138, 76, 0.6);
-}
-
-.refresh-button:hover {
-  background: var(--green-bright);
-  transform: translateY(-1px);
-}
-
 .spin {
   animation: spin 0.9s linear infinite;
 }
@@ -844,7 +867,7 @@ h1 {
   position: absolute;
   z-index: 610;
   top: 22px;
-  right: 22px;
+  right: calc(22px + var(--dock));
   gap: 0;
   overflow: hidden;
   border: 1px solid var(--hair);
@@ -852,6 +875,7 @@ h1 {
   background: var(--panel);
   box-shadow: var(--shadow);
   animation: riseIn 0.5s var(--ease) 0.1s both;
+  transition: right 0.32s var(--ease);
 }
 
 .metric-rail div {
@@ -892,7 +916,7 @@ h1 {
 .timeline-dock {
   position: absolute;
   z-index: 620;
-  right: 22px;
+  right: calc(22px + var(--dock));
   bottom: 22px;
   left: 470px;
   display: grid;
@@ -903,6 +927,7 @@ h1 {
   background: var(--panel);
   box-shadow: var(--shadow);
   animation: dockIn 0.55s var(--ease) 0.08s both;
+  transition: right 0.32s var(--ease);
 }
 
 .timeline-summary {
@@ -1906,6 +1931,172 @@ input[type="range"] {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+/* ============================================================================
+   Product tour — dim backdrop, spotlight cut-out, floating tooltip
+   ========================================================================== */
+.tour-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+.tour-catch {
+  position: absolute;
+  inset: 0;
+}
+
+.tour-catch.dim {
+  background: rgba(11, 24, 16, 0.5);
+  animation: tourFade 0.2s var(--ease) both;
+}
+
+/* The big box-shadow is the dim; the gap it leaves is the spotlight. */
+.tour-spotlight {
+  position: fixed;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 9999px rgba(11, 24, 16, 0.55);
+  pointer-events: none;
+  transition: top 0.3s var(--ease), left 0.3s var(--ease), width 0.3s var(--ease), height 0.3s var(--ease);
+}
+
+.tour-tip {
+  position: fixed;
+  z-index: 2;
+  width: 304px;
+  max-width: calc(100vw - 32px);
+  padding: 18px 18px 16px;
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  box-shadow: 0 24px 60px -20px rgba(20, 45, 30, 0.5);
+  transition: top 0.28s var(--ease), left 0.28s var(--ease);
+  animation: tourPop 0.24s var(--ease) both;
+}
+
+.tour-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text-faint);
+  background: transparent;
+  cursor: pointer;
+}
+.tour-close:hover {
+  color: var(--ink);
+  background: var(--bg-2);
+}
+
+.tour-count {
+  display: inline-block;
+  color: var(--green-deep);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tour-tip h3 {
+  margin: 6px 0;
+  padding-right: 22px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.18rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.tour-body {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.tour-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.tour-skip {
+  border: 0;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tour-skip:hover {
+  color: var(--text-dim);
+}
+
+.tour-back {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--hair-2);
+  border-radius: var(--pill);
+  color: var(--text-dim);
+  background: var(--panel);
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.tour-back:hover {
+  border-color: var(--green);
+  color: var(--green-deep);
+}
+
+.tour-next {
+  min-height: 34px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: var(--pill);
+  color: #fff;
+  background: var(--green);
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  box-shadow: 0 8px 16px -9px rgba(31, 138, 76, 0.7);
+}
+.tour-next:hover {
+  background: var(--green-bright);
+  transform: translateY(-1px);
+}
+
+@keyframes tourFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tourPop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

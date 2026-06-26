@@ -4,6 +4,7 @@ import {
   Bird,
   CalendarDays,
   Clock,
+  Compass,
   Database,
   ExternalLink,
   Info,
@@ -27,6 +28,7 @@ import {
   Wifi,
   WifiOff
 } from "lucide-react";
+import Tour, { type TourStep } from "./Tour";
 import speciesCatalog from "../shared/speciesCatalog.json";
 import type {
   ChatMessage,
@@ -102,6 +104,53 @@ function samplePrompts(pool: string[], count: number) {
   return copy.slice(0, count);
 }
 
+const TOUR_SEEN_KEY = "flockline.tourSeen";
+
+// Walked through on first visit, and re-openable from the compass button.
+// Steps whose target is hidden (e.g. the metric rail on mobile) are skipped.
+const TOUR_STEPS: TourStep[] = [
+  {
+    side: "center",
+    title: "Welcome to Flockline",
+    body: "A live map of bird movement across the Northeast, drawn from eBird checklists. Here is the 30-second tour."
+  },
+  {
+    target: ".active-species-card",
+    side: "right",
+    title: "Pick a species and states",
+    body: "Search 714 species and choose which states to include. The map plots their recent sightings right away."
+  },
+  {
+    target: ".timeline-dock",
+    side: "top",
+    title: "Scrub the timeline",
+    body: "Drag through the days to watch movement. Trail shows the full picture, New shows only the freshest reports per spot."
+  },
+  {
+    target: ".metric-rail",
+    side: "bottom",
+    title: "Honest counts",
+    body: "On map, in window, total birds, and states. Common birds are under-reported on eBird, so treat these as floors, not totals."
+  },
+  {
+    target: ".insights-trigger",
+    side: "bottom",
+    title: "Insights",
+    body: "A running list of the rarest and most notable birds around New England, refreshed through the day."
+  },
+  {
+    target: ".chat-trigger",
+    side: "bottom",
+    title: "Ask the assistant",
+    body: "Ask anything about birds and their recent activity. Answers come back live from eBird, with spots and dates."
+  },
+  {
+    side: "center",
+    title: "You're all set",
+    body: "Reopen this tour anytime from the compass button in the header. Happy birding."
+  }
+];
+
 export default function App() {
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -140,6 +189,11 @@ export default function App() {
   const [chatError, setChatError] = useState("");
   const [chatSuggestions, setChatSuggestions] = useState<string[]>([]);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
+  const [tourOpen, setTourOpen] = useState(false);
+  // Wide screens dock the drawers (push the map over); narrow screens overlay.
+  const [isWide, setIsWide] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 1100px)").matches
+  );
 
   const loadInsights = useCallback(async () => {
     setInsightsLoading(true);
@@ -468,7 +522,11 @@ export default function App() {
 
   const viewSpeciesFromChat = (ref: ChatSpeciesRef) => {
     selectSpecies({ speciesCode: ref.speciesCode, comName: ref.comName, sciName: "", group: "Species" });
-    setChatOpen(false);
+    // When docked the panel sits beside the map, so keep it open; when it
+    // overlays (narrow screens), close it so the map is visible.
+    if (!isWide) {
+      setChatOpen(false);
+    }
   };
 
   // Keep the transcript pinned to the latest message as it grows.
@@ -478,6 +536,48 @@ export default function App() {
       scroller.scrollTop = scroller.scrollHeight;
     }
   }, [chatMessages, chatLoading, chatOpen]);
+
+  // Track whether we're wide enough to dock the drawers (vs. overlay).
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 1100px)");
+    const handler = (event: MediaQueryListEvent) => setIsWide(event.matches);
+    query.addEventListener("change", handler);
+    return () => query.removeEventListener("change", handler);
+  }, []);
+
+  // Auto-open the tour the first time someone lands on Flockline.
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+        setTourOpen(true);
+      }
+    } catch {
+      // Private mode or blocked storage: just skip the auto-tour.
+    }
+  }, []);
+
+  // When a drawer docks or undocks, the map container resizes, so Leaflet has
+  // to re-measure after the slide transition or the tiles render at the old size.
+  const docked = (insightsOpen || chatOpen) && isWide;
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+    const timeout = window.setTimeout(() => map.invalidateSize({ animate: false }), 340);
+    return () => window.clearTimeout(timeout);
+  }, [docked]);
+
+  const openTour = () => setTourOpen(true);
+
+  const closeTour = () => {
+    setTourOpen(false);
+    try {
+      localStorage.setItem(TOUR_SEEN_KEY, "1");
+    } catch {
+      // Ignore storage failures; worst case the tour shows again next visit.
+    }
+  };
 
   const commitSearch = () => {
     const match =
@@ -554,7 +654,7 @@ export default function App() {
   const hasApiKey = config?.hasApiKey ?? false;
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell ${docked ? "shell-docked" : ""}`}>
       <section className="map-stage" aria-label="Sightings map">
         <div ref={mapElementRef} className="map-canvas" />
         <div className="map-vignette" />
@@ -575,6 +675,27 @@ export default function App() {
             <p className="eyebrow">Live Northeast Sightings</p>
             <h1>Flockline</h1>
             <p className="brand-tag">Live bird movement, charted from eBird checklists.</p>
+          </div>
+          <div className="brand-actions">
+            <button
+              type="button"
+              className="brand-action"
+              onClick={loadSightings}
+              disabled={loading}
+              title="Refresh sightings"
+              aria-label="Refresh sightings"
+            >
+              <RefreshCw size={16} className={loading ? "spin" : ""} />
+            </button>
+            <button
+              type="button"
+              className="brand-action"
+              onClick={openTour}
+              title="Take the tour"
+              aria-label="Take the tour"
+            >
+              <Compass size={16} />
+            </button>
           </div>
         </header>
 
@@ -788,11 +909,6 @@ export default function App() {
           </label>
         </section>
 
-        <button type="button" className="refresh-button" onClick={loadSightings}>
-          <RefreshCw size={17} className={loading ? "spin" : ""} />
-          Refresh
-        </button>
-
         {error ? <p className="error-line">{error}</p> : null}
 
         <footer className="panel-footer">
@@ -856,7 +972,9 @@ export default function App() {
                               sciName: "",
                               group: "Species"
                             });
-                            setInsightsOpen(false);
+                            if (!isWide) {
+                              setInsightsOpen(false);
+                            }
                           }}
                         >
                           View on map
@@ -1138,6 +1256,8 @@ export default function App() {
           )}
         </p>
       </section>
+
+      <Tour open={tourOpen} steps={TOUR_STEPS} onClose={closeTour} />
     </main>
   );
 }
