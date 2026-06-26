@@ -2101,6 +2101,205 @@ input[type="range"] {
 }
 
 /* ============================================================================
+   Methodology — status-strip link + standalone content page (/#methodology)
+   ========================================================================== */
+.methodology-trigger {
+  cursor: pointer;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.methodology-trigger:hover {
+  color: var(--ink);
+  border-color: var(--hair-2);
+  background: var(--bg-2);
+  transform: translateY(-1px);
+}
+
+/* Fixed, self-scrolling layer so it scrolls regardless of the app's global
+   body { overflow: hidden } (set for the full-screen map). */
+.methodology-page {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  background: var(--bg);
+  background-image:
+    radial-gradient(60% 50% at 50% -10%, rgba(31, 138, 76, 0.07), transparent 70%);
+}
+
+.methodology-col {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 24px 72px;
+}
+
+.methodology-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.methodology-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green-deep);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.methodology-back:hover {
+  text-decoration: underline;
+}
+
+.methodology-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.methodology-mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: #fff;
+  background: linear-gradient(150deg, var(--red), var(--red-deep));
+  box-shadow: 0 6px 14px -8px rgba(192, 39, 31, 0.6);
+}
+
+.methodology-eyebrow {
+  margin: 0;
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.methodology-col h1 {
+  margin: 8px 0 0;
+  font-size: 2.6rem;
+  line-height: 1.04;
+}
+
+.methodology-lede {
+  margin: 16px 0 0;
+  max-width: 62ch;
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.methodology-section {
+  margin-top: 38px;
+}
+
+.methodology-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.methodology-section h2 svg {
+  color: var(--green);
+}
+
+.methodology-section p {
+  margin: 0 0 12px;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.62;
+}
+
+.methodology-section ul {
+  margin: 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.methodology-section li {
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.methodology-section li::marker {
+  color: var(--green);
+}
+
+.methodology-section a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--green-deep);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.methodology-section a:hover {
+  text-decoration: underline;
+}
+
+.methodology-callout {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  margin: 4px 0 0 !important;
+  padding: 14px 16px;
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--radius);
+  background: var(--blue-soft);
+  color: var(--ink) !important;
+}
+
+.methodology-callout svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--blue);
+}
+
+/* The "read the data honestly" section, visually flagged as the key takeaway. */
+.methodology-flag {
+  padding: 22px 24px;
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-lg);
+  background: var(--gold-soft);
+}
+
+.methodology-flag h2 svg {
+  color: #9a6a0a;
+}
+
+.methodology-foot {
+  margin-top: 44px;
+  padding-top: 22px;
+  border-top: 1px solid var(--hair);
+}
+
+/* ============================================================================
    Responsive
    ========================================================================== */
 @media (max-width: 1100px) {
@@ -2120,6 +2319,18 @@ input[type="range"] {
 
   .app-shell {
     min-height: 100svh;
+  }
+
+  .methodology-col {
+    padding: 24px 18px 56px;
+  }
+
+  .methodology-col h1 {
+    font-size: 2.05rem;
+  }
+
+  .methodology-flag {
+    padding: 18px 16px;
   }
 
   .map-stage {

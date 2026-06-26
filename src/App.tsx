@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import L from "leaflet";
 import {
   Bird,
+  BookOpen,
   CalendarDays,
   Clock,
   Compass,
@@ -789,6 +790,10 @@ export default function App() {
             <MessageCircle size={14} />
             Ask
           </button>
+          <a className="status-badge methodology-trigger" href="#methodology">
+            <BookOpen size={14} />
+            Methodology
+          </a>
         </div>
 
         <section className="active-species-card" aria-label="Selected species">
