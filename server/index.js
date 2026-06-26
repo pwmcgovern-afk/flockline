@@ -101,6 +101,7 @@ app.get("/api/sightings", async (request, response) => {
   const back = clampInteger(request.query.back, 1, 30, 7);
   const includeProvisional = parseBoolean(request.query.includeProvisional, true);
   const hotspot = parseBoolean(request.query.hotspot, false);
+  const fresh = parseBoolean(request.query.fresh, false);
   const requestedRegions = String(request.query.regions || "")
     .split(",")
     .map((region) => region.trim().toUpperCase())
@@ -121,10 +122,12 @@ app.get("/api/sightings", async (request, response) => {
     hotspot,
     regions
   });
-  const cached = getCache(cacheKey);
-  if (cached) {
-    response.json({ ...cached, cached: true });
-    return;
+  if (!fresh) {
+    const cached = getCache(cacheKey);
+    if (cached) {
+      response.json({ ...cached, cached: true });
+      return;
+    }
   }
 
   if (!ebirdApiKey) {
