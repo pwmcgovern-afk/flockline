@@ -100,9 +100,19 @@ export type ChatMessage = {
   speciesRefs?: ChatSpeciesRef[];
 };
 
+// The assistant can drive the map: load a species and optionally zoom to a spot.
+export type ChatMapAction = {
+  speciesCode: string;
+  comName: string;
+  lat: number | null;
+  lng: number | null;
+  locName: string | null;
+};
+
 export type ChatResponse = {
   reply: string;
   speciesRefs: ChatSpeciesRef[];
+  mapAction: ChatMapAction | null;
   toolsUsed: string[];
   generator: "llm" | "template";
   source: "ebird" | "demo";

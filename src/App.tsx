@@ -31,6 +31,7 @@ import {
 import Tour, { type TourStep } from "./Tour";
 import speciesCatalog from "../shared/speciesCatalog.json";
 import type {
+  ChatMapAction,
   ChatMessage,
   ChatSpeciesRef,
   ConfigResponse,
@@ -95,6 +96,10 @@ const CHAT_PROMPTS = [
   "What should I look for this weekend?"
 ];
 
+function prefersReducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 function samplePrompts(pool: string[], count: number) {
   const copy = [...pool];
   for (let index = copy.length - 1; index > 0; index -= 1) {
@@ -156,6 +161,9 @@ export default function App() {
   const mapRef = useRef<L.Map | null>(null);
   const sightingLayerRef = useRef<L.LayerGroup | null>(null);
   const lastFitKeyRef = useRef("");
+  // When the chat asks to zoom to a spot, the next data load flies here
+  // instead of fitting to all sightings.
+  const pendingFocusRef = useRef<{ lat: number; lng: number } | null>(null);
 
   const [config, setConfig] = useState<ConfigResponse | null>(null);
   const [states, setStates] = useState(defaultStates);
@@ -190,6 +198,8 @@ export default function App() {
   const [chatSuggestions, setChatSuggestions] = useState<string[]>([]);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
+  // Pending map action requested by the chat assistant (load species / zoom).
+  const [pendingMapAction, setPendingMapAction] = useState<ChatMapAction | null>(null);
   // Wide screens dock the drawers (push the map over); narrow screens overlay.
   const [isWide, setIsWide] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(min-width: 1100px)").matches
@@ -330,7 +340,7 @@ export default function App() {
     };
   }, [presets, speciesQuery]);
 
-  const loadSightings = useCallback(async () => {
+  const loadSightings = useCallback(async (options?: { force?: boolean }) => {
     if (!selectedRegions.length) {
       setPayload(null);
       setError("Select at least one state.");
@@ -344,6 +354,11 @@ export default function App() {
       hotspot: String(hotspotsOnly),
       regions: selectedRegions.join(",")
     });
+    // Force = bypass the 5-minute server cache and any CDN copy (unique URL).
+    if (options?.force) {
+      params.set("fresh", "1");
+      params.set("_t", String(Date.now()));
+    }
 
     setLoading(true);
     setError("");
@@ -453,12 +468,23 @@ export default function App() {
       return;
     }
     lastFitKeyRef.current = fitKey;
+
+    // If the chat asked to zoom to a specific spot, honor that instead of the
+    // broad fit-to-all-sightings view. Instant (no animation) so it lands
+    // reliably even when rAF-driven animation is throttled (background tabs).
+    const focus = pendingFocusRef.current;
+    if (focus) {
+      pendingFocusRef.current = null;
+      mapRef.current.setView([focus.lat, focus.lng], 11, { animate: false });
+      return;
+    }
+
     const bounds = L.latLngBounds(
       allFeatures.map((feature) => [feature.geometry.coordinates[1], feature.geometry.coordinates[0]] as [number, number])
     );
     mapRef.current.fitBounds(bounds.pad(0.16), {
       maxZoom: 8,
-      animate: true,
+      animate: !prefersReducedMotion(),
       duration: 0.55
     });
   }, [allFeatures, payload]);
@@ -511,6 +537,9 @@ export default function App() {
           ...current,
           { role: "assistant", content: data.reply, speciesRefs: data.speciesRefs ?? [] }
         ]);
+        if (data.mapAction) {
+          setPendingMapAction(data.mapAction);
+        }
       } catch (requestError) {
         setChatError(requestError instanceof Error ? requestError.message : "Chat request failed.");
       } finally {
@@ -536,6 +565,36 @@ export default function App() {
       scroller.scrollTop = scroller.scrollHeight;
     }
   }, [chatMessages, chatLoading, chatOpen]);
+
+  // Apply a map action the chat requested: load the species and, if it named a
+  // spot, zoom there (pendingFocusRef is consumed by the fit effect on reload).
+  useEffect(() => {
+    if (!pendingMapAction) {
+      return;
+    }
+    const action = pendingMapAction;
+    setPendingMapAction(null);
+    const hasFocus = action.lat != null && action.lng != null;
+    const sameSpecies = selectedSpecies.speciesCode === action.speciesCode;
+    if (hasFocus) {
+      pendingFocusRef.current = { lat: action.lat as number, lng: action.lng as number };
+    }
+    selectSpecies({
+      speciesCode: action.speciesCode,
+      comName: action.comName || action.speciesCode,
+      sciName: "",
+      group: "Species"
+    });
+    // If it's already the active species, no reload fires the focus move, so do it now.
+    if (sameSpecies && hasFocus && mapRef.current) {
+      pendingFocusRef.current = null;
+      mapRef.current.setView([action.lat as number, action.lng as number], 11, { animate: false });
+    }
+    // On narrow screens the chat covers the map, so close it to reveal the result.
+    if (!isWide) {
+      setChatOpen(false);
+    }
+  }, [pendingMapAction, selectedSpecies.speciesCode, isWide]);
 
   // Track whether we're wide enough to dock the drawers (vs. overlay).
   useEffect(() => {
@@ -680,9 +739,9 @@ export default function App() {
             <button
               type="button"
               className="brand-action"
-              onClick={loadSightings}
+              onClick={() => loadSightings({ force: true })}
               disabled={loading}
-              title="Refresh sightings"
+              title="Refresh sightings (latest from eBird)"
               aria-label="Refresh sightings"
             >
               <RefreshCw size={16} className={loading ? "spin" : ""} />
