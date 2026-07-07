@@ -210,29 +210,41 @@ export default function App() {
     () => typeof window !== "undefined" && window.matchMedia("(min-width: 1100px)").matches
   );
 
-  const loadInsights = useCallback(async () => {
-    setInsightsLoading(true);
-    setInsightsError("");
-    try {
-      const response = await fetch("/api/insights");
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Insights request failed.");
+  // Insights are scoped to the timeline window (lookbackDays). `fresh` forces a
+  // regenerate past both the server's 6h cache and any CDN copy (unique URL).
+  const loadInsights = useCallback(
+    async (options?: { fresh?: boolean }) => {
+      setInsightsLoading(true);
+      setInsightsError("");
+      try {
+        const params = new URLSearchParams({ back: String(lookbackDays) });
+        if (options?.fresh) {
+          params.set("fresh", "1");
+          params.set("_t", String(Date.now()));
+        }
+        const response = await fetch(`/api/insights?${params.toString()}`);
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Insights request failed.");
+        }
+        setInsights(data);
+      } catch (requestError) {
+        setInsightsError(requestError instanceof Error ? requestError.message : "Insights request failed.");
+      } finally {
+        setInsightsLoading(false);
       }
-      setInsights(data);
-    } catch (requestError) {
-      setInsightsError(requestError instanceof Error ? requestError.message : "Insights request failed.");
-    } finally {
-      setInsightsLoading(false);
-    }
-  }, []);
+    },
+    [lookbackDays]
+  );
 
   const toggleInsights = () => {
     setInsightsOpen((open) => {
       const next = !open;
       if (next) {
         setChatOpen(false);
-        if (!insights && !insightsLoading) {
+        // Load on open if we have nothing yet, or if the timeline window has
+        // moved since the last run (cached result if it was seen recently).
+        if (!insightsLoading && (!insights || insights.back !== lookbackDays)) {
           void loadInsights();
         }
       }
@@ -1093,15 +1105,45 @@ export default function App() {
               <p className="eyebrow">Field Notes · New England</p>
               <h2>Recent Insights</h2>
             </div>
-            <button
-              type="button"
-              className="insights-close"
-              onClick={() => setInsightsOpen(false)}
-              aria-label="Close insights"
-            >
-              <X size={18} />
-            </button>
+            <div className="insights-head-actions">
+              <button
+                type="button"
+                className="insights-rerun"
+                onClick={() => void loadInsights({ fresh: true })}
+                disabled={insightsLoading}
+                title="Re-run insights for the current timeline window"
+                aria-label="Re-run insights"
+              >
+                <RefreshCw size={16} className={insightsLoading ? "spin" : ""} />
+              </button>
+              <button
+                type="button"
+                className="insights-close"
+                onClick={() => setInsightsOpen(false)}
+                aria-label="Close insights"
+              >
+                <X size={18} />
+              </button>
+            </div>
           </header>
+
+          <div className="insights-scope">
+            <span className="insights-window">
+              <CalendarDays size={13} />
+              Past {insights ? insights.back : lookbackDays} {(insights ? insights.back : lookbackDays) === 1 ? "day" : "days"}
+            </span>
+            {insights && !insightsLoading && insights.back !== lookbackDays ? (
+              <button
+                type="button"
+                className="insights-restale"
+                onClick={() => void loadInsights()}
+                title={`Update insights to the ${lookbackDays}-day timeline window`}
+              >
+                <RefreshCw size={12} />
+                Timeline is {lookbackDays}d now · update
+              </button>
+            ) : null}
+          </div>
 
           {insightsLoading ? (
             <p className="insights-status">Reading recent checklists…</p>
