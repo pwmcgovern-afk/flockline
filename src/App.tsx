@@ -165,12 +165,16 @@ export default function App() {
   // When the chat asks to zoom to a spot, the next data load flies here
   // instead of fitting to all sightings.
   const pendingFocusRef = useRef<{ lat: number; lng: number } | null>(null);
+  // Focus target for the species search and the scroll container for the browse
+  // grid, so clearing/selecting can bring the right thing into view.
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const speciesGridRef = useRef<HTMLDivElement | null>(null);
 
   const [config, setConfig] = useState<ConfigResponse | null>(null);
   const [states, setStates] = useState(defaultStates);
   const [presets, setPresets] = useState(defaultPresets);
   const [selectedRegions, setSelectedRegions] = useState(defaultStates.map((state) => state.code));
-  const [selectedSpecies, setSelectedSpecies] = useState<Species>(defaultSpecies);
+  const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(defaultSpecies);
   const [speciesQuery, setSpeciesQuery] = useState(defaultSpecies.comName);
   const [suggestions, setSuggestions] = useState<Species[]>(defaultPresets);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -342,6 +346,14 @@ export default function App() {
   }, [presets, speciesQuery]);
 
   const loadSightings = useCallback(async (options?: { force?: boolean }) => {
+    // No species chosen is the "browse all birds" state: clear the map and skip
+    // the API. Selecting a species (or clearing again) re-runs this effect.
+    if (!selectedSpecies) {
+      setPayload(null);
+      setError("");
+      setLoading(false);
+      return;
+    }
     if (!selectedRegions.length) {
       setPayload(null);
       setError("Select at least one state.");
@@ -377,7 +389,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [hotspotsOnly, includeProvisional, lookbackDays, selectedRegions, selectedSpecies.speciesCode]);
+  }, [hotspotsOnly, includeProvisional, lookbackDays, selectedRegions, selectedSpecies?.speciesCode]);
 
   useEffect(() => {
     const timeout = window.setTimeout(loadSightings, 360);
@@ -496,6 +508,17 @@ export default function App() {
     setSearchFocused(false);
   };
 
+  // Clearing returns to the "all birds" browse state: no species on the map,
+  // search emptied. The map, metric rail, and timeline each show empty states.
+  const clearSpecies = () => {
+    setSelectedSpecies(null);
+    setSpeciesQuery("");
+    setPayload(null);
+    setPlaying(false);
+    setError("");
+    setSearchFocused(false);
+  };
+
   const openChat = () => {
     setInsightsOpen(false);
     setChatSuggestions(samplePrompts(CHAT_PROMPTS, 4));
@@ -576,7 +599,7 @@ export default function App() {
     const action = pendingMapAction;
     setPendingMapAction(null);
     const hasFocus = action.lat != null && action.lng != null;
-    const sameSpecies = selectedSpecies.speciesCode === action.speciesCode;
+    const sameSpecies = selectedSpecies?.speciesCode === action.speciesCode;
     if (hasFocus) {
       pendingFocusRef.current = { lat: action.lat as number, lng: action.lng as number };
     }
@@ -595,7 +618,7 @@ export default function App() {
     if (!isWide) {
       setChatOpen(false);
     }
-  }, [pendingMapAction, selectedSpecies.speciesCode, isWide]);
+  }, [pendingMapAction, selectedSpecies?.speciesCode, isWide]);
 
   // Track whether we're wide enough to dock the drawers (vs. overlay).
   useEffect(() => {
@@ -627,6 +650,25 @@ export default function App() {
     const timeout = window.setTimeout(() => map.invalidateSize({ animate: false }), 340);
     return () => window.clearTimeout(timeout);
   }, [docked]);
+
+  // Keep the selected bird visible in the browse grid (whether it was picked
+  // from search, chat, or insights) so it's always clear which one is active.
+  // We scroll only within the grid's own scroll area, never the whole panel.
+  useEffect(() => {
+    const grid = speciesGridRef.current;
+    if (!grid || !selectedSpecies) {
+      return;
+    }
+    const active = grid.querySelector<HTMLButtonElement>("button.active");
+    if (!active) {
+      return;
+    }
+    const gridRect = grid.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    if (activeRect.top < gridRect.top || activeRect.bottom > gridRect.bottom) {
+      grid.scrollTop += activeRect.top - gridRect.top - (grid.clientHeight - active.clientHeight) / 2;
+    }
+  }, [selectedSpecies, filteredCatalog]);
 
   const openTour = () => setTourOpen(true);
 
@@ -710,8 +752,11 @@ export default function App() {
     }
   };
 
-  const sourceLabel = payload?.source === "ebird" ? "Live eBird" : "Demo stream";
   const hasApiKey = config?.hasApiKey ?? false;
+  // In the browse state there's no payload, so reflect the configured source (a
+  // live key is live, just idle) instead of mislabeling it "Demo stream".
+  const isLiveSource = payload ? payload.source === "ebird" : hasApiKey;
+  const sourceLabel = isLiveSource ? "Live eBird" : "Demo stream";
 
   return (
     <main className={`app-shell ${docked ? "shell-docked" : ""}`}>
@@ -722,6 +767,15 @@ export default function App() {
           <div className="loading-pill">
             <Radar size={16} />
             Syncing
+          </div>
+        ) : null}
+        {!selectedSpecies ? (
+          <div className="map-empty" role="status">
+            <span className="map-empty-mark">
+              <Feather size={26} />
+            </span>
+            <h2>Pick a species to begin</h2>
+            <p>Choose any of {presets.length} birds from the panel to chart where it's been reported across the Northeast.</p>
           </div>
         ) : null}
       </section>
@@ -760,8 +814,8 @@ export default function App() {
         </header>
 
         <div className="status-strip">
-          <span className={`status-badge ${payload?.source === "ebird" ? "live" : "demo"}`}>
-            {payload?.source === "ebird" ? <Wifi size={14} /> : <WifiOff size={14} />}
+          <span className={`status-badge ${isLiveSource ? "live" : "demo"}`}>
+            {isLiveSource ? <Wifi size={14} /> : <WifiOff size={14} />}
             {sourceLabel}
           </span>
           <span className="status-badge">
@@ -796,16 +850,39 @@ export default function App() {
           </a>
         </div>
 
-        <section className="active-species-card" aria-label="Selected species">
-          <div>
-            <span>{selectedSpecies.group}</span>
-            <strong>{selectedSpecies.comName}</strong>
-            <em>{selectedSpecies.sciName}</em>
-          </div>
-          <code>{selectedSpecies.speciesCode}</code>
-        </section>
+        {selectedSpecies ? (
+          <section className="active-species-card" aria-label="Selected species">
+            <div>
+              <span>Now viewing · {selectedSpecies.group}</span>
+              <strong>{selectedSpecies.comName}</strong>
+              <em>{selectedSpecies.sciName}</em>
+            </div>
+            <div className="active-species-side">
+              <code>{selectedSpecies.speciesCode}</code>
+              <button
+                type="button"
+                className="species-clear"
+                onClick={clearSpecies}
+                title="Clear selection and browse all birds"
+                aria-label="Clear selected species and browse all birds"
+              >
+                <X size={13} />
+                Clear
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section className="active-species-card browse" aria-label="No species selected">
+            <div>
+              <span>Browsing</span>
+              <strong>All {presets.length} birds</strong>
+              <em>Pick a species below to chart where it's moving.</em>
+            </div>
+            <Feather size={22} />
+          </section>
+        )}
 
-        {underreportedCommon.has(selectedSpecies.speciesCode) ? (
+        {selectedSpecies && underreportedCommon.has(selectedSpecies.speciesCode) ? (
           <p className="common-note">
             <Info size={15} />
             <span>
@@ -861,7 +938,9 @@ export default function App() {
           </div>
           <div className="search-box">
             <input
+              ref={searchInputRef}
               value={speciesQuery}
+              placeholder={`Search ${presets.length} birds…`}
               onChange={(event) => {
                 setSpeciesQuery(event.target.value);
                 setSearchFocused(true);
@@ -877,6 +956,23 @@ export default function App() {
               }}
               aria-label="Species name or eBird species code"
             />
+            {speciesQuery ? (
+              <button
+                type="button"
+                className="search-clear"
+                // Keep input focus so the full suggestion list opens after clearing.
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  setSpeciesQuery("");
+                  setSearchFocused(true);
+                  searchInputRef.current?.focus();
+                }}
+                title="Clear search"
+                aria-label="Clear search"
+              >
+                <X size={15} />
+              </button>
+            ) : null}
             <button type="button" className="icon-button" onClick={commitSearch} aria-label="Search species">
               <Search size={17} />
             </button>
@@ -903,19 +999,28 @@ export default function App() {
               </button>
             ))}
           </div>
-          <div className="species-library-grid">
-            {filteredCatalog.map((species) => (
-              <button
-                type="button"
-                key={species.speciesCode}
-                className={selectedSpecies.speciesCode === species.speciesCode ? "active" : ""}
-                onClick={() => selectSpecies(species)}
-                title={`${species.comName} (${species.speciesCode})`}
-              >
-                <span>{species.comName}</span>
-                <small>{species.speciesCode}</small>
-              </button>
-            ))}
+          <div className="species-library-grid" ref={speciesGridRef}>
+            {filteredCatalog.map((species) => {
+              const isActive = selectedSpecies?.speciesCode === species.speciesCode;
+              return (
+                <button
+                  type="button"
+                  key={species.speciesCode}
+                  className={isActive ? "active" : ""}
+                  // Clicking the already-selected bird clears it (back to browsing all).
+                  onClick={() => (isActive ? clearSpecies() : selectSpecies(species))}
+                  title={isActive ? "Clear selection and browse all birds" : `${species.comName} (${species.speciesCode})`}
+                >
+                  <span>{species.comName}</span>
+                  <small>{species.speciesCode}</small>
+                  {isActive ? (
+                    <span className="tile-clear" aria-hidden="true">
+                      <X size={12} />
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>
         </section>
 
@@ -1166,25 +1271,28 @@ export default function App() {
         </aside>
       ) : null}
 
-      <section className="metric-rail" aria-label="Sightings summary">
-        <div title="Locations plotted right now (the dots on the map)">
-          <strong>{visibleStats.sightings.toLocaleString()}</strong>
-          <span>On map</span>
-        </div>
-        <div title={`Locations reported across the whole ${lookbackDays}-day window`}>
-          <strong>{windowStats.locations.toLocaleString()}</strong>
-          <span>In window</span>
-        </div>
-        <div title="Total individual birds reported across the window">
-          <strong>{windowStats.birds.toLocaleString()}</strong>
-          <span>Birds</span>
-        </div>
-        <div>
-          <strong>{selectedRegionLabels.length}</strong>
-          <span>States</span>
-        </div>
-      </section>
+      {selectedSpecies ? (
+        <section className="metric-rail" aria-label="Sightings summary">
+          <div title="Locations plotted right now (the dots on the map)">
+            <strong>{visibleStats.sightings.toLocaleString()}</strong>
+            <span>On map</span>
+          </div>
+          <div title={`Locations reported across the whole ${lookbackDays}-day window`}>
+            <strong>{windowStats.locations.toLocaleString()}</strong>
+            <span>In window</span>
+          </div>
+          <div title="Total individual birds reported across the window">
+            <strong>{windowStats.birds.toLocaleString()}</strong>
+            <span>Birds</span>
+          </div>
+          <div>
+            <strong>{selectedRegionLabels.length}</strong>
+            <span>States</span>
+          </div>
+        </section>
+      ) : null}
 
+      {selectedSpecies ? (
       <section className="timeline-dock" aria-label="Timeline controls">
         <div className="timeline-summary">
           <span className="species-chip">
@@ -1320,6 +1428,7 @@ export default function App() {
           )}
         </p>
       </section>
+      ) : null}
 
       <Tour open={tourOpen} steps={TOUR_STEPS} onClose={closeTour} />
     </main>

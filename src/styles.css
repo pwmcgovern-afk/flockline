@@ -385,6 +385,63 @@ h1 {
   text-transform: uppercase;
 }
 
+/* Right-hand stack: species code above a clear-selection button. Selectors are
+   scoped to beat the generic `.active-species-card div` rule above. */
+.active-species-card .active-species-side {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.active-species-card .active-species-side code {
+  align-self: flex-end;
+}
+
+.species-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px 4px 7px;
+  border: 1px solid var(--hair-2);
+  border-radius: var(--pill);
+  background: var(--panel);
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.species-clear:hover {
+  border-color: var(--red);
+  color: var(--red-deep);
+  background: var(--red-soft);
+}
+
+/* Browse state — no species selected */
+.active-species-card.browse {
+  align-items: center;
+  border-color: var(--hair-2);
+  background: linear-gradient(135deg, var(--surface), #fff 72%);
+}
+
+.active-species-card.browse::before {
+  background: var(--text-faint);
+}
+
+.active-species-card.browse em {
+  white-space: normal;
+}
+
+.active-species-card.browse > svg {
+  flex: 0 0 auto;
+  color: var(--green);
+  opacity: 0.5;
+}
+
 .common-note {
   display: flex;
   gap: 9px;
@@ -581,7 +638,7 @@ h1 {
 .search-box input {
   width: 100%;
   height: 44px;
-  padding: 0 14px;
+  padding: 0 40px 0 14px;
   border: 1px solid var(--hair-2);
   border-radius: var(--radius-sm);
   outline: none;
@@ -594,6 +651,25 @@ h1 {
 .search-box input:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(31, 138, 76, 0.16);
+}
+
+/* Clear (×) sits at the right edge of the input, left of the search button.
+   Absolutely positioned so it doesn't take a grid column. */
+.search-clear {
+  position: absolute;
+  top: 0;
+  right: 52px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--text-faint);
+}
+
+.search-clear:hover {
+  color: var(--red-deep);
 }
 
 .icon-button,
@@ -706,6 +782,7 @@ h1 {
 }
 
 .species-library-grid button {
+  position: relative;
   display: grid;
   min-width: 0;
   gap: 3px;
@@ -756,6 +833,28 @@ h1 {
 
 .species-library-grid button.active small {
   color: rgba(255, 255, 255, 0.78);
+}
+
+/* Reserve room for the clear badge so long names don't run under it. */
+.species-library-grid button.active {
+  padding-right: 26px;
+}
+
+.tile-clear {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.species-library-grid button.active:hover .tile-clear {
+  background: rgba(255, 255, 255, 0.36);
 }
 
 .state-grid {
@@ -1227,6 +1326,52 @@ input[type="range"] {
 
 .loading-pill svg {
   animation: spin 1.4s linear infinite;
+}
+
+/* Empty "browse all birds" state on the map — an invitation to pick a species.
+   Non-interactive (pointer-events: none) so the map stays draggable behind it. */
+.map-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 450;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+  pointer-events: none;
+  animation: riseIn 0.5s var(--ease) both;
+}
+
+.map-empty-mark {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  color: var(--green);
+  background: var(--green-soft);
+  border: 1px solid rgba(31, 138, 76, 0.18);
+  box-shadow: var(--shadow-sm);
+}
+
+.map-empty h2 {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.28rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.map-empty p {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 /* ============================================================================
