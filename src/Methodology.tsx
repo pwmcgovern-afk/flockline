@@ -157,6 +157,16 @@ export default function Methodology() {
         </section>
 
         <section className="methodology-section">
+          <h2>Privacy and shared links</h2>
+          <p>
+            Flockline does not require an account. Your active bird, states, timeline window, and filters are stored in
+            the page URL so the view can be bookmarked or shared; no API credentials are ever stored in the browser.
+            Questions submitted through Ask are sent to Flockline's server and Anthropic to generate a response, so
+            do not include personal or sensitive information in a birding question.
+          </p>
+        </section>
+
+        <section className="methodology-section">
           <h2>Attribution and limits</h2>
           <p>
             Flockline is a viewer for public eBird data and is not affiliated with eBird or the Cornell Lab of

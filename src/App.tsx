@@ -4,12 +4,12 @@ import {
   Bird,
   BookOpen,
   CalendarDays,
+  Check,
   Clock,
   Compass,
   Database,
   ExternalLink,
   Info,
-  KeyRound,
   Layers,
   Map as MapIcon,
   MapPin,
@@ -20,6 +20,7 @@ import {
   RefreshCw,
   Search,
   Send,
+  Share2,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
@@ -30,6 +31,7 @@ import {
   WifiOff
 } from "lucide-react";
 import Tour, { type TourStep } from "./Tour";
+import { buildAppUrl, parseAppState, type TimelineMode } from "./appState";
 import speciesCatalog from "../shared/speciesCatalog.json";
 import type {
   ChatMapAction,
@@ -76,7 +78,8 @@ const underreportedCommon = new Set([
   "turvul", "doccor", "graycat", "carwre", "cedwax", "chiswi"
 ]);
 
-type TimelineMode = "daily" | "cumulative";
+const featuredSpeciesCodes = ["osprey", "baleag", "comloo", "rthhum", "scatan", "balori"];
+const CATALOG_PREVIEW_LIMIT = 48;
 
 // A pool the chat panel samples from on each open, so the starter questions
 // feel fresh and hint at the range of things the assistant can answer.
@@ -158,6 +161,16 @@ const TOUR_STEPS: TourStep[] = [
 ];
 
 export default function App() {
+  const initialState = useRef(
+    parseAppState(
+      typeof window === "undefined" ? "" : window.location.search,
+      defaultStates.map((state) => state.code)
+    )
+  ).current;
+  const initialSpecies =
+    initialState.speciesCode === null
+      ? null
+      : defaultPresets.find((species) => species.speciesCode === initialState.speciesCode) ?? defaultSpecies;
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const sightingLayerRef = useRef<L.LayerGroup | null>(null);
@@ -173,21 +186,21 @@ export default function App() {
   const [config, setConfig] = useState<ConfigResponse | null>(null);
   const [states, setStates] = useState(defaultStates);
   const [presets, setPresets] = useState(defaultPresets);
-  const [selectedRegions, setSelectedRegions] = useState(defaultStates.map((state) => state.code));
-  const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(defaultSpecies);
-  const [speciesQuery, setSpeciesQuery] = useState(defaultSpecies.comName);
+  const [selectedRegions, setSelectedRegions] = useState(
+    initialState.regions ?? defaultStates.map((state) => state.code)
+  );
+  const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(initialSpecies);
+  const [speciesQuery, setSpeciesQuery] = useState(initialSpecies?.comName ?? "");
   const [suggestions, setSuggestions] = useState<Species[]>(defaultPresets);
   const [searchFocused, setSearchFocused] = useState(false);
   const [speciesGroup, setSpeciesGroup] = useState("All");
-  const [lookbackDays, setLookbackDays] = useState(7);
-  const [selectedDayIndex, setSelectedDayIndex] = useState(6);
-  const [timelineMode, setTimelineMode] = useState<TimelineMode>("cumulative");
+  const [lookbackDays, setLookbackDays] = useState(initialState.lookbackDays ?? 7);
+  const [selectedDayIndex, setSelectedDayIndex] = useState((initialState.lookbackDays ?? 7) - 1);
+  const [timelineMode, setTimelineMode] = useState<TimelineMode>(initialState.timelineMode ?? "cumulative");
   const [playing, setPlaying] = useState(false);
-  const [includeProvisional, setIncludeProvisional] = useState(true);
-  const [hotspotsOnly, setHotspotsOnly] = useState(false);
-  const [apiKeyDraft, setApiKeyDraft] = useState("");
-  const [apiKeySaving, setApiKeySaving] = useState(false);
-  const [apiKeyStatus, setApiKeyStatus] = useState("");
+  const [includeProvisional, setIncludeProvisional] = useState(initialState.includeProvisional ?? true);
+  const [hotspotsOnly, setHotspotsOnly] = useState(initialState.hotspotsOnly ?? false);
+  const [shareStatus, setShareStatus] = useState("");
   const [payload, setPayload] = useState<SightingsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -203,6 +216,13 @@ export default function App() {
   const [chatSuggestions, setChatSuggestions] = useState<string[]>([]);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
+  const [showTourInvite, setShowTourInvite] = useState(() => {
+    try {
+      return !localStorage.getItem(TOUR_SEEN_KEY);
+    } catch {
+      return false;
+    }
+  });
   // Pending map action requested by the chat assistant (load species / zoom).
   const [pendingMapAction, setPendingMapAction] = useState<ChatMapAction | null>(null);
   // Wide screens dock the drawers (push the map over); narrow screens overlay.
@@ -315,6 +335,24 @@ export default function App() {
   const filteredCatalog = useMemo(() => {
     return speciesGroup === "All" ? presets : presets.filter((species) => species.group === speciesGroup);
   }, [presets, speciesGroup]);
+  const visibleCatalog = useMemo(() => {
+    const preview = filteredCatalog.slice(0, CATALOG_PREVIEW_LIMIT);
+    if (
+      selectedSpecies &&
+      filteredCatalog.some((species) => species.speciesCode === selectedSpecies.speciesCode) &&
+      !preview.some((species) => species.speciesCode === selectedSpecies.speciesCode)
+    ) {
+      return [...preview.slice(0, -1), selectedSpecies];
+    }
+    return preview;
+  }, [filteredCatalog, selectedSpecies]);
+  const featuredSpecies = useMemo(
+    () =>
+      featuredSpeciesCodes
+        .map((code) => presets.find((species) => species.speciesCode === code))
+        .filter((species): species is Species => Boolean(species)),
+    [presets]
+  );
   const libraryGroups = useMemo(() => {
     const present = new Set(presets.map((species) => species.group));
     const ordered = groupOrder.filter((group) => present.has(group));
@@ -330,7 +368,10 @@ export default function App() {
         setStates(nextConfig.states);
         setPresets(nextConfig.presets);
         setSuggestions(nextConfig.presets);
-        setSelectedRegions(nextConfig.states.map((state) => state.code));
+        setSelectedRegions((current) => {
+          const validCodes = nextConfig.states.map((state) => state.code);
+          return current.filter((code) => validCodes.includes(code));
+        });
       })
       .catch(() => {
         setConfig({ hasApiKey: false, states: defaultStates, presets: defaultPresets, maxBackDays: 30 });
@@ -640,17 +681,6 @@ export default function App() {
     return () => query.removeEventListener("change", handler);
   }, []);
 
-  // Auto-open the tour the first time someone lands on Flockline.
-  useEffect(() => {
-    try {
-      if (!localStorage.getItem(TOUR_SEEN_KEY)) {
-        setTourOpen(true);
-      }
-    } catch {
-      // Private mode or blocked storage: just skip the auto-tour.
-    }
-  }, []);
-
   // When a drawer docks or undocks, the map container resizes, so Leaflet has
   // to re-measure after the slide transition or the tiles render at the old size.
   const docked = (insightsOpen || chatOpen) && isWide;
@@ -682,14 +712,27 @@ export default function App() {
     }
   }, [selectedSpecies, filteredCatalog]);
 
-  const openTour = () => setTourOpen(true);
+  const openTour = () => {
+    setShowTourInvite(false);
+    setTourOpen(true);
+  };
 
   const closeTour = () => {
     setTourOpen(false);
+    setShowTourInvite(false);
     try {
       localStorage.setItem(TOUR_SEEN_KEY, "1");
     } catch {
       // Ignore storage failures; worst case the tour shows again next visit.
+    }
+  };
+
+  const dismissTourInvite = () => {
+    setShowTourInvite(false);
+    try {
+      localStorage.setItem(TOUR_SEEN_KEY, "1");
+    } catch {
+      // The invite can still be dismissed for this session when storage is blocked.
     }
   };
 
@@ -732,36 +775,35 @@ export default function App() {
     setPlaying(true);
   };
 
-  const saveApiKey = async () => {
-    const apiKey = apiKeyDraft.trim();
-    if (!apiKey) {
-      setApiKeyStatus("Enter a key first.");
-      return;
-    }
+  const currentAppUrl = useMemo(
+    () =>
+      buildAppUrl(
+        window.location.href,
+        {
+          speciesCode: selectedSpecies?.speciesCode ?? null,
+          lookbackDays,
+          regions: selectedRegions,
+          timelineMode,
+          includeProvisional,
+          hotspotsOnly
+        },
+        states.map((state) => state.code)
+      ),
+    [hotspotsOnly, includeProvisional, lookbackDays, selectedRegions, selectedSpecies?.speciesCode, states, timelineMode]
+  );
 
-    setApiKeySaving(true);
-    setApiKeyStatus("");
+  useEffect(() => {
+    window.history.replaceState(null, "", currentAppUrl);
+  }, [currentAppUrl]);
+
+  const shareView = async () => {
     try {
-      const response = await fetch("/api/settings/ebird-key", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Key setup failed.");
-      }
-      setConfig((current) =>
-        current ? { ...current, hasApiKey: true } : { hasApiKey: true, states, presets, maxBackDays: 30 }
-      );
-      setApiKeyDraft("");
-      setApiKeyStatus("Live key active.");
-      await loadSightings();
-    } catch (setupError) {
-      setApiKeyStatus(setupError instanceof Error ? setupError.message : "Key setup failed.");
-    } finally {
-      setApiKeySaving(false);
+      await navigator.clipboard.writeText(currentAppUrl);
+      setShareStatus("Link copied");
+    } catch {
+      setShareStatus("Copy failed");
     }
+    window.setTimeout(() => setShareStatus(""), 1800);
   };
 
   const hasApiKey = config?.hasApiKey ?? false;
@@ -778,7 +820,22 @@ export default function App() {
         {loading ? (
           <div className="loading-pill">
             <Radar size={16} />
-            Syncing
+            Scanning recent checklists
+          </div>
+        ) : null}
+        {showTourInvite && !tourOpen && !loading ? (
+          <div className="tour-invite" role="status">
+            <span className="tour-invite-mark">
+              <Compass size={18} />
+            </span>
+            <span>
+              <strong>New to Flockline?</strong>
+              <small>Take the 30-second field tour.</small>
+            </span>
+            <button type="button" onClick={openTour}>Start</button>
+            <button type="button" className="tour-invite-close" onClick={dismissTourInvite} aria-label="Dismiss tour invitation">
+              <X size={15} />
+            </button>
           </div>
         ) : null}
         {!selectedSpecies ? (
@@ -788,6 +845,21 @@ export default function App() {
             </span>
             <h2>Pick a species to begin</h2>
             <p>Choose any of {presets.length} birds from the panel to chart where it's been reported across the Northeast.</p>
+          </div>
+        ) : null}
+        {selectedSpecies && !loading && payload && !allFeatures.length ? (
+          <div className="map-empty no-results" role="status">
+            <span className="map-empty-mark">
+              <Search size={25} />
+            </span>
+            <h2>No recent reports found</h2>
+            <p>Try a longer window, include provisional sightings, or add more states.</p>
+          </div>
+        ) : null}
+        {error && selectedSpecies ? (
+          <div className="map-alert" role="alert">
+            <span>{error}</span>
+            <button type="button" onClick={() => void loadSightings({ force: true })}>Try again</button>
           </div>
         ) : null}
       </section>
@@ -803,6 +875,15 @@ export default function App() {
             <p className="brand-tag">Live bird movement, charted from eBird checklists.</p>
           </div>
           <div className="brand-actions">
+            <button
+              type="button"
+              className={`brand-action ${shareStatus === "Link copied" ? "success" : ""}`}
+              onClick={() => void shareView()}
+              title={shareStatus || "Copy a link to this exact view"}
+              aria-label={shareStatus || "Share this map view"}
+            >
+              {shareStatus === "Link copied" ? <Check size={16} /> : <Share2 size={16} />}
+            </button>
             <button
               type="button"
               className="brand-action"
@@ -904,44 +985,6 @@ export default function App() {
           </p>
         ) : null}
 
-        <section className={`api-key-card ${hasApiKey ? "ready" : ""}`}>
-          <div className="block-title">
-            <KeyRound size={16} />
-            <span>eBird Key</span>
-          </div>
-          {hasApiKey ? (
-            <div className="key-ready">
-              <Wifi size={15} />
-              <span>Live API key active</span>
-            </div>
-          ) : (
-            <>
-              <div className="key-input-row">
-                <input
-                  type="password"
-                  value={apiKeyDraft}
-                  onChange={(event) => setApiKeyDraft(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      void saveApiKey();
-                    }
-                  }}
-                  placeholder="Paste API key"
-                  aria-label="eBird API key"
-                />
-                <button type="button" onClick={saveApiKey} disabled={apiKeySaving}>
-                  {apiKeySaving ? "Saving" : "Save"}
-                </button>
-              </div>
-              <a href="https://ebird.org/api/keygen" target="_blank" rel="noreferrer">
-                Get key
-                <ExternalLink size={13} />
-              </a>
-            </>
-          )}
-          {apiKeyStatus ? <p>{apiKeyStatus}</p> : null}
-        </section>
-
         <section className="control-block">
           <div className="block-title">
             <Search size={16} />
@@ -999,12 +1042,29 @@ export default function App() {
               </div>
             ) : null}
           </div>
+          <div className="field-picks" aria-label="Featured birds">
+            <span className="field-picks-label">Track now</span>
+            <div>
+              {featuredSpecies.map((species) => (
+                <button
+                  type="button"
+                  key={species.speciesCode}
+                  className={selectedSpecies?.speciesCode === species.speciesCode ? "active" : ""}
+                  aria-pressed={selectedSpecies?.speciesCode === species.speciesCode}
+                  onClick={() => selectSpecies(species)}
+                >
+                  {species.comName}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="library-tabs">
             {libraryGroups.map((group) => (
               <button
                 type="button"
                 key={group}
                 className={speciesGroup === group ? "active" : ""}
+                aria-pressed={speciesGroup === group}
                 onClick={() => setSpeciesGroup(group)}
               >
                 {group}
@@ -1012,13 +1072,14 @@ export default function App() {
             ))}
           </div>
           <div className="species-library-grid" ref={speciesGridRef}>
-            {filteredCatalog.map((species) => {
+            {visibleCatalog.map((species) => {
               const isActive = selectedSpecies?.speciesCode === species.speciesCode;
               return (
                 <button
                   type="button"
                   key={species.speciesCode}
                   className={isActive ? "active" : ""}
+                  aria-pressed={isActive}
                   // Clicking the already-selected bird clears it (back to browsing all).
                   onClick={() => (isActive ? clearSpecies() : selectSpecies(species))}
                   title={isActive ? "Clear selection and browse all birds" : `${species.comName} (${species.speciesCode})`}
@@ -1034,6 +1095,11 @@ export default function App() {
               );
             })}
           </div>
+          {filteredCatalog.length > visibleCatalog.length ? (
+            <p className="catalog-more">
+              Showing {visibleCatalog.length} of {filteredCatalog.length}. Search above or choose a narrower family.
+            </p>
+          ) : null}
         </section>
 
         <section className="control-block">
@@ -1055,6 +1121,7 @@ export default function App() {
                 type="button"
                 key={state.code}
                 className={selectedRegions.includes(state.code) ? "active" : ""}
+                aria-pressed={selectedRegions.includes(state.code)}
                 onClick={() => toggleRegion(state.code)}
                 title={state.name}
               >
@@ -1421,6 +1488,7 @@ export default function App() {
             <button
               type="button"
               className={timelineMode === "daily" ? "active" : ""}
+              aria-pressed={timelineMode === "daily"}
               onClick={() => setTimelineMode("daily")}
             >
               New
@@ -1432,6 +1500,7 @@ export default function App() {
             <button
               type="button"
               className={timelineMode === "cumulative" ? "active" : ""}
+              aria-pressed={timelineMode === "cumulative"}
               onClick={() => setTimelineMode("cumulative")}
             >
               Trail

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Flockline">
+  <defs>
+    <linearGradient id="g" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d9382e"/>
+      <stop offset="1" stop-color="#941a15"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#g)"/>
+  <path d="M16 38c10-1 15-7 18-18 5 7 10 10 18 11-5 3-10 4-15 3-3 8-9 12-18 11 4-2 6-4 8-7-4 2-8 2-11 0Z" fill="#fff"/>
+  <circle cx="39.5" cy="25.5" r="1.6" fill="#941a15"/>
+</svg>

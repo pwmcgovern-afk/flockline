@@ -2,15 +2,14 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import fs from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
 import { getInsights, chatWithBirds } from "../lib/ebirdCore.js";
+import { enforceRateLimit } from "../lib/rateLimit.js";
 
 const PORT = Number(process.env.PORT || 8787);
-let ebirdApiKey = process.env.EBIRD_API_KEY || "";
+const ebirdApiKey = process.env.EBIRD_API_KEY || "";
 const EBIRD_BASE_URL = "https://api.ebird.org/v2";
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const TAXONOMY_TTL_MS = 24 * 60 * 60 * 1000;
-const ENV_FILE_URL = new URL("../.env", import.meta.url);
 const speciesPresets = JSON.parse(fs.readFileSync(new URL("../shared/speciesCatalog.json", import.meta.url), "utf8"));
 
 const app = express();
@@ -53,27 +52,6 @@ app.get("/api/config", (_request, response) => {
     presets: speciesPresets,
     maxBackDays: 30
   });
-});
-
-app.post("/api/settings/ebird-key", async (request, response) => {
-  const apiKey = sanitizeApiKey(request.body?.apiKey);
-  if (!apiKey) {
-    response.status(400).json({ error: "Enter a valid eBird API key." });
-    return;
-  }
-
-  try {
-    await validateEbirdKey(apiKey);
-    ebirdApiKey = apiKey;
-    responseCache.clear();
-    await upsertEnvValue("EBIRD_API_KEY", apiKey);
-    response.json({ hasApiKey: true });
-  } catch (error) {
-    response.status(400).json({
-      error: "That eBird API key did not validate.",
-      detail: error.message
-    });
-  }
 });
 
 app.get("/api/species", async (request, response) => {
@@ -154,6 +132,15 @@ app.get("/api/sightings", async (request, response) => {
 });
 
 app.get("/api/insights", async (request, response) => {
+  const fresh = parseBoolean(request.query.fresh, false);
+  if (fresh && !enforceRateLimit(request, response, {
+    name: "fresh-insights",
+    limit: 3,
+    windowMs: 60 * 60 * 1000,
+    message: "Insights were refreshed recently. Please try again later."
+  })) {
+    return;
+  }
   try {
     const payload = await getInsights(request.query);
     response.json(payload);
@@ -163,6 +150,14 @@ app.get("/api/insights", async (request, response) => {
 });
 
 app.post("/api/chat", async (request, response) => {
+  if (!enforceRateLimit(request, response, {
+    name: "chat",
+    limit: 8,
+    windowMs: 10 * 60 * 1000,
+    message: "You have reached the Ask limit for now. Please try again in a few minutes."
+  })) {
+    return;
+  }
   try {
     const payload = await chatWithBirds(request.body || {});
     response.json(payload);
@@ -452,56 +447,6 @@ function parseBoolean(value, fallback) {
     return fallback;
   }
   return ["1", "true", "yes", "on"].includes(String(value).toLowerCase());
-}
-
-function sanitizeApiKey(value) {
-  const apiKey = String(value || "").trim();
-  if (apiKey.length < 12 || apiKey.length > 160 || /[\s"'`]/.test(apiKey)) {
-    return "";
-  }
-  return apiKey;
-}
-
-async function validateEbirdKey(apiKey) {
-  const url = new URL(`${EBIRD_BASE_URL}/data/obs/US-MA/recent/osprey`);
-  url.searchParams.set("back", "1");
-  url.searchParams.set("maxResults", "1");
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
-  try {
-    const response = await fetch(url, {
-      headers: {
-        "x-ebirdapitoken": apiKey,
-        accept: "application/json"
-      },
-      signal: controller.signal
-    });
-    if (!response.ok) {
-      throw new Error(`eBird returned ${response.status}`);
-    }
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-async function upsertEnvValue(key, value) {
-  let contents = "";
-  try {
-    contents = await readFile(ENV_FILE_URL, "utf8");
-  } catch (error) {
-    if (error.code !== "ENOENT") {
-      throw error;
-    }
-  }
-
-  const line = `${key}=${value}`;
-  const pattern = new RegExp(`^${key}=.*$`, "m");
-  const nextContents = pattern.test(contents)
-    ? contents.replace(pattern, line)
-    : `${contents.trimEnd()}${contents.trim() ? "\n" : ""}${line}\n`;
-
-  await writeFile(ENV_FILE_URL, nextContents, { mode: 0o600 });
 }
 
 function getCache(key) {

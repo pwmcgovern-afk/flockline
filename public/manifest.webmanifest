@@ -1,0 +1,17 @@
+{
+  "name": "Flockline · Live Northeast Bird Sightings",
+  "short_name": "Flockline",
+  "description": "Follow recent bird movement across the Northeast with live eBird sightings and an interactive timeline.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f6f3",
+  "theme_color": "#166b3a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
