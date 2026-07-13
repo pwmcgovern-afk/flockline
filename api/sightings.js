@@ -1,6 +1,12 @@
 import { getSightings } from "../lib/ebirdCore.js";
 
 export default async function handler(request, response) {
+  if (request.method !== "GET") {
+    response.setHeader("Allow", "GET");
+    response.status(405).json({ error: "Method not allowed." });
+    return;
+  }
+
   try {
     const payload = await getSightings(request.query);
     const fresh = ["1", "true", "yes", "on"].includes(String(request.query.fresh || "").toLowerCase());

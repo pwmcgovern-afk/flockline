@@ -174,6 +174,7 @@ export default function App() {
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const sightingLayerRef = useRef<L.LayerGroup | null>(null);
+  const sightingsRequestRef = useRef<AbortController | null>(null);
   const lastFitKeyRef = useRef("");
   // When the chat asks to zoom to a spot, the next data load flies here
   // instead of fitting to all sightings.
@@ -402,12 +403,14 @@ export default function App() {
     // No species chosen is the "browse all birds" state: clear the map and skip
     // the API. Selecting a species (or clearing again) re-runs this effect.
     if (!selectedSpecies) {
+      sightingsRequestRef.current?.abort();
       setPayload(null);
       setError("");
       setLoading(false);
       return;
     }
     if (!selectedRegions.length) {
+      sightingsRequestRef.current?.abort();
       setPayload(null);
       setError("Select at least one state.");
       return;
@@ -426,10 +429,13 @@ export default function App() {
       params.set("_t", String(Date.now()));
     }
 
+    sightingsRequestRef.current?.abort();
+    const controller = new AbortController();
+    sightingsRequestRef.current = controller;
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`/api/sightings?${params.toString()}`);
+      const response = await fetch(`/api/sightings?${params.toString()}`, { signal: controller.signal });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || "Sightings request failed.");
@@ -438,9 +444,15 @@ export default function App() {
       setSelectedDayIndex(lookbackDays - 1);
       setPlaying(false);
     } catch (requestError) {
+      if (controller.signal.aborted) {
+        return;
+      }
       setError(requestError instanceof Error ? requestError.message : "Sightings request failed.");
     } finally {
-      setLoading(false);
+      if (sightingsRequestRef.current === controller) {
+        sightingsRequestRef.current = null;
+        setLoading(false);
+      }
     }
   }, [hotspotsOnly, includeProvisional, lookbackDays, selectedRegions, selectedSpecies?.speciesCode]);
 
@@ -448,6 +460,8 @@ export default function App() {
     const timeout = window.setTimeout(loadSightings, 360);
     return () => window.clearTimeout(timeout);
   }, [loadSightings]);
+
+  useEffect(() => () => sightingsRequestRef.current?.abort(), []);
 
   useEffect(() => {
     setSelectedDayIndex((current) => Math.min(current, lookbackDays - 1));
