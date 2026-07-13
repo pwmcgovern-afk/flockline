@@ -597,6 +597,11 @@ export default function App() {
     mapRef.current = map;
     baseLayerRef.current = baseLayer;
     sightingLayerRef.current = L.layerGroup().addTo(map);
+    // Dev-only escape hatch so browser-based tests can read the real map state
+    // (getZoom/getCenter); inert in production builds.
+    if (import.meta.env.DEV) {
+      (window as unknown as { __flocklineMap?: L.Map }).__flocklineMap = map;
+    }
 
     return () => {
       map.remove();
@@ -647,24 +652,35 @@ export default function App() {
   }, [dateKeys, playing, selectedDateKey, visibleFeatures]);
 
   useEffect(() => {
-    if (!payload || !mapRef.current || !allFeatures.length) {
+    if (!payload || !mapRef.current) {
+      return;
+    }
+    if (!allFeatures.length) {
+      // Nothing to show for this load: drop any pending focus so it can't
+      // fire later against an unrelated species' payload.
+      pendingFocusRef.current = null;
       return;
     }
     const fitKey = `${payload.generatedAt}-${payload.species.speciesCode}-${payload.regions.join("|")}`;
+
+    // An explicit focus request (chat show_on_map or an insight's View on map)
+    // always wins — checked BEFORE the fitKey dedupe, because the 5-minute
+    // sightings cache reuses generatedAt: a repeat load of the same species
+    // produces an identical fitKey, which would otherwise swallow the zoom.
+    // Instant (no animation) so it lands reliably even when rAF-driven
+    // animation is throttled (background tabs).
+    const focus = pendingFocusRef.current;
+    if (focus) {
+      pendingFocusRef.current = null;
+      lastFitKeyRef.current = fitKey;
+      mapRef.current.setView([focus.lat, focus.lng], 11, { animate: false });
+      return;
+    }
+
     if (lastFitKeyRef.current === fitKey) {
       return;
     }
     lastFitKeyRef.current = fitKey;
-
-    // If the chat asked to zoom to a specific spot, honor that instead of the
-    // broad fit-to-all-sightings view. Instant (no animation) so it lands
-    // reliably even when rAF-driven animation is throttled (background tabs).
-    const focus = pendingFocusRef.current;
-    if (focus) {
-      pendingFocusRef.current = null;
-      mapRef.current.setView([focus.lat, focus.lng], 11, { animate: false });
-      return;
-    }
 
     const bounds = L.latLngBounds(
       allFeatures.map((feature) => [feature.geometry.coordinates[1], feature.geometry.coordinates[0]] as [number, number])
@@ -693,6 +709,10 @@ export default function App() {
     setPlaying(false);
     setError("");
     setSearchFocused(false);
+    // Reset fit tracking: re-selecting the same species after a clear returns a
+    // cached payload (same generatedAt), which would otherwise skip the re-fit.
+    lastFitKeyRef.current = "";
+    pendingFocusRef.current = null;
   };
 
   const openChat = () => {
