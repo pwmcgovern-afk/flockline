@@ -74,6 +74,8 @@ export type Insight = {
   region?: string;
   obsDt?: string;
   subId?: string;
+  lat?: number | null;
+  lng?: number | null;
   generatedBy?: "llm" | "template";
 };
 

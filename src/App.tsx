@@ -1523,12 +1523,32 @@ export default function App() {
                           type="button"
                           className="insight-map"
                           onClick={() => {
+                            // Zoom to the finding's reported spot (like the chat's
+                            // show_on_map), so the map flies to the bird instead of
+                            // doing a broad fit that's easy to miss behind the drawer.
+                            const hasFocus =
+                              typeof finding.lat === "number" && typeof finding.lng === "number";
+                            const sameSpecies = selectedSpecies?.speciesCode === finding.speciesCode;
+                            if (hasFocus) {
+                              pendingFocusRef.current = { lat: finding.lat as number, lng: finding.lng as number };
+                            }
                             selectSpecies({
                               speciesCode: finding.speciesCode as string,
                               comName: finding.comName || (finding.speciesCode as string),
                               sciName: "",
                               group: "Species"
                             });
+                            // Already the active species → no reload fires the fit
+                            // effect, so move the map now (instant, per the Leaflet
+                            // animate gotcha).
+                            if (sameSpecies && hasFocus && mapRef.current) {
+                              pendingFocusRef.current = null;
+                              mapRef.current.setView(
+                                [finding.lat as number, finding.lng as number],
+                                11,
+                                { animate: false }
+                              );
+                            }
                             if (!isWide) {
                               setInsightsOpen(false);
                             }
