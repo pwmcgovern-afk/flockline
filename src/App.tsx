@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import L from "leaflet";
 import {
   Bird,
+  Bell,
+  BellRing,
   BookOpen,
   CalendarDays,
   Check,
@@ -14,6 +16,7 @@ import {
   Map as MapIcon,
   MapPin,
   MessageCircle,
+  Moon,
   Pause,
   Play,
   Radar,
@@ -24,6 +27,8 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
+  Star,
+  Sun,
   Feather,
   TrendingUp,
   X,
@@ -31,7 +36,7 @@ import {
   WifiOff
 } from "lucide-react";
 import Tour, { type TourStep } from "./Tour";
-import { buildAppUrl, parseAppState, type TimelineMode } from "./appState";
+import { buildAppUrl, parseAppState, type AppState, type TimelineMode } from "./appState";
 import speciesCatalog from "../shared/speciesCatalog.json";
 import type {
   ChatMapAction,
@@ -80,6 +85,14 @@ const underreportedCommon = new Set([
 
 const featuredSpeciesCodes = ["osprey", "baleag", "comloo", "rthhum", "scatan", "balori"];
 const CATALOG_PREVIEW_LIMIT = 48;
+const BIRD_ART: Record<string, string> = Object.fromEntries(
+  featuredSpeciesCodes.map((code) => [code, `/birds/${code}.jpg`])
+);
+const WATCHLIST_KEY = "flockline.watchlist.v1";
+const ALERTS_KEY = "flockline.alerts.v1";
+const PREFERENCES_KEY = "flockline.preferences.v1";
+const THEME_KEY = "flockline.theme.v1";
+type AppTheme = "field" | "dusk";
 
 // A pool the chat panel samples from on each open, so the starter questions
 // feel fresh and hint at the range of things the assistant can answer.
@@ -148,10 +161,22 @@ const TOUR_STEPS: TourStep[] = [
     body: "A running list of the rarest and most notable birds around New England, refreshed through the day."
   },
   {
+    target: ".field-brief",
+    side: "left",
+    title: "What’s moving now",
+    body: "The live field brief turns notable eBird reports into a few timely birds worth exploring. Pick one to load it instantly."
+  },
+  {
     target: ".chat-trigger",
     side: "bottom",
     title: "Ask the assistant",
     body: "Ask anything about birds and their recent activity. Answers come back live from eBird, with spots and dates."
+  },
+  {
+    target: ".watchlist-trigger",
+    side: "bottom",
+    title: "Build your field board",
+    body: "Star birds to keep them in My birds, then turn on field alerts for notable reports. Your choices stay on this device."
   },
   {
     side: "center",
@@ -162,10 +187,7 @@ const TOUR_STEPS: TourStep[] = [
 
 export default function App() {
   const initialState = useRef(
-    parseAppState(
-      typeof window === "undefined" ? "" : window.location.search,
-      defaultStates.map((state) => state.code)
-    )
+    buildInitialAppState()
   ).current;
   const initialSpecies =
     initialState.speciesCode === null
@@ -173,6 +195,7 @@ export default function App() {
       : defaultPresets.find((species) => species.speciesCode === initialState.speciesCode) ?? defaultSpecies;
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const baseLayerRef = useRef<L.TileLayer | null>(null);
   const sightingLayerRef = useRef<L.LayerGroup | null>(null);
   const sightingsRequestRef = useRef<AbortController | null>(null);
   const lastFitKeyRef = useRef("");
@@ -202,6 +225,8 @@ export default function App() {
   const [includeProvisional, setIncludeProvisional] = useState(initialState.includeProvisional ?? true);
   const [hotspotsOnly, setHotspotsOnly] = useState(initialState.hotspotsOnly ?? false);
   const [shareStatus, setShareStatus] = useState("");
+  const [sightingShareStatus, setSightingShareStatus] = useState("");
+  const [selectedSighting, setSelectedSighting] = useState<SightingFeature | null>(null);
   const [payload, setPayload] = useState<SightingsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -210,11 +235,15 @@ export default function App() {
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [insightsError, setInsightsError] = useState("");
   const [chatOpen, setChatOpen] = useState(false);
+  const [watchlistOpen, setWatchlistOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [chatError, setChatError] = useState("");
   const [chatSuggestions, setChatSuggestions] = useState<string[]>([]);
+  const [theme, setTheme] = useState<AppTheme>(() => readStoredString(THEME_KEY) === "dusk" ? "dusk" : "field");
+  const [watchlist, setWatchlist] = useState<string[]>(() => readStoredList(WATCHLIST_KEY));
+  const [alerts, setAlerts] = useState<string[]>(() => readStoredList(ALERTS_KEY));
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
   const [showTourInvite, setShowTourInvite] = useState(() => {
@@ -263,6 +292,7 @@ export default function App() {
       const next = !open;
       if (next) {
         setChatOpen(false);
+        setWatchlistOpen(false);
         // Load on open if we have nothing yet, or if the timeline window has
         // moved since the last run (cached result if it was seen recently).
         if (!insightsLoading && (!insights || insights.back !== lookbackDays)) {
@@ -360,6 +390,29 @@ export default function App() {
     const extras = [...present].filter((group) => !groupOrder.includes(group)).sort();
     return ["All", ...ordered, ...extras];
   }, [presets]);
+  const fieldBriefFindings = useMemo(
+    () => {
+      const live = (insights?.findings ?? []).filter((finding) => finding.speciesCode).slice(0, 3);
+      if (live.length) return live;
+      return featuredSpecies.slice(0, 3).map((species, index): Insight => ({
+        kind: (["wide", "surge", "rarity"] as InsightKind[])[index],
+        title: species.comName,
+        detail: `Follow ${species.comName} reports across your selected states.`,
+        speciesCode: species.speciesCode,
+        comName: species.comName,
+        generatedBy: "template"
+      }));
+    },
+    [featuredSpecies, insights]
+  );
+  const watchlistSpecies = useMemo(
+    () => watchlist.map((code) => presets.find((species) => species.speciesCode === code)).filter((species): species is Species => Boolean(species)),
+    [presets, watchlist]
+  );
+  const activeAlertFindings = useMemo(
+    () => (insights?.findings ?? []).filter((finding) => finding.speciesCode && alerts.includes(finding.speciesCode)),
+    [alerts, insights]
+  );
 
   useEffect(() => {
     fetch("/api/config")
@@ -378,6 +431,40 @@ export default function App() {
         setConfig({ hasApiKey: false, states: defaultStates, presets: defaultPresets, maxBackDays: 30 });
       });
   }, []);
+
+  useEffect(() => {
+    if (insights?.back === lookbackDays || insightsLoading) {
+      return;
+    }
+    const timeout = window.setTimeout(() => void loadInsights(), 900);
+    return () => window.clearTimeout(timeout);
+  }, [insights?.back, insightsLoading, loadInsights, lookbackDays]);
+
+  useEffect(() => {
+    writeStoredJson(PREFERENCES_KEY, {
+      lookbackDays,
+      regions: selectedRegions,
+      timelineMode,
+      includeProvisional,
+      hotspotsOnly
+    });
+  }, [hotspotsOnly, includeProvisional, lookbackDays, selectedRegions, timelineMode]);
+
+  useEffect(() => writeStoredJson(WATCHLIST_KEY, watchlist), [watchlist]);
+  useEffect(() => writeStoredJson(ALERTS_KEY, alerts), [alerts]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      // Theme still works for the current session when storage is blocked.
+    }
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dusk" ? "#07110d" : "#166b3a");
+    baseLayerRef.current?.setUrl(
+      theme === "dusk"
+        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+    );
+  }, [theme]);
 
   useEffect(() => {
     if (!speciesQuery.trim()) {
@@ -495,19 +582,26 @@ export default function App() {
       preferCanvas: true
     }).setView([42.55, -73.45], 6);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    const baseLayer = L.tileLayer(
+      theme === "dusk"
+        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      {
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap &copy; CARTO"
-    }).addTo(map);
+      }
+    ).addTo(map);
     L.control.zoom({ position: "bottomright" }).addTo(map);
     L.control.attribution({ position: "bottomright", prefix: false }).addTo(map);
 
     mapRef.current = map;
+    baseLayerRef.current = baseLayer;
     sightingLayerRef.current = L.layerGroup().addTo(map);
 
     return () => {
       map.remove();
       mapRef.current = null;
+      baseLayerRef.current = null;
       sightingLayerRef.current = null;
     };
   }, []);
@@ -531,13 +625,26 @@ export default function App() {
         opacity: 1,
         weight: feature.properties.locationPrivate ? 1 : 1.6
       });
-      marker.bindPopup(buildPopup(feature), {
-        className: "sighting-popup",
-        maxWidth: 280
-      });
+      marker.on("click", () => setSelectedSighting(feature));
       marker.addTo(layer);
     }
-  }, [dateKeys, visibleFeatures]);
+
+    const pulseFeatures = visibleFeatures
+      .filter((feature) => feature.properties.obsDt.slice(0, 10) === selectedDateKey)
+      .slice(0, playing ? 28 : 16);
+    for (const feature of pulseFeatures) {
+      const [lng, lat] = feature.geometry.coordinates;
+      L.marker([lat, lng], {
+        interactive: false,
+        icon: L.divIcon({
+          className: `flock-pulse-icon ${playing ? "playing" : ""}`,
+          html: '<span class="flock-pulse-ring"></span><span class="flock-pulse-core"></span>',
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        })
+      }).addTo(layer);
+    }
+  }, [dateKeys, playing, selectedDateKey, visibleFeatures]);
 
   useEffect(() => {
     if (!payload || !mapRef.current || !allFeatures.length) {
@@ -570,6 +677,7 @@ export default function App() {
   }, [allFeatures, payload]);
 
   const selectSpecies = (species: Species) => {
+    setSelectedSighting(null);
     setSelectedSpecies(species);
     setSpeciesQuery(species.comName);
     setSearchFocused(false);
@@ -578,6 +686,7 @@ export default function App() {
   // Clearing returns to the "all birds" browse state: no species on the map,
   // search emptied. The map, metric rail, and timeline each show empty states.
   const clearSpecies = () => {
+    setSelectedSighting(null);
     setSelectedSpecies(null);
     setSpeciesQuery("");
     setPayload(null);
@@ -588,6 +697,7 @@ export default function App() {
 
   const openChat = () => {
     setInsightsOpen(false);
+    setWatchlistOpen(false);
     setChatSuggestions(samplePrompts(CHAT_PROMPTS, 4));
     setChatOpen(true);
   };
@@ -598,6 +708,35 @@ export default function App() {
     } else {
       openChat();
     }
+  };
+
+  const toggleWatchlist = () => {
+    setWatchlistOpen((open) => {
+      const next = !open;
+      if (next) {
+        setInsightsOpen(false);
+        setChatOpen(false);
+      }
+      return next;
+    });
+  };
+
+  const toggleWatched = (speciesCode: string) => {
+    setWatchlist((current) => {
+      if (current.includes(speciesCode)) {
+        setAlerts((active) => active.filter((code) => code !== speciesCode));
+        return current.filter((code) => code !== speciesCode);
+      }
+      return [...current, speciesCode];
+    });
+  };
+
+  const toggleAlert = (speciesCode: string) => {
+    setAlerts((current) =>
+      current.includes(speciesCode)
+        ? current.filter((code) => code !== speciesCode)
+        : [...current, speciesCode]
+    );
   };
 
   const sendChat = useCallback(
@@ -697,7 +836,7 @@ export default function App() {
 
   // When a drawer docks or undocks, the map container resizes, so Leaflet has
   // to re-measure after the slide transition or the tiles render at the old size.
-  const docked = (insightsOpen || chatOpen) && isWide;
+  const docked = (insightsOpen || chatOpen || watchlistOpen) && isWide;
   useEffect(() => {
     const map = mapRef.current;
     if (!map) {
@@ -820,6 +959,19 @@ export default function App() {
     window.setTimeout(() => setShareStatus(""), 1800);
   };
 
+  const shareSighting = async (feature: SightingFeature) => {
+    const destination = feature.properties.subId
+      ? `https://ebird.org/checklist/${feature.properties.subId}`
+      : currentAppUrl;
+    try {
+      await navigator.clipboard.writeText(destination);
+      setSightingShareStatus("Copied");
+    } catch {
+      setSightingShareStatus("Copy failed");
+    }
+    window.setTimeout(() => setSightingShareStatus(""), 1800);
+  };
+
   const hasApiKey = config?.hasApiKey ?? false;
   // In the browse state there's no payload, so reflect the configured source (a
   // live key is live, just idle) instead of mislabeling it "Demo stream".
@@ -827,10 +979,11 @@ export default function App() {
   const sourceLabel = isLiveSource ? "Live eBird" : "Demo stream";
 
   return (
-    <main className={`app-shell ${docked ? "shell-docked" : ""}`}>
-      <section className="map-stage" aria-label="Sightings map">
+    <main className={`app-shell theme-${theme} ${docked ? "shell-docked" : ""}`}>
+      <section className={`map-stage ${playing ? "movement-playing" : ""}`} aria-label="Sightings map">
         <div ref={mapElementRef} className="map-canvas" />
         <div className="map-vignette" />
+        {playing ? <div className="movement-sweep" aria-hidden="true" /> : null}
         {loading ? (
           <div className="loading-pill">
             <Radar size={16} />
@@ -876,6 +1029,80 @@ export default function App() {
             <button type="button" onClick={() => void loadSightings({ force: true })}>Try again</button>
           </div>
         ) : null}
+        {!showTourInvite && !selectedSighting && fieldBriefFindings.length && !docked ? (
+          <section className="field-brief" aria-label="What's moving now">
+            <header>
+              <span>
+                <Sparkles size={14} />
+                Live field brief
+              </span>
+              <small>{insights?.findings.length ? formatShortDateTime(insights.generatedAt) : "Curated picks"}</small>
+            </header>
+            <div>
+              {fieldBriefFindings.map((finding, index) => (
+                <button
+                  type="button"
+                  key={`${finding.speciesCode}-${index}`}
+                  onClick={() => selectSpecies({
+                    speciesCode: finding.speciesCode as string,
+                    comName: finding.comName || finding.title,
+                    sciName: "",
+                    group: "Field brief"
+                  })}
+                >
+                  <span className={`field-brief-kind ${finding.kind}`}>{insightIcon(finding.kind)}</span>
+                  <span>
+                    <strong>{finding.comName || finding.title}</strong>
+                    <small>{finding.detail}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+        {selectedSighting ? (
+          <aside className="sighting-sheet" aria-label="Sighting details">
+            <header>
+              <span className="sighting-sheet-kicker">Fresh field record</span>
+              <button type="button" onClick={() => setSelectedSighting(null)} aria-label="Close sighting details">
+                <X size={17} />
+              </button>
+            </header>
+            <h2>{selectedSighting.properties.comName}</h2>
+            <p className="sighting-sheet-science">{selectedSighting.properties.sciName}</p>
+            <div className="sighting-sheet-place">
+              <MapPin size={15} />
+              <span>
+                <strong>{selectedSighting.properties.locName}</strong>
+                <small>{selectedSighting.properties.regionCode} · {formatShortDateTime(selectedSighting.properties.obsDt)}</small>
+              </span>
+            </div>
+            <div className="sighting-sheet-facts">
+              <span><strong>{selectedSighting.properties.howMany ?? "X"}</strong> reported</span>
+              <span><strong>{selectedSighting.properties.obsReviewed ? "Reviewed" : "Recent"}</strong> status</span>
+              <span><strong>{selectedSighting.properties.locationPrivate ? "Approx." : "Public"}</strong> location</span>
+            </div>
+            <footer>
+              <button type="button" onClick={() => void shareSighting(selectedSighting)}>
+                {sightingShareStatus === "Copied" ? <Check size={14} /> : <Share2 size={14} />}
+                {sightingShareStatus || "Share"}
+              </button>
+              <button
+                type="button"
+                className={watchlist.includes(selectedSighting.properties.speciesCode) ? "active" : ""}
+                onClick={() => toggleWatched(selectedSighting.properties.speciesCode)}
+              >
+                <Star size={14} />
+                {watchlist.includes(selectedSighting.properties.speciesCode) ? "Watching" : "My birds"}
+              </button>
+              {selectedSighting.properties.subId ? (
+                <a href={`https://ebird.org/checklist/${selectedSighting.properties.subId}`} target="_blank" rel="noreferrer">
+                  Checklist <ExternalLink size={13} />
+                </a>
+              ) : null}
+            </footer>
+          </aside>
+        ) : null}
       </section>
 
       <aside className="control-panel" aria-label="Tracker controls">
@@ -889,6 +1116,16 @@ export default function App() {
             <p className="brand-tag">Live bird movement, charted from eBird checklists.</p>
           </div>
           <div className="brand-actions">
+            <button
+              type="button"
+              className="brand-action"
+              onClick={() => setTheme((current) => current === "field" ? "dusk" : "field")}
+              aria-pressed={theme === "dusk"}
+              title={theme === "field" ? "Switch to Dusk" : "Switch to Field"}
+              aria-label={theme === "field" ? "Switch to Dusk theme" : "Switch to Field theme"}
+            >
+              {theme === "field" ? <Moon size={16} /> : <Sun size={16} />}
+            </button>
             <button
               type="button"
               className={`brand-action ${shareStatus === "Link copied" ? "success" : ""}`}
@@ -951,6 +1188,15 @@ export default function App() {
             <MessageCircle size={14} />
             Ask
           </button>
+          <button
+            type="button"
+            className={`status-badge watchlist-trigger ${watchlistOpen ? "active" : ""} ${activeAlertFindings.length ? "has-alert" : ""}`}
+            onClick={toggleWatchlist}
+            aria-expanded={watchlistOpen}
+          >
+            {activeAlertFindings.length ? <BellRing size={14} /> : <Star size={14} />}
+            My birds {watchlist.length ? `· ${watchlist.length}` : ""}
+          </button>
           <a className="status-badge methodology-trigger" href="#methodology">
             <BookOpen size={14} />
             Methodology
@@ -958,14 +1204,33 @@ export default function App() {
         </div>
 
         {selectedSpecies ? (
-          <section className="active-species-card" aria-label="Selected species">
-            <div>
+          <section className={`active-species-card ${BIRD_ART[selectedSpecies.speciesCode] ? "illustrated" : ""}`} aria-label="Selected species">
+            {BIRD_ART[selectedSpecies.speciesCode] ? (
+              <img src={BIRD_ART[selectedSpecies.speciesCode]} alt="" aria-hidden="true" decoding="async" />
+            ) : (
+              <span className={`species-hero-fallback group-${normalizeCssToken(selectedSpecies.group)}`} aria-hidden="true">
+                <Bird size={46} />
+              </span>
+            )}
+            <div className="species-hero-copy">
               <span>Now viewing · {selectedSpecies.group}</span>
               <strong>{selectedSpecies.comName}</strong>
               <em>{selectedSpecies.sciName}</em>
+              <span className="species-hero-live">
+                <i /> {loading ? "Scanning…" : `${windowStats.locations.toLocaleString()} recent locations`}
+              </span>
             </div>
             <div className="active-species-side">
               <code>{selectedSpecies.speciesCode}</code>
+              <button
+                type="button"
+                className={`species-watch ${watchlist.includes(selectedSpecies.speciesCode) ? "active" : ""}`}
+                onClick={() => toggleWatched(selectedSpecies.speciesCode)}
+                aria-label={watchlist.includes(selectedSpecies.speciesCode) ? `Remove ${selectedSpecies.comName} from My birds` : `Add ${selectedSpecies.comName} to My birds`}
+                title={watchlist.includes(selectedSpecies.speciesCode) ? "Remove from My birds" : "Add to My birds"}
+              >
+                <Star size={14} />
+              </button>
               <button
                 type="button"
                 className="species-clear"
@@ -1394,6 +1659,90 @@ export default function App() {
         </aside>
       ) : null}
 
+      {watchlistOpen ? (
+        <aside className="watchlist-panel" aria-label="My birds">
+          <header className="watchlist-head">
+            <div>
+              <p className="eyebrow">Personal field board</p>
+              <h2>My birds</h2>
+            </div>
+            <button type="button" className="insights-close" onClick={() => setWatchlistOpen(false)} aria-label="Close My birds">
+              <X size={18} />
+            </button>
+          </header>
+
+          {activeAlertFindings.length ? (
+            <div className="watch-alert" role="status">
+              <BellRing size={17} />
+              <span>
+                <strong>{activeAlertFindings.length} field {activeAlertFindings.length === 1 ? "alert" : "alerts"}</strong>
+                <small>{activeAlertFindings.map((finding) => finding.comName || finding.title).join(" · ")}</small>
+              </span>
+            </div>
+          ) : null}
+
+          {watchlistSpecies.length ? (
+            <div className="watchlist-grid">
+              {watchlistSpecies.map((species) => {
+                const finding = insights?.findings.find((item) => item.speciesCode === species.speciesCode);
+                const alertOn = alerts.includes(species.speciesCode);
+                return (
+                  <article className={`watch-bird-card ${finding ? "notable" : ""}`} key={species.speciesCode}>
+                    {BIRD_ART[species.speciesCode] ? <img src={BIRD_ART[species.speciesCode]} alt="" loading="lazy" decoding="async" /> : <span><Bird size={22} /></span>}
+                    <button
+                      type="button"
+                      className="watch-bird-select"
+                      onClick={() => {
+                        selectSpecies(species);
+                        if (!isWide) setWatchlistOpen(false);
+                      }}
+                    >
+                      <strong>{species.comName}</strong>
+                      <small>{finding ? finding.title : species.group}</small>
+                    </button>
+                    <button
+                      type="button"
+                      className={`watch-bird-alert ${alertOn ? "active" : ""}`}
+                      onClick={() => toggleAlert(species.speciesCode)}
+                      aria-label={alertOn ? `Turn off field alerts for ${species.comName}` : `Turn on field alerts for ${species.comName}`}
+                      title={alertOn ? "Field alerts on" : "Turn on field alerts"}
+                    >
+                      {alertOn ? <BellRing size={15} /> : <Bell size={15} />}
+                    </button>
+                    <button
+                      type="button"
+                      className="watch-bird-remove"
+                      onClick={() => toggleWatched(species.speciesCode)}
+                      aria-label={`Remove ${species.comName} from My birds`}
+                    >
+                      <X size={15} />
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="watchlist-empty">
+              <Star size={27} />
+              <h3>Build your field board</h3>
+              <p>Star a bird from its hero card or any sighting. Flockline will remember it here.</p>
+              <div>
+                {featuredSpecies.slice(0, 3).map((species) => (
+                  <button type="button" key={species.speciesCode} onClick={() => toggleWatched(species.speciesCode)}>
+                    + {species.comName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <footer className="watchlist-foot">
+            <Bell size={14} />
+            Field alerts surface notable eBird reports inside Flockline. Your states and filters are saved on this device.
+          </footer>
+        </aside>
+      ) : null}
+
       {selectedSpecies ? (
         <section className="metric-rail" aria-label="Sightings summary">
           <div title="Locations plotted right now (the dots on the map)">
@@ -1598,6 +1947,10 @@ function normalizeSpecies(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function normalizeCssToken(value: string) {
+  return normalizeSpecies(value) || "other";
+}
+
 function recencyBucket(index: number, length: number) {
   const ratio = length <= 1 ? 1 : index / (length - 1);
   if (ratio > 0.72) {
@@ -1668,33 +2021,56 @@ function getFeatureColor(feature: SightingFeature, dateKeys: string[]) {
   return "#3b7dd8";
 }
 
-function buildPopup(feature: SightingFeature) {
-  const props = feature.properties;
-  const count = props.howMany ? `${props.howMany} reported` : "Present";
-  const checklist = props.subId
-    ? `<a href="https://ebird.org/checklist/${escapeHtml(props.subId)}" target="_blank" rel="noreferrer">Open checklist</a>`
-    : "";
-
-  return `
-    <div class="popup-body">
-      <strong>${escapeHtml(props.comName)}</strong>
-      <span>${escapeHtml(count)} · ${escapeHtml(props.obsDt)}</span>
-      <p>${escapeHtml(props.locName)}</p>
-      <div>${props.obsReviewed ? "Reviewed" : "Provisional"}${props.locationPrivate ? " · Private" : ""}</div>
-      ${checklist}
-    </div>
-  `;
+function buildInitialAppState(): Partial<AppState> {
+  const validRegions = defaultStates.map((state) => state.code);
+  const stored = readStoredObject<Partial<AppState>>(PREFERENCES_KEY) ?? {};
+  const storedRegions = Array.isArray(stored.regions)
+    ? stored.regions.filter((code) => validRegions.includes(code))
+    : undefined;
+  const preferences: Partial<AppState> = {
+    ...(Number.isFinite(stored.lookbackDays)
+      ? { lookbackDays: Math.min(30, Math.max(1, Number(stored.lookbackDays))) }
+      : {}),
+    ...(storedRegions ? { regions: storedRegions } : {}),
+    ...(stored.timelineMode === "daily" || stored.timelineMode === "cumulative"
+      ? { timelineMode: stored.timelineMode }
+      : {}),
+    ...(typeof stored.includeProvisional === "boolean" ? { includeProvisional: stored.includeProvisional } : {}),
+    ...(typeof stored.hotspotsOnly === "boolean" ? { hotspotsOnly: stored.hotspotsOnly } : {})
+  };
+  const urlState = parseAppState(typeof window === "undefined" ? "" : window.location.search, validRegions);
+  return { ...preferences, ...urlState };
 }
 
-function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => {
-    const replacements: Record<string, string> = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    };
-    return replacements[character];
-  });
+function readStoredString(key: string) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function readStoredObject<T>(key: string): T | null {
+  const raw = readStoredString(key);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+}
+
+function readStoredList(key: string) {
+  const value = readStoredObject<unknown>(key);
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string").slice(0, 50)
+    : [];
+}
+
+function writeStoredJson(key: string, value: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Device persistence is optional; the current session remains functional.
+  }
 }

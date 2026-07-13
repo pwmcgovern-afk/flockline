@@ -133,6 +133,26 @@ export default function Methodology() {
         </section>
 
         <section className="methodology-section">
+          <h2>Field brief and illustrations</h2>
+          <p>
+            The live field brief is a compact view of the same notable-observation evidence used by Insights. Its
+            cards are invitations to explore, not population rankings. Featured species use original AI-assisted
+            natural-history artwork created for Flockline; the illustrations are editorial and should not replace an
+            authoritative field mark or identification guide.
+          </p>
+        </section>
+
+        <section className="methodology-section">
+          <h2>My birds and field alerts</h2>
+          <p>
+            My birds is a device-local watchlist. Field alerts compare watched species against Flockline's current
+            notable-sighting brief and appear inside the app; they are not push notifications and do not guarantee
+            that every report will be surfaced. Watchlists, alert choices, the Field or Dusk theme, preferred states,
+            and filters stay in your browser and are not attached to an account.
+          </p>
+        </section>
+
+        <section className="methodology-section">
           <h2>
             <MessageCircle size={18} />
             Ask
@@ -161,6 +181,7 @@ export default function Methodology() {
           <p>
             Flockline does not require an account. Your active bird, states, timeline window, and filters are stored in
             the page URL so the view can be bookmarked or shared; no API credentials are ever stored in the browser.
+            My birds and display preferences are stored locally on the device and are never sent with Ask questions.
             Questions submitted through Ask are sent to Flockline's server and Anthropic to generate a response, so
             do not include personal or sensitive information in a birding question.
           </p>

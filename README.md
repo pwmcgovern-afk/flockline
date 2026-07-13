@@ -1,6 +1,6 @@
 # Flockline
 
-Flockline is a live, eBird-backed map for following recent bird movement across the Northeast United States. It combines 714 searchable species, state and hotspot filters, a daily timeline, notable-sighting insights, and a grounded birding assistant.
+Flockline is a live, eBird-backed map for following recent bird movement across the Northeast United States. It combines 714 searchable species, state and hotspot filters, a daily timeline, notable-sighting insights, a grounded birding assistant, original field-guide artwork, Field/Dusk themes, and a persistent My Birds watchlist with in-app field alerts.
 
 Production: [flockline.vercel.app](https://flockline.vercel.app)
 

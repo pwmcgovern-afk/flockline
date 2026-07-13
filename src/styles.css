@@ -2700,3 +2700,452 @@ input[type="range"] {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
+
+/* ============================================================================
+   Living field-guide layer: illustrated heroes, movement, briefs, details,
+   Dusk, and the personal My birds board.
+   ========================================================================== */
+
+.active-species-card {
+  min-height: 150px;
+  align-items: stretch;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 88% 15%, rgba(31, 138, 76, 0.14), transparent 34%),
+    linear-gradient(135deg, #f8fcf8, #eef6f0);
+}
+
+.active-species-card > img,
+.species-hero-fallback {
+  position: absolute;
+  z-index: -2;
+  inset: 0 0 0 42%;
+  width: 58%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 58% center;
+}
+
+.active-species-card > img {
+  filter: saturate(0.92) contrast(1.02);
+}
+
+.active-species-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(90deg, #f8fbf8 0%, rgba(248, 251, 248, 0.98) 45%, rgba(248, 251, 248, 0.24) 72%, transparent 100%);
+  pointer-events: none;
+}
+
+.species-hero-fallback {
+  display: grid;
+  place-items: center;
+  color: rgba(31, 138, 76, 0.38);
+  background:
+    radial-gradient(circle at 65% 35%, rgba(255, 255, 255, 0.8), transparent 20%),
+    linear-gradient(145deg, #d9eadf, #edf3e8);
+}
+
+.species-hero-fallback.group-waterfowl,
+.species-hero-fallback.group-waterbirds,
+.species-hero-fallback.group-coastal {
+  color: rgba(47, 111, 208, 0.42);
+  background: linear-gradient(145deg, #d9e8f4, #eef5f6);
+}
+
+.species-hero-fallback.group-raptors,
+.species-hero-fallback.group-owls {
+  color: rgba(148, 92, 32, 0.42);
+  background: linear-gradient(145deg, #eadfcf, #f5efe6);
+}
+
+.species-hero-copy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 68%;
+  min-width: 0;
+}
+
+.active-species-card .species-hero-copy > span:first-child {
+  color: var(--green-deep);
+}
+
+.active-species-card .species-hero-copy strong {
+  max-width: 12ch;
+  margin-top: 4px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.42rem, 4vw, 1.72rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  white-space: normal;
+}
+
+.active-species-card .species-hero-copy em {
+  max-width: 20ch;
+  margin-top: 7px;
+  font-size: 0.72rem;
+}
+
+.species-hero-live {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  margin-top: 13px;
+  padding: 5px 8px;
+  border: 1px solid rgba(31, 138, 76, 0.18);
+  border-radius: var(--pill);
+  color: var(--green-deep) !important;
+  background: rgba(255, 255, 255, 0.74);
+  font-size: 0.64rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  text-transform: none !important;
+}
+
+.species-hero-live i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgba(31, 138, 76, 0.12);
+  animation: breathe 2.2s var(--ease) infinite;
+}
+
+.active-species-card .active-species-side {
+  position: relative;
+  z-index: 3;
+  align-self: flex-start;
+}
+
+.species-watch {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid rgba(31, 138, 76, 0.22);
+  border-radius: 50%;
+  color: var(--green-deep);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.species-watch:hover,
+.species-watch.active {
+  color: #fff;
+  border-color: var(--gold);
+  background: var(--gold);
+  transform: rotate(-7deg) scale(1.06);
+}
+
+.flock-pulse-icon {
+  border: 0 !important;
+  background: transparent !important;
+  pointer-events: none !important;
+}
+
+.flock-pulse-ring,
+.flock-pulse-core {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.flock-pulse-core {
+  width: 6px;
+  height: 6px;
+  background: var(--rec-new);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.flock-pulse-ring {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--rec-new);
+  animation: flockPulse 3s var(--ease) infinite;
+}
+
+.flock-pulse-icon.playing .flock-pulse-ring {
+  animation-duration: 1.45s;
+}
+
+.movement-sweep {
+  position: absolute;
+  z-index: 405;
+  top: 50%;
+  left: 55%;
+  width: min(62vw, 760px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(31, 138, 76, 0.22);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(from 230deg, transparent 0 76%, rgba(31, 138, 76, 0.13) 91%, transparent 100%);
+  animation: radarSweep 3.2s linear infinite;
+  mask-image: radial-gradient(circle, transparent 0 17%, #000 18% 100%);
+}
+
+@keyframes flockPulse {
+  0% { opacity: 0.78; transform: translate(-50%, -50%) scale(0.5); }
+  78%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.7); }
+}
+
+@keyframes radarSweep {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.field-brief {
+  position: absolute;
+  z-index: 650;
+  top: 102px;
+  right: calc(22px + var(--dock));
+  width: min(368px, calc(100vw - 492px));
+  overflow: hidden;
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.93);
+  backdrop-filter: blur(18px) saturate(1.08);
+  box-shadow: var(--shadow);
+  animation: riseIn 0.48s var(--ease) both;
+  transition: right 0.32s var(--ease);
+}
+
+.field-brief > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.field-brief > header > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--green-deep);
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.field-brief > header small {
+  color: var(--text-faint);
+  font-size: 0.64rem;
+}
+
+.field-brief > div {
+  display: grid;
+}
+
+.field-brief > div > button {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 10px 13px;
+  border: 0;
+  border-bottom: 1px solid var(--hair);
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+}
+
+.field-brief > div > button:last-child { border-bottom: 0; }
+.field-brief > div > button:hover { background: var(--green-soft); }
+.field-brief > div > button > span:last-child { display: grid; min-width: 0; gap: 2px; }
+.field-brief strong { overflow: hidden; font-family: var(--font-display); font-size: 0.8rem; text-overflow: ellipsis; white-space: nowrap; }
+.field-brief button small { overflow: hidden; color: var(--text-dim); font-size: 0.66rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.field-brief-kind {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  color: var(--red-deep);
+  background: var(--red-soft);
+}
+.field-brief-kind.wide { color: var(--blue); background: var(--blue-soft); }
+.field-brief-kind.surge { color: #9a6a0a; background: var(--gold-soft); }
+
+.sighting-sheet {
+  position: absolute;
+  z-index: 735;
+  right: calc(22px + var(--dock));
+  bottom: 235px;
+  width: min(370px, calc(100vw - 492px));
+  padding: 18px;
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-lg);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(18px) saturate(1.08);
+  box-shadow: var(--shadow);
+  animation: riseIn 0.3s var(--ease) both;
+}
+
+.sighting-sheet > header { display: flex; align-items: center; justify-content: space-between; }
+.sighting-sheet > header button { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; color: var(--text-dim); background: var(--surface-2); }
+.sighting-sheet-kicker { color: var(--red); font-size: 0.64rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+.sighting-sheet h2 { margin: 8px 0 1px; font-family: Georgia, "Times New Roman", serif; font-size: 1.6rem; line-height: 1; }
+.sighting-sheet-science { margin: 0 0 15px; color: var(--text-faint); font-size: 0.74rem; font-style: italic; }
+.sighting-sheet-place { display: flex; align-items: flex-start; gap: 9px; padding: 11px 12px; border-radius: var(--radius); background: var(--surface); }
+.sighting-sheet-place > svg { flex: 0 0 auto; margin-top: 2px; color: var(--green); }
+.sighting-sheet-place > span { display: grid; gap: 3px; }
+.sighting-sheet-place strong { font-size: 0.8rem; line-height: 1.25; }
+.sighting-sheet-place small { color: var(--text-dim); font-size: 0.68rem; }
+.sighting-sheet-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+.sighting-sheet-facts span { display: grid; gap: 2px; padding: 8px; border: 1px solid var(--hair); border-radius: var(--radius-sm); color: var(--text-faint); font-size: 0.62rem; }
+.sighting-sheet-facts strong { color: var(--ink); font-size: 0.72rem; }
+.sighting-sheet footer { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.sighting-sheet footer button,
+.sighting-sheet footer a { display: inline-flex; align-items: center; gap: 5px; min-height: 31px; padding: 0 10px; border: 1px solid var(--hair-2); border-radius: var(--pill); color: var(--green-deep); background: var(--panel); font-size: 0.68rem; font-weight: 800; text-decoration: none; }
+.sighting-sheet footer button:hover,
+.sighting-sheet footer button.active,
+.sighting-sheet footer a:hover { color: #fff; border-color: var(--green); background: var(--green); }
+
+.watchlist-trigger { cursor: pointer; color: #8a5b04; border-color: rgba(224, 150, 26, 0.3); background: var(--gold-soft); font-weight: 700; }
+.watchlist-trigger:hover { transform: translateY(-1px); }
+.watchlist-trigger.active { color: #fff; border-color: transparent; background: var(--gold); }
+.watchlist-trigger.has-alert svg { animation: bellNudge 2.4s var(--ease) infinite; }
+@keyframes bellNudge { 0%, 80%, 100% { transform: rotate(0); } 86% { transform: rotate(-10deg); } 92% { transform: rotate(10deg); } }
+
+.watchlist-panel {
+  position: absolute;
+  z-index: 730;
+  inset: 0 0 0 auto;
+  width: min(404px, 100vw);
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border-left: 1px solid var(--hair);
+  color: var(--ink);
+  background: var(--panel);
+  box-shadow: -34px 0 70px -34px rgba(20, 45, 30, 0.3);
+  overflow-y: auto;
+  animation: drawerIn 0.3s var(--ease) both;
+}
+
+.watchlist-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--hair); }
+.watchlist-head h2 { margin: 3px 0 0; font-family: var(--font-display); font-size: 1.45rem; }
+.watchlist-head .eyebrow { color: #9a6a0a; }
+.watch-alert { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 13px; padding: 11px 12px; border: 1px solid rgba(224, 150, 26, 0.28); border-radius: var(--radius); color: #8a5b04; background: var(--gold-soft); }
+.watch-alert > svg { flex: 0 0 auto; margin-top: 2px; }
+.watch-alert span { display: grid; gap: 3px; }
+.watch-alert strong { font-size: 0.78rem; }
+.watch-alert small { font-size: 0.68rem; line-height: 1.35; }
+.watchlist-grid { display: grid; gap: 9px; }
+.watch-bird-card { display: grid; grid-template-columns: 58px minmax(0, 1fr) 30px 30px; align-items: center; gap: 8px; min-height: 68px; padding: 7px; border: 1px solid var(--hair); border-radius: var(--radius); background: var(--panel-tint); }
+.watch-bird-card.notable { border-color: rgba(224, 150, 26, 0.3); box-shadow: inset 3px 0 0 var(--gold); }
+.watch-bird-card > img,
+.watch-bird-card > span { width: 58px; height: 54px; border-radius: 9px; object-fit: cover; }
+.watch-bird-card > span { display: grid; place-items: center; color: var(--green); background: var(--green-soft); }
+.watch-bird-select { display: grid; min-width: 0; gap: 3px; padding: 0; border: 0; color: var(--ink); background: transparent; text-align: left; }
+.watch-bird-select strong,
+.watch-bird-select small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.watch-bird-select strong { font-family: var(--font-display); font-size: 0.83rem; }
+.watch-bird-select small { color: var(--text-faint); font-size: 0.65rem; }
+.watch-bird-alert,
+.watch-bird-remove { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--hair); border-radius: 50%; color: var(--text-faint); background: var(--panel); }
+.watch-bird-alert.active { color: #fff; border-color: var(--gold); background: var(--gold); }
+.watch-bird-remove:hover { color: #fff; border-color: var(--red); background: var(--red); }
+.watchlist-empty { display: grid; place-items: center; gap: 8px; margin: auto 0; padding: 28px 12px; text-align: center; }
+.watchlist-empty > svg { color: var(--gold); }
+.watchlist-empty h3 { margin: 2px 0 0; font-family: var(--font-display); }
+.watchlist-empty p { margin: 0; max-width: 30ch; color: var(--text-dim); font-size: 0.76rem; line-height: 1.5; }
+.watchlist-empty > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 6px; }
+.watchlist-empty button { min-height: 30px; padding: 0 10px; border: 1px solid rgba(224, 150, 26, 0.28); border-radius: var(--pill); color: #8a5b04; background: var(--gold-soft); font-size: 0.67rem; font-weight: 800; }
+.watchlist-foot { display: flex; align-items: flex-start; gap: 7px; margin-top: auto; padding-top: 16px; color: var(--text-faint); font-size: 0.68rem; line-height: 1.45; }
+.watchlist-foot svg { flex: 0 0 auto; margin-top: 1px; }
+
+.theme-dusk {
+  --bg: #07110d;
+  --bg-2: #0d1914;
+  --panel: #101d17;
+  --panel-tint: #14231c;
+  --ink: #eef6f0;
+  --text: #e5eee8;
+  --text-dim: #a9b9af;
+  --text-faint: #75877c;
+  --hair: rgba(220, 239, 226, 0.1);
+  --hair-2: rgba(220, 239, 226, 0.18);
+  --surface: rgba(220, 239, 226, 0.05);
+  --surface-2: rgba(220, 239, 226, 0.09);
+  --green: #2fbd70;
+  --green-bright: #54d88e;
+  --green-deep: #8bd9ab;
+  --green-soft: #163526;
+  --red: #f15a4e;
+  --red-deep: #ff8d83;
+  --red-soft: #361d1a;
+  --gold: #f0b64a;
+  --gold-soft: #352b18;
+  --blue: #78a9ff;
+  --blue-soft: #172a43;
+  color-scheme: dark;
+}
+
+.theme-dusk .map-vignette { background: radial-gradient(circle at 12% 8%, rgba(45, 180, 102, 0.11), transparent 29%), linear-gradient(90deg, rgba(7, 17, 13, 0.58), transparent 29%), linear-gradient(0deg, rgba(7, 17, 13, 0.62), transparent 20%); }
+.theme-dusk .control-panel,
+.theme-dusk .field-brief,
+.theme-dusk .sighting-sheet { background: rgba(16, 29, 23, 0.93); }
+.theme-dusk .active-species-card { background: linear-gradient(135deg, #15261d, #102019); }
+.theme-dusk .active-species-card::after { background: linear-gradient(90deg, #15261d 0%, rgba(21, 38, 29, 0.98) 45%, rgba(21, 38, 29, 0.32) 74%, transparent 100%); }
+.theme-dusk .active-species-card > img { filter: saturate(0.78) brightness(0.72) contrast(1.05); }
+.theme-dusk .species-hero-live,
+.theme-dusk .species-watch { background: rgba(16, 29, 23, 0.82); }
+.theme-dusk .search-box input,
+.theme-dusk .suggestions,
+.theme-dusk .suggestions button,
+.theme-dusk .species-library-grid button,
+.theme-dusk .state-grid button,
+.theme-dusk .library-tabs button,
+.theme-dusk .brand-action { color: var(--ink); background: var(--panel); }
+.theme-dusk .status-badge:not(.live):not(.demo):not(.catalog),
+.theme-dusk .timeline-dock,
+.theme-dusk .metric-rail { background: rgba(16, 29, 23, 0.95); }
+.theme-dusk .leaflet-control-zoom a { color: var(--ink); background: var(--panel); }
+.theme-dusk .leaflet-control-attribution { color: var(--text-faint); background: rgba(7, 17, 13, 0.76); }
+.theme-dusk .leaflet-control-attribution a { color: var(--text-dim); }
+
+.brand-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 34px);
+}
+
+.control-panel,
+.field-brief,
+.sighting-sheet,
+.tour-invite {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+@media (max-width: 1100px) {
+  .field-brief { right: 22px; width: min(360px, calc(100vw - 470px)); }
+  .sighting-sheet { right: 22px; width: min(370px, calc(100vw - 44px)); }
+}
+
+@media (max-width: 780px) {
+  .brand-actions { display: grid; grid-template-columns: repeat(2, 30px); }
+  .active-species-card { min-height: 146px; }
+  .active-species-card .species-hero-copy strong { font-size: 1.38rem; }
+  .field-brief { display: none; }
+  .movement-sweep { left: 50%; width: 120vw; }
+  .sighting-sheet { z-index: 790; right: 14px; bottom: 14px; left: 14px; width: auto; max-height: 50svh; overflow-y: auto; padding: 14px; }
+  .sighting-sheet-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .watchlist-panel { width: 100vw; }
+}
