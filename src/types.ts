@@ -36,6 +36,35 @@ export type SightingFeature = {
   properties: SightingProperties;
 };
 
+export type ChecklistDetailsResponse = {
+  source: "ebird";
+  cached?: boolean;
+  subId: string | null;
+  locId: string | null;
+  observedAt: string | null;
+  observerName: string | null;
+  protocolId: string | null;
+  protocolLabel: string | null;
+  durationMinutes: number | null;
+  distanceKm: number | null;
+  numObservers: number | null;
+  numSpecies: number | null;
+  allObsReported: boolean | null;
+  checklistComments: string | null;
+  observation: {
+    speciesCode: string;
+    count: string | null;
+    comments: string | null;
+    breedingCode: string | null;
+    exoticCategory: string | null;
+    media: {
+      photos: number;
+      audio: number;
+      videos: number;
+    };
+  } | null;
+};
+
 export type SightingsResponse = {
   source: "ebird" | "demo";
   cached?: boolean;

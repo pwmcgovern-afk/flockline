@@ -2,7 +2,7 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import fs from "node:fs";
-import { getInsights, chatWithBirds } from "../lib/ebirdCore.js";
+import { getChecklistDetails, getInsights, chatWithBirds } from "../lib/ebirdCore.js";
 import { enforceRateLimit } from "../lib/rateLimit.js";
 
 const PORT = Number(process.env.PORT || 8787);
@@ -146,6 +146,16 @@ app.get("/api/insights", async (request, response) => {
     response.json(payload);
   } catch (error) {
     response.status(502).json({ error: "Unable to build insights.", detail: error.message });
+  }
+});
+
+app.get("/api/checklist", async (request, response) => {
+  try {
+    const payload = await getChecklistDetails(request.query);
+    response.set("Cache-Control", "public, max-age=0, s-maxage=900, stale-while-revalidate=1800");
+    response.json(payload);
+  } catch (error) {
+    response.status(error.statusCode || 502).json({ error: error.message || "Unable to fetch eBird checklist details." });
   }
 });
 

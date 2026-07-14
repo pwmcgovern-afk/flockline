@@ -5,14 +5,17 @@ import {
   Bell,
   BellRing,
   BookOpen,
+  Camera,
   CalendarDays,
   Check,
   Clock,
   Compass,
   Database,
   ExternalLink,
+  AudioLines,
   Info,
   Layers,
+  ListChecks,
   Map as MapIcon,
   MapPin,
   MessageCircle,
@@ -21,6 +24,7 @@ import {
   Play,
   Radar,
   RefreshCw,
+  Route,
   Search,
   Send,
   Share2,
@@ -31,6 +35,9 @@ import {
   Sun,
   Feather,
   TrendingUp,
+  UserRound,
+  UsersRound,
+  Video,
   X,
   Wifi,
   WifiOff
@@ -42,6 +49,7 @@ import type {
   ChatMapAction,
   ChatMessage,
   ChatSpeciesRef,
+  ChecklistDetailsResponse,
   ConfigResponse,
   Insight,
   InsightKind,
@@ -93,6 +101,7 @@ const ALERTS_KEY = "flockline.alerts.v1";
 const PREFERENCES_KEY = "flockline.preferences.v1";
 const THEME_KEY = "flockline.theme.v1";
 type AppTheme = "field" | "dusk";
+type ChecklistMedia = NonNullable<ChecklistDetailsResponse["observation"]>["media"];
 
 // A pool the chat panel samples from on each open, so the starter questions
 // feel fresh and hint at the range of things the assistant can answer.
@@ -227,6 +236,9 @@ export default function App() {
   const [shareStatus, setShareStatus] = useState("");
   const [sightingShareStatus, setSightingShareStatus] = useState("");
   const [selectedSighting, setSelectedSighting] = useState<SightingFeature | null>(null);
+  const [sightingDetails, setSightingDetails] = useState<ChecklistDetailsResponse | null>(null);
+  const [sightingDetailsLoading, setSightingDetailsLoading] = useState(false);
+  const [sightingDetailsError, setSightingDetailsError] = useState("");
   const [payload, setPayload] = useState<SightingsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -259,6 +271,44 @@ export default function App() {
   const [isWide, setIsWide] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(min-width: 1100px)").matches
   );
+
+  useEffect(() => {
+    setSightingDetails(null);
+    setSightingDetailsError("");
+    setSightingDetailsLoading(false);
+
+    const subId = selectedSighting?.properties.subId;
+    const speciesCode = selectedSighting?.properties.speciesCode;
+    if (!subId || !speciesCode || !/^S\d+$/.test(subId)) {
+      return;
+    }
+
+    const controller = new AbortController();
+    setSightingDetailsLoading(true);
+    const params = new URLSearchParams({ subId, species: speciesCode });
+
+    void (async () => {
+      try {
+        const response = await fetch(`/api/checklist?${params.toString()}`, { signal: controller.signal });
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          throw new Error(body?.error || "Extra eBird details are unavailable.");
+        }
+        setSightingDetails(await response.json());
+      } catch (detailError) {
+        if (detailError instanceof DOMException && detailError.name === "AbortError") {
+          return;
+        }
+        setSightingDetailsError(detailError instanceof Error ? detailError.message : "Extra eBird details are unavailable.");
+      } finally {
+        if (!controller.signal.aborted) {
+          setSightingDetailsLoading(false);
+        }
+      }
+    })();
+
+    return () => controller.abort();
+  }, [selectedSighting]);
 
   // Insights are scoped to the timeline window (lookbackDays). `fresh` forces a
   // regenerate past both the server's 6h cache and any CDN copy (unique URL).
@@ -1098,10 +1148,75 @@ export default function App() {
               </span>
             </div>
             <div className="sighting-sheet-facts">
-              <span><strong>{selectedSighting.properties.howMany ?? "X"}</strong> reported</span>
+              <span><strong>{sightingDetails?.observation?.count ?? selectedSighting.properties.howMany ?? "X"}</strong> reported</span>
               <span><strong>{selectedSighting.properties.obsReviewed ? "Reviewed" : "Recent"}</strong> status</span>
               <span><strong>{selectedSighting.properties.locationPrivate ? "Approx." : "Public"}</strong> location</span>
             </div>
+            {selectedSighting.properties.subId && /^S\d+$/.test(selectedSighting.properties.subId) ? (
+              <section className="sighting-ebird-details" aria-live="polite">
+                <header>
+                  <span><Database size={13} /> eBird checklist details</span>
+                  {sightingDetailsLoading ? <RefreshCw className="sighting-detail-spinner" size={13} /> : null}
+                </header>
+                {sightingDetailsLoading ? (
+                  <div className="sighting-detail-loading" aria-label="Loading eBird checklist details">
+                    <span />
+                    <span />
+                  </div>
+                ) : sightingDetailsError ? (
+                  <p className="sighting-detail-error">{sightingDetailsError} The checklist link below still opens the full record.</p>
+                ) : sightingDetails ? (
+                  <>
+                    {sightingDetails.observerName ? (
+                      <div className="sighting-detail-observer">
+                        <UserRound size={15} />
+                        <span><small>Reported by</small><strong>{sightingDetails.observerName}</strong></span>
+                      </div>
+                    ) : null}
+                    <div className="sighting-detail-meta">
+                      {checklistEffort(sightingDetails) ? (
+                        <span><Route size={13} /> {checklistEffort(sightingDetails)}</span>
+                      ) : null}
+                      {sightingDetails.numSpecies !== null ? (
+                        <span><ListChecks size={13} /> {sightingDetails.numSpecies} {pluralize("species", sightingDetails.numSpecies)}</span>
+                      ) : null}
+                      {sightingDetails.numObservers !== null ? (
+                        <span><UsersRound size={13} /> {sightingDetails.numObservers} {pluralize("observer", sightingDetails.numObservers)}</span>
+                      ) : null}
+                      {sightingDetails.allObsReported !== null ? (
+                        <span><Check size={13} /> {sightingDetails.allObsReported ? "Complete checklist" : "Partial checklist"}</span>
+                      ) : null}
+                    </div>
+                    {sightingDetails.observation?.breedingCode || sightingDetails.observation?.exoticCategory ? (
+                      <div className="sighting-detail-tags">
+                        {sightingDetails.observation.breedingCode ? <span>Breeding code {sightingDetails.observation.breedingCode}</span> : null}
+                        {sightingDetails.observation.exoticCategory ? <span>{sightingDetails.observation.exoticCategory}</span> : null}
+                      </div>
+                    ) : null}
+                    {sightingDetails.observation?.comments ? (
+                      <div className="sighting-detail-note species-note">
+                        <span>Species note</span>
+                        <p>{sightingDetails.observation.comments}</p>
+                      </div>
+                    ) : null}
+                    {sightingDetails.checklistComments ? (
+                      <div className="sighting-detail-note">
+                        <span>Checklist note</span>
+                        <p>{sightingDetails.checklistComments}</p>
+                      </div>
+                    ) : null}
+                    {sightingDetails.observation && totalMedia(sightingDetails.observation.media) > 0 ? (
+                      <div className="sighting-detail-media">
+                        {sightingDetails.observation.media.photos ? <span><Camera size={13} /> {sightingDetails.observation.media.photos}</span> : null}
+                        {sightingDetails.observation.media.audio ? <span><AudioLines size={13} /> {sightingDetails.observation.media.audio}</span> : null}
+                        {sightingDetails.observation.media.videos ? <span><Video size={13} /> {sightingDetails.observation.media.videos}</span> : null}
+                        <small>Media on eBird</small>
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
+              </section>
+            ) : null}
             <footer>
               <button type="button" onClick={() => void shareSighting(selectedSighting)}>
                 {sightingShareStatus === "Copied" ? <Check size={14} /> : <Share2 size={14} />}
@@ -2059,6 +2174,31 @@ function getFeatureColor(feature: SightingFeature, dateKeys: string[]) {
     return "#e8a317";
   }
   return "#3b7dd8";
+}
+
+function checklistEffort(details: ChecklistDetailsResponse) {
+  return [
+    details.protocolLabel,
+    details.durationMinutes === null ? null : formatDuration(details.durationMinutes),
+    details.distanceKm === null ? null : `${details.distanceKm.toFixed(details.distanceKm < 10 ? 1 : 0)} km`
+  ].filter(Boolean).join(" · ");
+}
+
+function formatDuration(minutes: number) {
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  return remainder ? `${hours} hr ${remainder} min` : `${hours} hr`;
+}
+
+function pluralize(word: string, count: number) {
+  return count === 1 || word === "species" ? word : `${word}s`;
+}
+
+function totalMedia(media: ChecklistMedia) {
+  return Object.values(media).reduce((sum, count) => sum + count, 0);
 }
 
 function buildInitialAppState(): Partial<AppState> {

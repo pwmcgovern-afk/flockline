@@ -2987,6 +2987,8 @@ input[type="range"] {
   right: calc(22px + var(--dock));
   bottom: 235px;
   width: min(370px, calc(100vw - 492px));
+  max-height: calc(100svh - 270px);
+  overflow-y: auto;
   padding: 18px;
   border: 1px solid var(--hair);
   border-radius: var(--radius-lg);
@@ -3010,6 +3012,32 @@ input[type="range"] {
 .sighting-sheet-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
 .sighting-sheet-facts span { display: grid; gap: 2px; padding: 8px; border: 1px solid var(--hair); border-radius: var(--radius-sm); color: var(--text-faint); font-size: 0.62rem; }
 .sighting-sheet-facts strong { color: var(--ink); font-size: 0.72rem; }
+.sighting-ebird-details { margin-top: 10px; padding: 10px; border: 1px solid var(--hair); border-radius: var(--radius); background: var(--surface); }
+.sighting-ebird-details > header { display: flex; align-items: center; justify-content: space-between; color: var(--green-deep); }
+.sighting-ebird-details > header > span { display: inline-flex; align-items: center; gap: 5px; font-size: 0.62rem; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+.sighting-detail-spinner { animation: spin 0.9s linear infinite; }
+.sighting-detail-loading { display: grid; gap: 7px; padding-top: 10px; }
+.sighting-detail-loading span { height: 11px; border-radius: var(--pill); background: linear-gradient(90deg, var(--surface-2), var(--hair), var(--surface-2)); background-size: 180% 100%; animation: sightingShimmer 1.2s linear infinite; }
+.sighting-detail-loading span:last-child { width: 72%; }
+@keyframes sightingShimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.sighting-detail-error { margin: 9px 0 0; color: var(--text-dim); font-size: 0.66rem; line-height: 1.45; }
+.sighting-detail-observer { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.sighting-detail-observer > svg { color: var(--green); }
+.sighting-detail-observer > span { display: grid; gap: 1px; }
+.sighting-detail-observer small { color: var(--text-faint); font-size: 0.59rem; text-transform: uppercase; }
+.sighting-detail-observer strong { font-size: 0.72rem; }
+.sighting-detail-meta { display: flex; flex-wrap: wrap; gap: 5px 10px; margin-top: 9px; }
+.sighting-detail-meta span { display: inline-flex; align-items: center; gap: 4px; color: var(--text-dim); font-size: 0.64rem; line-height: 1.3; }
+.sighting-detail-meta svg { flex: 0 0 auto; color: var(--green); }
+.sighting-detail-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.sighting-detail-tags span { padding: 3px 7px; border-radius: var(--pill); color: var(--green-deep); background: var(--green-soft); font-size: 0.59rem; font-weight: 750; text-transform: capitalize; }
+.sighting-detail-note { margin-top: 9px; padding: 8px 9px; border-left: 2px solid var(--hair-2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--panel); }
+.sighting-detail-note.species-note { border-left-color: var(--green); }
+.sighting-detail-note > span { color: var(--text-faint); font-size: 0.58rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.sighting-detail-note p { margin: 3px 0 0; color: var(--text-dim); font-size: 0.67rem; line-height: 1.42; white-space: pre-wrap; }
+.sighting-detail-media { display: flex; align-items: center; gap: 7px; margin-top: 9px; }
+.sighting-detail-media span { display: inline-flex; align-items: center; gap: 3px; color: var(--green-deep); font-size: 0.64rem; font-weight: 800; }
+.sighting-detail-media small { color: var(--text-faint); font-size: 0.6rem; }
 .sighting-sheet footer { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
 .sighting-sheet footer button,
 .sighting-sheet footer a { display: inline-flex; align-items: center; gap: 5px; min-height: 31px; padding: 0 10px; border: 1px solid var(--hair-2); border-radius: var(--pill); color: var(--green-deep); background: var(--panel); font-size: 0.68rem; font-weight: 800; text-decoration: none; }
@@ -3145,7 +3173,7 @@ input[type="range"] {
   .active-species-card .species-hero-copy strong { font-size: 1.38rem; }
   .field-brief { display: none; }
   .movement-sweep { left: 50%; width: 120vw; }
-  .sighting-sheet { z-index: 790; right: 14px; bottom: 14px; left: 14px; width: auto; max-height: 50svh; overflow-y: auto; padding: 14px; }
+  .sighting-sheet { z-index: 790; right: 14px; bottom: 14px; left: 14px; width: auto; max-height: 72svh; overflow-y: auto; padding: 14px; }
   .sighting-sheet-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .watchlist-panel { width: 100vw; }
 }
