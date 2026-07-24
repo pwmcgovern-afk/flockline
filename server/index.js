@@ -4,6 +4,7 @@ import express from "express";
 import fs from "node:fs";
 import { getChecklistDetails, getInsights, chatWithBirds } from "../lib/ebirdCore.js";
 import { enforceRateLimit } from "../lib/rateLimit.js";
+import { US_STATES, getCensusRegion } from "../shared/usGeography.js";
 
 const PORT = Number(process.env.PORT || 8787);
 const ebirdApiKey = process.env.EBIRD_API_KEY || "";
@@ -15,18 +16,6 @@ const speciesPresets = JSON.parse(fs.readFileSync(new URL("../shared/speciesCata
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "64kb" }));
-
-const northeastStates = [
-  { code: "US-ME", abbr: "ME", name: "Maine", center: [44.6939, -69.3819] },
-  { code: "US-NH", abbr: "NH", name: "New Hampshire", center: [43.6805, -71.5811] },
-  { code: "US-VT", abbr: "VT", name: "Vermont", center: [44.0459, -72.7107] },
-  { code: "US-MA", abbr: "MA", name: "Massachusetts", center: [42.4072, -71.3824] },
-  { code: "US-RI", abbr: "RI", name: "Rhode Island", center: [41.5801, -71.4774] },
-  { code: "US-CT", abbr: "CT", name: "Connecticut", center: [41.6032, -73.0877] },
-  { code: "US-NY", abbr: "NY", name: "New York", center: [42.9538, -75.5268] },
-  { code: "US-NJ", abbr: "NJ", name: "New Jersey", center: [40.0583, -74.4057] },
-  { code: "US-PA", abbr: "PA", name: "Pennsylvania", center: [41.2033, -77.1945] }
-];
 
 const speciesAliases = new Map();
 for (const species of speciesPresets) {
@@ -48,7 +37,7 @@ let taxonomyCache = null;
 app.get("/api/config", (_request, response) => {
   response.json({
     hasApiKey: Boolean(ebirdApiKey),
-    states: northeastStates,
+    states: US_STATES,
     presets: speciesPresets,
     maxBackDays: 30
   });
@@ -85,11 +74,11 @@ app.get("/api/sightings", async (request, response) => {
     .map((region) => region.trim().toUpperCase())
     .filter(Boolean);
   const regions = requestedRegions.length
-    ? requestedRegions.filter((region) => northeastStates.some((state) => state.code === region))
-    : northeastStates.map((state) => state.code);
+    ? requestedRegions.filter((region) => US_STATES.some((state) => state.code === region))
+    : getCensusRegion("northeast").stateCodes;
 
   if (!regions.length) {
-    response.status(400).json({ error: "No valid Northeast regions selected." });
+    response.status(400).json({ error: "No valid U.S. states selected." });
     return;
   }
 
@@ -346,7 +335,7 @@ function observationToFeature(observation, fallbackSpecies) {
 function buildDemoPayload(species, regions, back, includeProvisional, hotspot) {
   const now = new Date();
   const observations = [];
-  const selectedStates = northeastStates.filter((state) => regions.includes(state.code));
+  const selectedStates = US_STATES.filter((state) => regions.includes(state.code));
   const density = species.speciesCode === "osprey" ? 8 : species.speciesCode === "coohaw" ? 6 : 5;
 
   for (const state of selectedStates) {
@@ -490,9 +479,9 @@ function formatObservationDate(date) {
 }
 
 function inferRegionCode(lat, lng) {
-  let closest = northeastStates[0];
+  let closest = US_STATES[0];
   let closestDistance = Number.POSITIVE_INFINITY;
-  for (const state of northeastStates) {
+  for (const state of US_STATES) {
     const distance = Math.abs(Number(lat) - state.center[0]) + Math.abs(Number(lng) - state.center[1]);
     if (distance < closestDistance) {
       closest = state;

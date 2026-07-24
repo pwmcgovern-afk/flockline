@@ -10,11 +10,25 @@ export type AppState = {
 };
 
 const DEFAULT_DAYS = 7;
+const DEFAULT_REGION_ID = "northeast";
 
-export function parseAppState(search: string, validRegions: string[]): Partial<AppState> {
+type RegionPreset = {
+  id: string;
+  stateCodes: string[];
+};
+
+export function parseAppState(
+  search: string,
+  validRegions: string[],
+  regionPresets: RegionPreset[] = []
+): Partial<AppState> {
   const params = new URLSearchParams(search);
   const bird = params.get("bird")?.trim().toLowerCase();
   const days = Number.parseInt(params.get("days") ?? "", 10);
+  const requestedPreset = params.get("region")?.trim().toLowerCase();
+  const presetRegions = regionPresets
+    .find((preset) => preset.id === requestedPreset)
+    ?.stateCodes.filter((code) => validRegions.includes(code));
   const requestedRegions = (params.get("states") ?? "")
     .split(",")
     .map((value) => value.trim().toUpperCase())
@@ -23,7 +37,7 @@ export function parseAppState(search: string, validRegions: string[]): Partial<A
   return {
     ...(bird ? { speciesCode: bird === "browse" ? null : bird } : {}),
     ...(Number.isFinite(days) ? { lookbackDays: clamp(days, 1, 30) } : {}),
-    ...(params.has("states") ? { regions: requestedRegions } : {}),
+    ...(presetRegions ? { regions: presetRegions } : params.has("states") ? { regions: requestedRegions } : {}),
     ...(params.get("mode") === "new" ? { timelineMode: "daily" as const } : {}),
     ...(params.get("mode") === "trail" ? { timelineMode: "cumulative" as const } : {}),
     ...(params.has("provisional") ? { includeProvisional: params.get("provisional") !== "0" } : {}),
@@ -31,15 +45,23 @@ export function parseAppState(search: string, validRegions: string[]): Partial<A
   };
 }
 
-export function buildAppUrl(input: string, state: AppState, allRegions: string[]) {
+export function buildAppUrl(
+  input: string,
+  state: AppState,
+  allRegions: string[],
+  regionPresets: RegionPreset[] = []
+) {
   const url = new URL(input);
   const params = new URLSearchParams();
+  const matchingPreset = regionPresets.find((preset) => sameRegions(state.regions, preset.stateCodes));
 
   params.set("bird", state.speciesCode ?? "browse");
   if (state.lookbackDays !== DEFAULT_DAYS) {
     params.set("days", String(state.lookbackDays));
   }
-  if (!sameRegions(state.regions, allRegions)) {
+  if (matchingPreset && matchingPreset.id !== DEFAULT_REGION_ID) {
+    params.set("region", matchingPreset.id);
+  } else if (!matchingPreset && !sameRegions(state.regions, allRegions)) {
     params.set("states", state.regions.join(","));
   }
   if (state.timelineMode === "daily") {

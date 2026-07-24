@@ -45,6 +45,13 @@ import {
 import Tour, { type TourStep } from "./Tour";
 import { buildAppUrl, parseAppState, type AppState, type TimelineMode } from "./appState";
 import speciesCatalog from "../shared/speciesCatalog.json";
+import {
+  DEFAULT_REGION_ID,
+  US_CENSUS_REGIONS,
+  US_STATES,
+  getCensusRegion,
+  matchingCensusRegion
+} from "../shared/usGeography.js";
 import type {
   ChatMapAction,
   ChatMessage,
@@ -60,17 +67,8 @@ import type {
   Species
 } from "./types";
 
-const defaultStates: Region[] = [
-  { code: "US-ME", abbr: "ME", name: "Maine", center: [44.6939, -69.3819] },
-  { code: "US-NH", abbr: "NH", name: "New Hampshire", center: [43.6805, -71.5811] },
-  { code: "US-VT", abbr: "VT", name: "Vermont", center: [44.0459, -72.7107] },
-  { code: "US-MA", abbr: "MA", name: "Massachusetts", center: [42.4072, -71.3824] },
-  { code: "US-RI", abbr: "RI", name: "Rhode Island", center: [41.5801, -71.4774] },
-  { code: "US-CT", abbr: "CT", name: "Connecticut", center: [41.6032, -73.0877] },
-  { code: "US-NY", abbr: "NY", name: "New York", center: [42.9538, -75.5268] },
-  { code: "US-NJ", abbr: "NJ", name: "New Jersey", center: [40.0583, -74.4057] },
-  { code: "US-PA", abbr: "PA", name: "Pennsylvania", center: [41.2033, -77.1945] }
-];
+const defaultStates: Region[] = US_STATES;
+const defaultRegionCodes = getCensusRegion(DEFAULT_REGION_ID)?.stateCodes ?? [];
 
 const defaultPresets = speciesCatalog as Species[];
 const defaultSpecies = defaultPresets.find((species) => species.speciesCode === "osprey") ?? defaultPresets[0];
@@ -220,8 +218,11 @@ export default function App() {
   const [states, setStates] = useState(defaultStates);
   const [presets, setPresets] = useState(defaultPresets);
   const [selectedRegions, setSelectedRegions] = useState(
-    initialState.regions ?? defaultStates.map((state) => state.code)
+    initialState.regions ?? defaultRegionCodes
   );
+  const [focusedRegionId, setFocusedRegionId] = useState(() => {
+    return matchingCensusRegion(initialState.regions ?? defaultRegionCodes)?.id ?? DEFAULT_REGION_ID;
+  });
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(initialSpecies);
   const [speciesQuery, setSpeciesQuery] = useState(initialSpecies?.comName ?? "");
   const [suggestions, setSuggestions] = useState<Species[]>(defaultPresets);
@@ -412,7 +413,20 @@ export default function App() {
   const selectedRegionLabels = useMemo(() => {
     return states.filter((state) => selectedRegions.includes(state.code)).map((state) => state.abbr);
   }, [selectedRegions, states]);
-  const selectedRegionSummary = selectedRegionLabels.length > 4 ? `${selectedRegionLabels.length} states` : selectedRegionLabels.join(" ");
+  const selectedRegionPreset = useMemo(() => matchingCensusRegion(selectedRegions), [selectedRegions]);
+  const focusedRegion = useMemo(
+    () => getCensusRegion(focusedRegionId) ?? getCensusRegion(DEFAULT_REGION_ID),
+    [focusedRegionId]
+  );
+  const visibleRegionStates = useMemo(() => {
+    const available = new Set(states.map((state) => state.code));
+    return (focusedRegion?.stateCodes ?? [])
+      .filter((code) => available.has(code))
+      .map((code) => states.find((state) => state.code === code))
+      .filter((state): state is Region => Boolean(state));
+  }, [focusedRegion, states]);
+  const selectedRegionSummary = selectedRegionPreset?.name
+    ?? (selectedRegionLabels.length > 4 ? `${selectedRegionLabels.length} states` : selectedRegionLabels.join(" "));
   const filteredCatalog = useMemo(() => {
     return speciesGroup === "All" ? presets : presets.filter((species) => species.group === speciesGroup);
   }, [presets, speciesGroup]);
@@ -987,9 +1001,17 @@ export default function App() {
     });
   };
 
-  const selectAllRegions = () => setSelectedRegions(states.map((state) => state.code));
+  const selectCensusRegion = (regionId: string) => {
+    const region = getCensusRegion(regionId);
+    if (!region) return;
+    const available = new Set(states.map((state) => state.code));
+    setFocusedRegionId(region.id);
+    setSelectedRegions(region.stateCodes.filter((code) => available.has(code)));
+  };
+  const selectAllRegions = () => setSelectedRegions(visibleRegionStates.map((state) => state.code));
   const clearRegions = () => setSelectedRegions([]);
-  const allRegionsSelected = selectedRegions.length === states.length;
+  const allRegionsSelected = visibleRegionStates.length > 0
+    && visibleRegionStates.every((state) => selectedRegions.includes(state.code));
 
   const startPlayback = () => {
     if (selectedDayIndex >= lookbackDays - 1) {
@@ -1010,7 +1032,8 @@ export default function App() {
           includeProvisional,
           hotspotsOnly
         },
-        states.map((state) => state.code)
+        states.map((state) => state.code),
+        US_CENSUS_REGIONS
       ),
     [hotspotsOnly, includeProvisional, lookbackDays, selectedRegions, selectedSpecies?.speciesCode, states, timelineMode]
   );
@@ -1520,17 +1543,34 @@ export default function App() {
           <div className="block-title">
             <MapIcon size={16} />
             <span>Region</span>
+            {!selectedRegionPreset ? <span className="custom-region-label">Custom</span> : null}
             <span className="region-actions">
               <button type="button" onClick={selectAllRegions} disabled={allRegionsSelected}>
-                Select all
+                All in region
               </button>
               <button type="button" onClick={clearRegions} disabled={!selectedRegions.length}>
                 Clear
               </button>
             </span>
           </div>
+          <div className="region-button-set" role="group" aria-label="U.S. region">
+            {US_CENSUS_REGIONS.map((region) => (
+              <button
+                type="button"
+                key={region.id}
+                className={selectedRegionPreset?.id === region.id ? "active" : ""}
+                aria-pressed={selectedRegionPreset?.id === region.id}
+                onClick={() => selectCensusRegion(region.id)}
+              >
+                {region.name}
+              </button>
+            ))}
+          </div>
+          <p className="state-grid-label">
+            {focusedRegion?.name} states · {selectedRegions.filter((code) => focusedRegion?.stateCodes.includes(code)).length} selected
+          </p>
           <div className="state-grid">
-            {states.map((state) => (
+            {visibleRegionStates.map((state) => (
               <button
                 type="button"
                 key={state.code}
@@ -2202,7 +2242,7 @@ function totalMedia(media: ChecklistMedia) {
 }
 
 function buildInitialAppState(): Partial<AppState> {
-  const validRegions = defaultStates.map((state) => state.code);
+  const validRegions = US_STATES.map((state) => state.code);
   const stored = readStoredObject<Partial<AppState>>(PREFERENCES_KEY) ?? {};
   const storedRegions = Array.isArray(stored.regions)
     ? stored.regions.filter((code) => validRegions.includes(code))
@@ -2218,7 +2258,11 @@ function buildInitialAppState(): Partial<AppState> {
     ...(typeof stored.includeProvisional === "boolean" ? { includeProvisional: stored.includeProvisional } : {}),
     ...(typeof stored.hotspotsOnly === "boolean" ? { hotspotsOnly: stored.hotspotsOnly } : {})
   };
-  const urlState = parseAppState(typeof window === "undefined" ? "" : window.location.search, validRegions);
+  const urlState = parseAppState(
+    typeof window === "undefined" ? "" : window.location.search,
+    validRegions,
+    US_CENSUS_REGIONS
+  );
   return { ...preferences, ...urlState };
 }
 
