@@ -71,6 +71,11 @@ export type SightingsResponse = {
   species: Species;
   back: number;
   regions: string[];
+  coverage: {
+    requestedRegions: string[];
+    successfulRegions: string[];
+    failedRegions: string[];
+  };
   generatedAt: string;
   featureCollection: {
     type: "FeatureCollection";

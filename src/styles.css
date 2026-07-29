@@ -1493,6 +1493,16 @@ input[type="range"] {
   font-weight: 800;
 }
 
+.map-alert.partial {
+  color: #7a5606;
+  border-color: rgba(224, 150, 26, 0.3);
+  background: rgba(255, 251, 239, 0.97);
+}
+
+.map-alert.partial button {
+  background: #9a6a0a;
+}
+
 /* ============================================================================
    Insights — trigger pill + slide-in drawer
    ========================================================================== */
