@@ -2,7 +2,14 @@ import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import fs from "node:fs";
-import { getChecklistDetails, getInsights, chatWithBirds } from "../lib/ebirdCore.js";
+import {
+  getChecklistDetails,
+  getConfig,
+  getInsights,
+  getSightings,
+  getSpeciesSuggestions,
+  chatWithBirds
+} from "../lib/ebirdCore.js";
 import { enforceRateLimit } from "../lib/rateLimit.js";
 import { US_STATES, getCensusRegion } from "../shared/usGeography.js";
 
@@ -35,88 +42,19 @@ const responseCache = new Map();
 let taxonomyCache = null;
 
 app.get("/api/config", (_request, response) => {
-  response.json({
-    hasApiKey: Boolean(ebirdApiKey),
-    states: US_STATES,
-    presets: speciesPresets,
-    maxBackDays: 30
-  });
+  response.json(getConfig(ebirdApiKey));
 });
 
 app.get("/api/species", async (request, response) => {
   const query = String(request.query.q || "").trim();
-  const localMatches = searchSpecies(query, speciesPresets);
-
-  if (!ebirdApiKey || query.length < 2) {
-    response.json({ source: "local", items: localMatches.slice(0, 18) });
-    return;
-  }
-
-  try {
-    const taxonomy = await getTaxonomy();
-    const taxonomyMatches = searchSpecies(query, taxonomy).slice(0, 28);
-    const merged = mergeSpecies(localMatches, taxonomyMatches).slice(0, 28);
-    response.json({ source: "ebird", items: merged });
-  } catch (error) {
-    response.json({ source: "local", items: localMatches.slice(0, 18), warning: error.message });
-  }
+  response.json(await getSpeciesSuggestions(query, ebirdApiKey));
 });
 
 app.get("/api/sightings", async (request, response) => {
-  const speciesInput = String(request.query.species || "osprey").trim();
-  const species = await resolveSpecies(speciesInput);
-  const back = clampInteger(request.query.back, 1, 30, 7);
-  const includeProvisional = parseBoolean(request.query.includeProvisional, true);
-  const hotspot = parseBoolean(request.query.hotspot, false);
-  const fresh = parseBoolean(request.query.fresh, false);
-  const requestedRegions = String(request.query.regions || "")
-    .split(",")
-    .map((region) => region.trim().toUpperCase())
-    .filter(Boolean);
-  const regions = requestedRegions.length
-    ? requestedRegions.filter((region) => US_STATES.some((state) => state.code === region))
-    : getCensusRegion("northeast").stateCodes;
-
-  if (!regions.length) {
-    response.status(400).json({ error: "No valid U.S. states selected." });
-    return;
-  }
-
-  const cacheKey = JSON.stringify({
-    speciesCode: species.speciesCode,
-    back,
-    includeProvisional,
-    hotspot,
-    regions
-  });
-  if (!fresh) {
-    const cached = getCache(cacheKey);
-    if (cached) {
-      response.json({ ...cached, cached: true });
-      return;
-    }
-  }
-
-  if (!ebirdApiKey) {
-    const demoPayload = buildDemoPayload(species, regions, back, includeProvisional, hotspot);
-    setCache(cacheKey, demoPayload, CACHE_TTL_MS);
-    response.json(demoPayload);
-    return;
-  }
-
   try {
-    const observationsByRegion = await Promise.all(
-      regions.map((regionCode) => fetchRegionSightings(regionCode, species.speciesCode, back, includeProvisional, hotspot))
-    );
-    const observations = observationsByRegion.flat();
-    const payload = buildPayloadFromObservations(species, regions, back, observations, "ebird");
-    setCache(cacheKey, payload, CACHE_TTL_MS);
-    response.json(payload);
+    response.json(await getSightings(request.query, ebirdApiKey));
   } catch (error) {
-    response.status(502).json({
-      error: "Unable to fetch eBird sightings.",
-      detail: error.message
-    });
+    response.status(error.statusCode || 502).json({ error: error.message || "Unable to fetch eBird sightings." });
   }
 });
 

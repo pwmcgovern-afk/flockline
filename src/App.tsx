@@ -427,6 +427,11 @@ export default function App() {
   }, [focusedRegion, states]);
   const selectedRegionSummary = selectedRegionPreset?.name
     ?? (selectedRegionLabels.length > 4 ? `${selectedRegionLabels.length} states` : selectedRegionLabels.join(" "));
+  const failedRegionSummary = useMemo(() => {
+    return (payload?.coverage?.failedRegions ?? [])
+      .map((code) => states.find((state) => state.code === code)?.abbr ?? code)
+      .join(", ");
+  }, [payload?.coverage?.failedRegions, states]);
   const filteredCatalog = useMemo(() => {
     return speciesGroup === "All" ? presets : presets.filter((species) => species.group === speciesGroup);
   }, [presets, speciesGroup]);
@@ -1120,6 +1125,12 @@ export default function App() {
           <div className="map-alert" role="alert">
             <span>{error}</span>
             <button type="button" onClick={() => void loadSightings({ force: true })}>Try again</button>
+          </div>
+        ) : null}
+        {failedRegionSummary && !error ? (
+          <div className="map-alert partial" role="status">
+            <span>Partial results. eBird did not respond for {failedRegionSummary}.</span>
+            <button type="button" onClick={() => void loadSightings({ force: true })}>Retry</button>
           </div>
         ) : null}
         {!showTourInvite && !selectedSighting && fieldBriefFindings.length && !docked ? (
