@@ -22,9 +22,9 @@ export default function Methodology() {
         <p className="methodology-eyebrow">How it works</p>
         <h1>Methodology</h1>
         <p className="methodology-lede">
-          Flockline is a live map of recent bird activity across the US Northeast, drawn entirely from eBird. This
-          page explains where the data comes from, how to read it, and the honest limits of what a sightings map can
-          tell you.
+          Flockline is a live map of recent bird activity across all 50 states and Washington, D.C., drawn entirely
+          from eBird. This page explains where the data comes from, how to read it, and the honest limits of what a
+          sightings map can tell you.
         </p>
 
         <section className="methodology-section">
@@ -37,6 +37,16 @@ export default function Methodology() {
             , the citizen-science database run by the Cornell Lab of Ornithology. Birders submit checklists of what
             they saw and where. Flockline reads that data live through the eBird API, so the map reflects what people
             have actually reported in the last few days, not a fixed dataset.
+          </p>
+        </section>
+
+        <section className="methodology-section">
+          <h2>Choosing a region</h2>
+          <p>
+            The four region buttons follow U.S. Census groupings: Northeast, Midwest, South, and West. Choosing one
+            selects every state in that region; the state buttons let you refine that selection. Northeast remains
+            the first-visit default so existing links and habits still work, but the same map, timeline, Insights,
+            and Ask features work for every region.
           </p>
         </section>
 
@@ -112,6 +122,11 @@ export default function Methodology() {
               areas and weekdays. Empty space on the map often means nobody was looking, not that nothing was there.
             </li>
             <li>
+              <strong>State requests can fail independently.</strong> Flockline loads a large region a few states at
+              a time. If eBird is temporarily unavailable for one state, successful states remain on the map and a
+              partial-results notice names what is missing.
+            </li>
+            <li>
               <strong>Provisional reports.</strong> Including unconfirmed reports adds recent sightings that have not
               been validated yet. Toggle it off to see only confirmed records.
             </li>
@@ -124,11 +139,11 @@ export default function Methodology() {
             Insights
           </h2>
           <p>
-            The Insights panel surfaces the rarest and most notable birds reported across New England in the past two
-            weeks, pulled from eBird's notable-observations feed. When an Anthropic API key is configured, Claude
-            (claude-opus-4-8) writes the short summaries; otherwise Flockline falls back to plain templated text. In
-            both cases the species, places, dates, and checklist links come straight from eBird. The model only
-            phrases what the data already says, and it is given the exact records so it cannot invent a sighting.
+            The Insights panel follows the selected states and timeline window, using eBird's notable-observations
+            feed. When an Anthropic API key is configured, Claude (claude-opus-4-8) writes the short summaries;
+            otherwise Flockline falls back to plain templated text. In both cases the species, places, dates, and
+            checklist links come straight from eBird. The model only phrases what the data already says, and it is
+            given the exact records so it cannot invent a sighting.
           </p>
         </section>
 
@@ -161,7 +176,9 @@ export default function Methodology() {
             The Ask assistant answers questions about birds and their recent activity. It is grounded: it queries the
             live eBird API through tools (species lookups, recent and notable sightings, sightings near a point)
             rather than answering from memory, so it will not fabricate sightings, counts, or locations. When you ask
-            to see a bird, it can load that species onto the map and zoom to a real reported spot.
+            to see a bird, it can load that species onto the map and zoom to a real reported spot. Ask uses your
+            selected states as its regional focus. If you say “near me” without naming a place, it asks for a town,
+            park, ZIP code, or coordinates instead of assuming your location.
           </p>
         </section>
 
@@ -171,8 +188,10 @@ export default function Methodology() {
             Freshness
           </h2>
           <p>
-            Results are cached for about five minutes so the map stays quick. The refresh button up in the header
-            forces a live re-pull from eBird, bypassing that cache, when you want the very latest.
+            Sightings are cached by state for about five minutes so the map stays quick and overlapping regional
+            searches can reuse work. The refresh button in the header forces a live re-pull from eBird, bypassing
+            that cache, when you want the very latest. Insights have a longer cache because they summarize a broader
+            set of notable reports.
           </p>
         </section>
 

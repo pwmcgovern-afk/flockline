@@ -115,19 +115,37 @@ type ChecklistMedia = NonNullable<ChecklistDetailsResponse["observation"]>["medi
 const CHAT_PROMPTS = [
   "What rare birds have shown up in my selected states this week?",
   "Where can I see a Scarlet Tanager right now?",
-  "What's being reported around Seattle lately?",
   "Are Ospreys still active in the area?",
   "Show me notable sightings across my region",
   "What warblers are moving through right now?",
   "Where have Bald Eagles been seen recently?",
-  "What's unusual on the Gulf Coast?",
   "Any good shorebird spots active this week?",
   "What hummingbirds are around right now?",
-  "What's the most active birding spot around Austin?",
-  "Has anything rare turned up in California?",
   "What ducks are on the water right now?",
   "What should I look for this weekend?"
 ];
+const REGIONAL_CHAT_PROMPTS: Record<string, string[]> = {
+  northeast: [
+    "What's being reported around Boston lately?",
+    "Has anything rare turned up around New York?",
+    "What's active along the New England coast?"
+  ],
+  midwest: [
+    "What's being reported around Chicago lately?",
+    "What is moving through the Great Lakes?",
+    "Has anything rare turned up in the Midwest?"
+  ],
+  south: [
+    "What's unusual on the Gulf Coast?",
+    "What's the most active birding spot around Austin?",
+    "Has anything rare turned up in Florida?"
+  ],
+  west: [
+    "What's being reported around Seattle lately?",
+    "Has anything rare turned up in California?",
+    "What's active along the Pacific Coast?"
+  ]
+};
 
 function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -752,8 +770,24 @@ export default function App() {
         opacity: 1,
         weight: feature.properties.locationPrivate ? 1 : 1.6
       });
-      marker.on("click", () => setSelectedSighting(feature));
+      const openSighting = () => setSelectedSighting(feature);
+      marker.on("click", openSighting);
       marker.addTo(layer);
+      const markerElement = marker.getElement();
+      if (markerElement) {
+        markerElement.setAttribute(
+          "aria-label",
+          `${feature.properties.comName} at ${feature.properties.locName}, ${feature.properties.regionCode}, ${formatShortDateTime(feature.properties.obsDt)}`
+        );
+        markerElement.setAttribute("role", "button");
+        markerElement.addEventListener("keydown", (event) => {
+          const keyboardEvent = event as KeyboardEvent;
+          if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+            event.preventDefault();
+            openSighting();
+          }
+        });
+      }
     }
 
     const pulseFeatures = visibleFeatures
@@ -763,6 +797,7 @@ export default function App() {
       const [lng, lat] = feature.geometry.coordinates;
       L.marker([lat, lng], {
         interactive: false,
+        keyboard: false,
         icon: L.divIcon({
           className: `flock-pulse-icon ${playing ? "playing" : ""}`,
           html: '<span class="flock-pulse-ring"></span><span class="flock-pulse-core"></span>',
@@ -840,7 +875,13 @@ export default function App() {
   const openChat = () => {
     setInsightsOpen(false);
     setWatchlistOpen(false);
-    setChatSuggestions(samplePrompts(CHAT_PROMPTS, 4));
+    const regionalPrompts = selectedRegionPreset
+      ? REGIONAL_CHAT_PROMPTS[selectedRegionPreset.id] ?? []
+      : [];
+    const starterPrompts = regionalPrompts.length
+      ? [...samplePrompts(regionalPrompts, 2), ...samplePrompts(CHAT_PROMPTS, 2)]
+      : samplePrompts(CHAT_PROMPTS, 4);
+    setChatSuggestions(samplePrompts(starterPrompts, 4));
     setChatOpen(true);
   };
 
@@ -1131,12 +1172,13 @@ export default function App() {
 
   return (
     <main className={`app-shell theme-${theme} ${docked ? "shell-docked" : ""}`}>
+      <a className="skip-link" href="#species-controls">Skip to tracker controls</a>
       <section className={`map-stage ${playing ? "movement-playing" : ""}`} aria-label="Sightings map">
         <div ref={mapElementRef} className="map-canvas" />
         <div className="map-vignette" />
         {playing ? <div className="movement-sweep" aria-hidden="true" /> : null}
         {loading ? (
-          <div className="loading-pill">
+          <div className="loading-pill" role="status" aria-live="polite">
             <Radar size={16} />
             Scanning recent checklists
           </div>
@@ -1327,7 +1369,7 @@ export default function App() {
         ) : null}
       </section>
 
-      <aside className="control-panel" aria-label="Tracker controls">
+      <aside className="control-panel" id="species-controls" aria-label="Tracker controls" tabIndex={-1}>
         <header className="brand-row">
           <div className="brand-mark">
             <Bird size={22} />
@@ -1559,7 +1601,7 @@ export default function App() {
               ))}
             </div>
           </div>
-          <div className="library-tabs">
+          <div className="library-tabs" role="group" aria-label="Species families">
             {libraryGroups.map((group) => (
               <button
                 type="button"
@@ -1572,7 +1614,7 @@ export default function App() {
               </button>
             ))}
           </div>
-          <div className="species-library-grid" ref={speciesGridRef}>
+          <div className="species-library-grid" ref={speciesGridRef} role="group" aria-label="Browse species">
             {visibleCatalog.map((species) => {
               const isActive = selectedSpecies?.speciesCode === species.speciesCode;
               return (
@@ -1640,6 +1682,7 @@ export default function App() {
                 key={state.code}
                 className={selectedRegions.includes(state.code) ? "active" : ""}
                 aria-pressed={selectedRegions.includes(state.code)}
+                aria-label={state.name}
                 onClick={() => toggleRegion(state.code)}
                 title={state.name}
               >
@@ -1684,7 +1727,7 @@ export default function App() {
       </aside>
 
       {insightsOpen ? (
-        <aside className="insights-panel" aria-label="Recent insights">
+        <aside className="insights-panel" role="dialog" aria-label="Recent insights">
           <header className="insights-head">
             <div>
               <p className="eyebrow">Field Notes · {insightsScopeLabel}</p>
@@ -1819,7 +1862,7 @@ export default function App() {
       ) : null}
 
       {chatOpen ? (
-        <aside className="chat-panel" aria-label="Ask Flockline">
+        <aside className="chat-panel" role="dialog" aria-label="Ask Flockline">
           <header className="chat-head">
             <div className="chat-head-id">
               <span className="chat-avatar">
@@ -1926,7 +1969,7 @@ export default function App() {
       ) : null}
 
       {watchlistOpen ? (
-        <aside className="watchlist-panel" aria-label="My birds">
+        <aside className="watchlist-panel" role="dialog" aria-label="My birds">
           <header className="watchlist-head">
             <div>
               <p className="eyebrow">Personal field board</p>
@@ -2171,6 +2214,7 @@ export default function App() {
       ) : null}
 
       <Tour open={tourOpen} steps={TOUR_STEPS} onClose={closeTour} />
+      <span className="sr-only" role="status" aria-live="polite">{shareStatus}</span>
     </main>
   );
 }
