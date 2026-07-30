@@ -1,13 +1,14 @@
 // Regenerates shared/speciesCatalog.json from eBird.
 //
-// Pulls the species list (life list) for each of the app's 9 Northeast states
-// via product/spplist, unions them, joins against the eBird taxonomy, keeps
-// only true species (drops "sp."/slash/hybrid/domestic noise), and buckets each
-// into a Flockline browse group. Run once after eBird changes or to refresh:
+// Pulls the United States species list via product/spplist, joins it against
+// the eBird taxonomy, keeps only true species (drops "sp."/slash/hybrid/
+// domestic noise), and buckets each into a Flockline browse group. Run once
+// after eBird changes or to refresh:
 //   node scripts/build-catalog.mjs
 //
-// Needs EBIRD_API_KEY in .env. The output is committed; the app reads the JSON
-// at build/runtime so nothing calls eBird for the library at request time.
+// EBIRD_API_KEY is optional: with a key, the script uses product/spplist;
+// otherwise it extracts codes from eBird's public all-time U.S. bird-list page.
+// The output is committed, so the app never calls eBird for its browse library.
 
 import "dotenv/config";
 import { writeFileSync } from "node:fs";
@@ -16,14 +17,9 @@ import { dirname, join } from "node:path";
 
 const API = "https://api.ebird.org/v2";
 const KEY = process.env.EBIRD_API_KEY;
-const REGIONS = ["US-ME", "US-NH", "US-VT", "US-MA", "US-RI", "US-CT", "US-NY", "US-NJ", "US-PA"];
+const COUNTRY_REGION = "US";
 
-if (!KEY) {
-  console.error("Missing EBIRD_API_KEY in .env");
-  process.exit(1);
-}
-
-const headers = { "x-ebirdapitoken": KEY };
+const headers = KEY ? { "x-ebirdapitoken": KEY } : {};
 
 async function getJson(url) {
   const res = await fetch(url, { headers });
@@ -31,6 +27,33 @@ async function getJson(url) {
     throw new Error(`${res.status} ${url}\n${(await res.text()).slice(0, 160)}`);
   }
   return res.json();
+}
+
+async function getText(url) {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`${res.status} ${url}\n${(await res.text()).slice(0, 160)}`);
+  }
+  return res.text();
+}
+
+async function getUnitedStatesCodes() {
+  if (KEY) {
+    try {
+      return new Set(await getJson(`${API}/product/spplist/${COUNTRY_REGION}`));
+    } catch (error) {
+      console.warn(`Species-list API unavailable (${error.message.split("\n")[0]}), using the public bird list.`);
+    }
+  }
+
+  const html = await getText("https://ebird.org/region/US/bird-list?yr=all");
+  const codes = new Set(
+    [...html.matchAll(/["']?speciesCode["']?\s*:\s*["']([^"']+)["']/g)].map((match) => match[1])
+  );
+  if (codes.size < 1000) {
+    throw new Error(`Public U.S. bird list returned only ${codes.size} taxon codes.`);
+  }
+  return codes;
 }
 
 // Bucket an eBird taxon into one of Flockline's browse groups, mostly by the
@@ -77,17 +100,8 @@ async function main() {
   const taxonomy = await getJson(`${API}/ref/taxonomy/ebird?fmt=json&locale=en`);
   const byCode = new Map(taxonomy.map((t) => [t.speciesCode, t]));
 
-  console.log(`Fetching species lists for ${REGIONS.length} states…`);
-  const codes = new Set();
-  for (const region of REGIONS) {
-    try {
-      const list = await getJson(`${API}/product/spplist/${region}`);
-      list.forEach((code) => codes.add(code));
-      console.log(`  ${region}: ${list.length}`);
-    } catch (err) {
-      console.warn(`  ${region}: FAILED (${err.message.split("\n")[0]}) — skipping`);
-    }
-  }
+  console.log("Fetching species list for the United States…");
+  const codes = await getUnitedStatesCodes();
 
   const catalog = [];
   let dropped = 0;
@@ -109,7 +123,7 @@ async function main() {
   catalog.sort((a, b) => a.group.localeCompare(b.group) || a.comName.localeCompare(b.comName));
 
   const byGroup = catalog.reduce((acc, s) => ((acc[s.group] = (acc[s.group] || 0) + 1), acc), {});
-  console.log(`\nUnioned codes: ${codes.size} | species kept: ${catalog.length} | non-species dropped: ${dropped}`);
+  console.log(`\nUS codes: ${codes.size} | species kept: ${catalog.length} | non-species dropped: ${dropped}`);
   console.log("By group:", byGroup);
 
   const out = join(dirname(fileURLToPath(import.meta.url)), "..", "shared", "speciesCatalog.json");

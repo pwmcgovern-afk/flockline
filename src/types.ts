@@ -120,6 +120,12 @@ export type InsightsResponse = {
   cached?: boolean;
   back: number;
   regions: string[];
+  scopeLabel: string;
+  coverage: {
+    requestedRegions: string[];
+    successfulRegions: string[];
+    failedRegions: string[];
+  };
   findings: Insight[];
 };
 
