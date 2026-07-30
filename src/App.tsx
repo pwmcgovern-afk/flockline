@@ -44,7 +44,6 @@ import {
 } from "lucide-react";
 import Tour, { type TourStep } from "./Tour";
 import { buildAppUrl, parseAppState, type AppState, type TimelineMode } from "./appState";
-import speciesCatalog from "../shared/speciesCatalog.json";
 import {
   DEFAULT_REGION_ID,
   US_CENSUS_REGIONS,
@@ -70,7 +69,17 @@ import type {
 const defaultStates: Region[] = US_STATES;
 const defaultRegionCodes = getCensusRegion(DEFAULT_REGION_ID)?.stateCodes ?? [];
 
-const defaultPresets = speciesCatalog as Species[];
+// Keep the initial client bundle lean. The full nationwide catalog arrives
+// from /api/config immediately after mount; these familiar birds make the
+// shell useful if that request is delayed or unavailable.
+const defaultPresets: Species[] = [
+  { speciesCode: "osprey", comName: "Osprey", sciName: "Pandion haliaetus", group: "Raptors" },
+  { speciesCode: "baleag", comName: "Bald Eagle", sciName: "Haliaeetus leucocephalus", group: "Raptors" },
+  { speciesCode: "comloo", comName: "Common Loon", sciName: "Gavia immer", group: "Waterbirds" },
+  { speciesCode: "rthhum", comName: "Ruby-throated Hummingbird", sciName: "Archilochus colubris", group: "Backyard" },
+  { speciesCode: "scatan", comName: "Scarlet Tanager", sciName: "Piranga olivacea", group: "Grosbeaks" },
+  { speciesCode: "balori", comName: "Baltimore Oriole", sciName: "Icterus galbula", group: "Blackbirds" }
+];
 const defaultSpecies = defaultPresets.find((species) => species.speciesCode === "osprey") ?? defaultPresets[0];
 // Browse-tab order: most birder-salient groups first, the long tail after.
 // Tabs are derived from whatever groups the catalog actually contains.
@@ -104,18 +113,18 @@ type ChecklistMedia = NonNullable<ChecklistDetailsResponse["observation"]>["medi
 // A pool the chat panel samples from on each open, so the starter questions
 // feel fresh and hint at the range of things the assistant can answer.
 const CHAT_PROMPTS = [
-  "What rare birds have shown up in Connecticut this week?",
+  "What rare birds have shown up in my selected states this week?",
   "Where can I see a Scarlet Tanager right now?",
-  "What's being reported around New Haven lately?",
+  "What's being reported around Seattle lately?",
   "Are Ospreys still active in the area?",
-  "Show me notable sightings across New England",
+  "Show me notable sightings across my region",
   "What warblers are moving through right now?",
   "Where have Bald Eagles been seen recently?",
-  "What's unusual on the Connecticut coast?",
+  "What's unusual on the Gulf Coast?",
   "Any good shorebird spots active this week?",
   "What hummingbirds are around right now?",
-  "What's the most active birding spot near me?",
-  "Has anything rare turned up in Massachusetts?",
+  "What's the most active birding spot around Austin?",
+  "Has anything rare turned up in California?",
   "What ducks are on the water right now?",
   "What should I look for this weekend?"
 ];
@@ -141,13 +150,13 @@ const TOUR_STEPS: TourStep[] = [
   {
     side: "center",
     title: "Welcome to Flockline",
-    body: "A live map of bird movement across the Northeast, drawn from eBird checklists. Here is the 30-second tour."
+    body: "A live map of bird movement across the United States, drawn from eBird checklists. Here is the 30-second tour."
   },
   {
     target: ".active-species-card",
     side: "right",
     title: "Pick a species and states",
-    body: "Search 714 species and choose which states to include. The map plots their recent sightings right away."
+    body: "Search the nationwide species catalog and choose which states to include. The map plots their recent sightings right away."
   },
   {
     target: ".timeline-dock",
@@ -165,7 +174,7 @@ const TOUR_STEPS: TourStep[] = [
     target: ".insights-trigger",
     side: "bottom",
     title: "Insights",
-    body: "A running list of the rarest and most notable birds around New England, refreshed through the day."
+    body: "A running list of the rarest and most notable birds in your selected states, refreshed through the day."
   },
   {
     target: ".field-brief",
@@ -315,10 +324,17 @@ export default function App() {
   // regenerate past both the server's 6h cache and any CDN copy (unique URL).
   const loadInsights = useCallback(
     async (options?: { fresh?: boolean }) => {
+      if (!selectedRegions.length) {
+        setInsightsError("Select at least one state for Insights.");
+        return;
+      }
       setInsightsLoading(true);
       setInsightsError("");
       try {
-        const params = new URLSearchParams({ back: String(lookbackDays) });
+        const params = new URLSearchParams({
+          back: String(lookbackDays),
+          regions: selectedRegions.join(",")
+        });
         if (options?.fresh) {
           params.set("fresh", "1");
           params.set("_t", String(Date.now()));
@@ -335,7 +351,7 @@ export default function App() {
         setInsightsLoading(false);
       }
     },
-    [lookbackDays]
+    [lookbackDays, selectedRegions]
   );
 
   const toggleInsights = () => {
@@ -346,7 +362,10 @@ export default function App() {
         setWatchlistOpen(false);
         // Load on open if we have nothing yet, or if the timeline window has
         // moved since the last run (cached result if it was seen recently).
-        if (!insightsLoading && (!insights || insights.back !== lookbackDays)) {
+        if (
+          !insightsLoading
+          && (!insights || insights.back !== lookbackDays || !sameCodeSet(insights.regions, selectedRegions))
+        ) {
           void loadInsights();
         }
       }
@@ -426,7 +445,14 @@ export default function App() {
       .filter((state): state is Region => Boolean(state));
   }, [focusedRegion, states]);
   const selectedRegionSummary = selectedRegionPreset?.name
-    ?? (selectedRegionLabels.length > 4 ? `${selectedRegionLabels.length} states` : selectedRegionLabels.join(" "));
+    ?? (selectedRegionLabels.length > 4
+      ? `${selectedRegionLabels.length} states`
+      : selectedRegionLabels.join(" ") || "No states selected");
+  const insightsScopeLabel = insights?.scopeLabel?.replace(/^the\s+/i, "") ?? selectedRegionSummary;
+  const insightsStale = Boolean(
+    insights
+    && (insights.back !== lookbackDays || !sameCodeSet(insights.regions, selectedRegions))
+  );
   const failedRegionSummary = useMemo(() => {
     return (payload?.coverage?.failedRegions ?? [])
       .map((code) => states.find((state) => state.code === code)?.abbr ?? code)
@@ -502,12 +528,16 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (insights?.back === lookbackDays || insightsLoading) {
+    if (
+      !selectedRegions.length
+      || (insights?.back === lookbackDays && sameCodeSet(insights.regions, selectedRegions))
+      || insightsLoading
+    ) {
       return;
     }
     const timeout = window.setTimeout(() => void loadInsights(), 900);
     return () => window.clearTimeout(timeout);
-  }, [insights?.back, insightsLoading, loadInsights, lookbackDays]);
+  }, [insights?.back, insights?.regions, insightsLoading, loadInsights, lookbackDays, selectedRegions]);
 
   useEffect(() => {
     writeStoredJson(PREFERENCES_KEY, {
@@ -649,7 +679,7 @@ export default function App() {
       zoomControl: false,
       attributionControl: false,
       preferCanvas: true
-    }).setView([42.55, -73.45], 6);
+    }).setView([39.5, -98.35], 4);
 
     const baseLayer = L.tileLayer(
       theme === "dusk"
@@ -679,6 +709,29 @@ export default function App() {
       sightingLayerRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || (payload && allFeatures.length)) {
+      return;
+    }
+    const centers = states
+      .filter((state) => selectedRegions.includes(state.code))
+      .map((state) => state.center);
+    if (!centers.length) {
+      map.setView([39.5, -98.35], 4, { animate: false });
+      return;
+    }
+    if (centers.length === 1) {
+      map.setView(centers[0], 6, { animate: false });
+      return;
+    }
+    map.fitBounds(L.latLngBounds(centers).pad(0.35), {
+      maxZoom: 6,
+      animate: !prefersReducedMotion(),
+      duration: 0.45
+    });
+  }, [allFeatures.length, payload, selectedRegions, states]);
 
   useEffect(() => {
     const layer = sightingLayerRef.current;
@@ -1109,7 +1162,7 @@ export default function App() {
               <Feather size={26} />
             </span>
             <h2>Pick a species to begin</h2>
-            <p>Choose any of {presets.length} birds from the panel to chart where it's been reported across the Northeast.</p>
+            <p>Choose any of {presets.length} birds to chart recent reports across {selectedRegionSummary}.</p>
           </div>
         ) : null}
         {selectedSpecies && !loading && payload && !allFeatures.length ? (
@@ -1280,7 +1333,7 @@ export default function App() {
             <Bird size={22} />
           </div>
           <div className="brand-text">
-            <p className="eyebrow">Live Northeast Sightings</p>
+            <p className="eyebrow">Live U.S. Sightings</p>
             <h1>Flockline</h1>
             <p className="brand-tag">Live bird movement, charted from eBird checklists.</p>
           </div>
@@ -1634,7 +1687,7 @@ export default function App() {
         <aside className="insights-panel" aria-label="Recent insights">
           <header className="insights-head">
             <div>
-              <p className="eyebrow">Field Notes · New England</p>
+              <p className="eyebrow">Field Notes · {insightsScopeLabel}</p>
               <h2>Recent Insights</h2>
             </div>
             <div className="insights-head-actions">
@@ -1664,16 +1717,21 @@ export default function App() {
               <CalendarDays size={13} />
               Past {insights ? insights.back : lookbackDays} {(insights ? insights.back : lookbackDays) === 1 ? "day" : "days"}
             </span>
-            {insights && !insightsLoading && insights.back !== lookbackDays ? (
+            {insights && !insightsLoading && insightsStale ? (
               <button
                 type="button"
                 className="insights-restale"
                 onClick={() => void loadInsights()}
-                title={`Update insights to the ${lookbackDays}-day timeline window`}
+                title={`Update insights for ${selectedRegionSummary} and the ${lookbackDays}-day timeline window`}
               >
                 <RefreshCw size={12} />
-                Timeline is {lookbackDays}d now · update
+                Scope changed · update
               </button>
+            ) : null}
+            {insights?.coverage.failedRegions.length ? (
+              <span className="insights-window" role="status">
+                Partial data · {insights.coverage.failedRegions.length} unavailable
+              </span>
             ) : null}
           </div>
 
@@ -1753,7 +1811,9 @@ export default function App() {
               </footer>
             </>
           ) : (
-            <p className="insights-status">No notable sightings in the last two weeks.</p>
+            <p className="insights-status">
+              No notable sightings in {insightsScopeLabel} during this window.
+            </p>
           )}
         </aside>
       ) : null}
@@ -1785,7 +1845,7 @@ export default function App() {
               <div className="chat-intro">
                 <p>
                   Ask about recent sightings, rare birds, or what's active near you. Answers come live from eBird
-                  checklists across the Northeast.
+                  checklists across {selectedRegionSummary}.
                 </p>
               </div>
             ) : (
@@ -2151,6 +2211,15 @@ function formatShortDateTime(value: string | null) {
 
 function normalizeSpecies(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function sameCodeSet(left: string[], right: string[]) {
+  if (left.length !== right.length) {
+    return false;
+  }
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return sortedLeft.every((code, index) => code === sortedRight[index]);
 }
 
 function normalizeCssToken(value: string) {
