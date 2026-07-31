@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_REGION_ID,
   US_CENSUS_REGIONS,
+  US_REGION_PRESETS,
   US_STATES,
   getCensusRegion,
+  getRegionPreset,
   matchingCensusRegion,
+  matchingRegionPreset,
   statesForRegion
 } from "./usGeography.js";
 
@@ -32,5 +35,14 @@ describe("U.S. geography", () => {
     const west = getCensusRegion("west");
     expect(matchingCensusRegion([...(west?.stateCodes ?? [])].reverse())?.id).toBe("west");
     expect(matchingCensusRegion(["US-CA", "US-OR"])).toBeNull();
+  });
+
+  it("offers all states and Washington, D.C. as a Nationwide preset", () => {
+    expect(US_REGION_PRESETS.map((region) => region.id)).toEqual([
+      "nationwide", "northeast", "midwest", "south", "west"
+    ]);
+    expect(getRegionPreset("nationwide")?.stateCodes).toEqual(US_STATES.map((state) => state.code));
+    expect(statesForRegion("nationwide")).toHaveLength(51);
+    expect(matchingRegionPreset(US_STATES.map((state) => state.code).reverse())?.id).toBe("nationwide");
   });
 });

@@ -23,6 +23,7 @@ describe("nationwide product copy", () => {
 
     expect(methodology).toContain("selected states and timeline window");
     expect(methodology).toContain("instead of assuming your location");
+    expect(methodology).toContain("Nationwide selects all 50 states plus Washington, D.C.");
     expect(methodology).not.toContain("reported across New England");
   });
 });

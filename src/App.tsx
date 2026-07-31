@@ -46,10 +46,11 @@ import Tour, { type TourStep } from "./Tour";
 import { buildAppUrl, parseAppState, type AppState, type TimelineMode } from "./appState";
 import {
   DEFAULT_REGION_ID,
-  US_CENSUS_REGIONS,
+  US_REGION_PRESETS,
   US_STATES,
   getCensusRegion,
-  matchingCensusRegion
+  getRegionPreset,
+  matchingRegionPreset
 } from "../shared/usGeography.js";
 import type {
   ChatMapAction,
@@ -125,6 +126,11 @@ const CHAT_PROMPTS = [
   "What should I look for this weekend?"
 ];
 const REGIONAL_CHAT_PROMPTS: Record<string, string[]> = {
+  nationwide: [
+    "What unusual sightings stand out across the country?",
+    "Where are Ospreys most active nationwide?",
+    "What birds are moving across the U.S. right now?"
+  ],
   northeast: [
     "What's being reported around Boston lately?",
     "Has anything rare turned up around New York?",
@@ -248,7 +254,7 @@ export default function App() {
     initialState.regions ?? defaultRegionCodes
   );
   const [focusedRegionId, setFocusedRegionId] = useState(() => {
-    return matchingCensusRegion(initialState.regions ?? defaultRegionCodes)?.id ?? DEFAULT_REGION_ID;
+    return matchingRegionPreset(initialState.regions ?? defaultRegionCodes)?.id ?? DEFAULT_REGION_ID;
   });
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(initialSpecies);
   const [speciesQuery, setSpeciesQuery] = useState(initialSpecies?.comName ?? "");
@@ -450,9 +456,9 @@ export default function App() {
   const selectedRegionLabels = useMemo(() => {
     return states.filter((state) => selectedRegions.includes(state.code)).map((state) => state.abbr);
   }, [selectedRegions, states]);
-  const selectedRegionPreset = useMemo(() => matchingCensusRegion(selectedRegions), [selectedRegions]);
+  const selectedRegionPreset = useMemo(() => matchingRegionPreset(selectedRegions), [selectedRegions]);
   const focusedRegion = useMemo(
-    () => getCensusRegion(focusedRegionId) ?? getCensusRegion(DEFAULT_REGION_ID),
+    () => getRegionPreset(focusedRegionId) ?? getRegionPreset(DEFAULT_REGION_ID),
     [focusedRegionId]
   );
   const visibleRegionStates = useMemo(() => {
@@ -1100,8 +1106,8 @@ export default function App() {
     });
   };
 
-  const selectCensusRegion = (regionId: string) => {
-    const region = getCensusRegion(regionId);
+  const selectRegionPreset = (regionId: string) => {
+    const region = getRegionPreset(regionId);
     if (!region) return;
     const available = new Set(states.map((state) => state.code));
     setFocusedRegionId(region.id);
@@ -1132,7 +1138,7 @@ export default function App() {
           hotspotsOnly
         },
         states.map((state) => state.code),
-        US_CENSUS_REGIONS
+        US_REGION_PRESETS
       ),
     [hotspotsOnly, includeProvisional, lookbackDays, selectedRegions, selectedSpecies?.speciesCode, states, timelineMode]
   );
@@ -1659,21 +1665,21 @@ export default function App() {
               </button>
             </span>
           </div>
-          <div className="region-button-set" role="group" aria-label="U.S. region">
-            {US_CENSUS_REGIONS.map((region) => (
+          <div className="region-button-set" role="group" aria-label="U.S. coverage">
+            {US_REGION_PRESETS.map((region) => (
               <button
                 type="button"
                 key={region.id}
-                className={selectedRegionPreset?.id === region.id ? "active" : ""}
+                className={`${region.id === "nationwide" ? "nationwide-region-button " : ""}${selectedRegionPreset?.id === region.id ? "active" : ""}`.trim()}
                 aria-pressed={selectedRegionPreset?.id === region.id}
-                onClick={() => selectCensusRegion(region.id)}
+                onClick={() => selectRegionPreset(region.id)}
               >
                 {region.name}
               </button>
             ))}
           </div>
           <p className="state-grid-label">
-            {focusedRegion?.name} states · {selectedRegions.filter((code) => focusedRegion?.stateCodes.includes(code)).length} selected
+            {focusedRegion?.id === "nationwide" ? "All states + D.C." : `${focusedRegion?.name} states`} · {selectedRegions.filter((code) => focusedRegion?.stateCodes.includes(code)).length} selected
           </p>
           <div className="state-grid">
             {visibleRegionStates.map((state) => (
@@ -2385,7 +2391,7 @@ function buildInitialAppState(): Partial<AppState> {
   const urlState = parseAppState(
     typeof window === "undefined" ? "" : window.location.search,
     validRegions,
-    US_CENSUS_REGIONS
+    US_REGION_PRESETS
   );
   return { ...preferences, ...urlState };
 }
