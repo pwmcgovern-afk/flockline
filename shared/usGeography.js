@@ -84,25 +84,49 @@ export const US_STATES = [
   { code: "US-WY", abbr: "WY", name: "Wyoming", center: [42.756, -107.3025], censusRegion: "west" }
 ];
 
+export const US_NATIONWIDE_REGION = {
+  id: "nationwide",
+  name: "Nationwide",
+  stateCodes: US_STATES.map((state) => state.code)
+};
+
+// UI/share presets include one all-country view plus the four official Census
+// regions. Keep US_CENSUS_REGIONS separate so Census membership still forms a
+// true, non-overlapping partition of the country.
+export const US_REGION_PRESETS = [US_NATIONWIDE_REGION, ...US_CENSUS_REGIONS];
+
 const stateByCode = new Map(US_STATES.map((state) => [state.code, state]));
-const regionById = new Map(US_CENSUS_REGIONS.map((region) => [region.id, region]));
+const censusRegionById = new Map(US_CENSUS_REGIONS.map((region) => [region.id, region]));
+const regionPresetById = new Map(US_REGION_PRESETS.map((region) => [region.id, region]));
 
 export function getState(code) {
   return stateByCode.get(String(code || "").toUpperCase()) ?? null;
 }
 
 export function getCensusRegion(id) {
-  return regionById.get(String(id || "").toLowerCase()) ?? null;
+  return censusRegionById.get(String(id || "").toLowerCase()) ?? null;
+}
+
+export function getRegionPreset(id) {
+  return regionPresetById.get(String(id || "").toLowerCase()) ?? null;
 }
 
 export function statesForRegion(id) {
-  const region = getCensusRegion(id);
+  const region = getRegionPreset(id);
   return region ? region.stateCodes.map((code) => stateByCode.get(code)).filter(Boolean) : [];
 }
 
 export function matchingCensusRegion(stateCodes) {
   const normalized = [...new Set(stateCodes)].sort();
   return US_CENSUS_REGIONS.find((region) => {
+    const expected = [...region.stateCodes].sort();
+    return normalized.length === expected.length && expected.every((code, index) => code === normalized[index]);
+  }) ?? null;
+}
+
+export function matchingRegionPreset(stateCodes) {
+  const normalized = [...new Set(stateCodes)].sort();
+  return US_REGION_PRESETS.find((region) => {
     const expected = [...region.stateCodes].sort();
     return normalized.length === expected.length && expected.every((code, index) => code === normalized[index]);
   }) ?? null;

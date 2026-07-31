@@ -43,10 +43,10 @@ export default function Methodology() {
         <section className="methodology-section">
           <h2>Choosing a region</h2>
           <p>
-            The four region buttons follow U.S. Census groupings: Northeast, Midwest, South, and West. Choosing one
-            selects every state in that region; the state buttons let you refine that selection. Northeast remains
-            the first-visit default so existing links and habits still work, but the same map, timeline, Insights,
-            and Ask features work for every region.
+            Nationwide selects all 50 states plus Washington, D.C. in one step. The other four buttons follow U.S.
+            Census groupings: Northeast, Midwest, South, and West. Choosing one selects every state in that region;
+            the state buttons let you refine that selection. Northeast remains the first-visit default so existing
+            links and habits still work, but the same map, timeline, Insights, and Ask features work at every scale.
           </p>
         </section>
 

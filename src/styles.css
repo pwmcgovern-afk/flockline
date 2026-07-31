@@ -890,6 +890,10 @@ h1 {
   background: var(--green);
 }
 
+.region-button-set .nationwide-region-button {
+  grid-column: 1 / -1;
+}
+
 .state-grid-label {
   margin: 0 0 7px;
   color: var(--text-faint);
