@@ -1,9 +1,15 @@
 {
   "redirects": [
     {
-      "source": "/:path*",
+      "source": "/",
       "has": [{ "type": "host", "value": "www.flockline.app" }],
-      "destination": "https://flockline.app/:path*",
+      "destination": "https://flockline.app/",
+      "permanent": true
+    },
+    {
+      "source": "/:path+",
+      "has": [{ "type": "host", "value": "www.flockline.app" }],
+      "destination": "https://flockline.app/:path+",
       "permanent": true
     }
   ],
