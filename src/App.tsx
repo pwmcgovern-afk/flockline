@@ -21,6 +21,7 @@ import {
   Play,
   Radar,
   RefreshCw,
+  RotateCcw,
   Route,
   Search,
   Send,
@@ -190,12 +191,6 @@ const TOUR_STEPS: TourStep[] = [
     side: "bottom",
     title: "Choose how far back",
     body: "One day for what is happening right now, thirty for the shape of a migration. Everything on screen follows this window."
-  },
-  {
-    target: ".scrubber",
-    side: "top",
-    title: "Scrub through the days",
-    body: "Drag the rail or press play to watch movement unfold. Bars show new locations per day, and dot color runs blue for older to red for freshest."
   },
   {
     target: ".tab-insights",
@@ -412,6 +407,21 @@ export default function App() {
   const openPicker = () => {
     setSpeciesQuery("");
     setPickerOpen(true);
+  };
+
+  // Back to the opening position: the whole country, no bird, default window,
+  // nothing pinned. Getting here by hand meant clearing the species, opening
+  // menu, choosing Nationwide, and resetting the Insights scope separately.
+  const startOver = () => {
+    clearSpecies();
+    selectRegionPreset("nationwide");
+    setLookbackDays(7);
+    setTimelineMode("cumulative");
+    setInsightRegions(null);
+    setInsightBack(null);
+    setDrawer(null);
+    setPickerOpen(false);
+    setError("");
   };
 
   // Send focus back to the masthead, so closing the picker with the keyboard
@@ -1245,6 +1255,25 @@ export default function App() {
     }
   }, [selectedSpecies, filteredCatalog]);
 
+  // The timeline step points at the scrubber when there is one, and otherwise
+  // describes what will appear. Tour drops steps whose target is hidden, so a
+  // fixed selector meant a first-time visitor never heard about the timeline.
+  const tourSteps = useMemo(() => {
+    const timelineStep: TourStep = selectedSpecies
+      ? {
+          target: ".scrubber",
+          side: "top",
+          title: "Scrub through the days",
+          body: "Drag the rail or press play to watch movement unfold. Bars show new locations per day, and dot color runs blue for older to red for freshest."
+        }
+      : {
+          side: "center",
+          title: "Then watch it move",
+          body: "Once a bird is loaded, a timeline appears along the bottom. Drag it or press play to watch reports accumulate day by day, blue for older through red for freshest."
+        };
+    return [...TOUR_STEPS.slice(0, 3), timelineStep, ...TOUR_STEPS.slice(3)];
+  }, [selectedSpecies]);
+
   const openTour = () => setTourOpen(true);
 
   // First visit opens the tour on its own, once the map has painted so the
@@ -1506,6 +1535,19 @@ export default function App() {
             </div>
 
             <div className="chrome-top-right">
+            {/* Reset to the opening position: nationwide, no bird, default
+                window. Shown only when there is actually something to reset. */}
+            {selectedSpecies || selectedRegionPreset?.id !== "nationwide" ? (
+              <button
+                type="button"
+                className="pill icon-only tip start-over-pill"
+                data-tip="Start over"
+                onClick={startOver}
+                aria-label="Start over: clear the bird and show all states"
+              >
+                <RotateCcw />
+              </button>
+            ) : null}
               {/* The only other way to star a bird is the sighting sheet, which
                   needs a plotted dot to click — so a species with no reports in
                   the window could not be watched at all. */}
@@ -1888,10 +1930,15 @@ export default function App() {
                     ) : (
                       <span>
                         <strong>{visibleStats.sightings.toLocaleString()}</strong> new on{" "}
-                        {formatDateKey(selectedDateKey)} ·{" "}
-                        <button type="button" className="link" onClick={() => setTimelineMode("cumulative")}>
-                          see all {allFeatures.length.toLocaleString()}
-                        </button>
+                        {formatDateKey(selectedDateKey)}
+                        {/* With nothing in the window there is no fuller view to
+                            switch to, so the link would read "see all 0". */}
+                        {allFeatures.length ? " · " : null}
+                        {allFeatures.length ? (
+                          <button type="button" className="link" onClick={() => setTimelineMode("cumulative")}>
+                            see all {allFeatures.length.toLocaleString()}
+                          </button>
+                        ) : null}
                       </span>
                     )}
                     <span className="ramp-key" title="Marker color shows how recent each report is">
@@ -2321,7 +2368,11 @@ export default function App() {
                   ) : null}
                 </div>
 
-                {insightsLoading ? (
+                {/* `!insights` covers the gap between opening the panel and the
+                    debounced request starting. Without it that window fell
+                    through to the empty state, so the panel announced "no
+                    notable sightings" before it had looked. */}
+                {insightsLoading || (!insights && !insightsError) ? (
                   <p className="drawer-status">Reading recent checklists…</p>
                 ) : insightsError ? (
                   <p className="drawer-status error">{insightsError}</p>
@@ -2560,7 +2611,7 @@ export default function App() {
         </aside>
       ) : null}
 
-      <Tour open={tourOpen} steps={TOUR_STEPS} onClose={closeTour} />
+      <Tour open={tourOpen} steps={tourSteps} onClose={closeTour} />
       <span className="sr-only" role="status" aria-live="polite">{shareStatus}</span>
     </main>
   );
