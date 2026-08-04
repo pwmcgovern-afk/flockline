@@ -661,6 +661,15 @@ export default function App() {
           const validCodes = nextConfig.states.map((state) => state.code);
           return current.filter((code) => validCodes.includes(code));
         });
+        // A shared ?bird= link names a species by eBird code, and only six birds
+        // ship in the bootstrap list — so anything else rendered as its raw code
+        // ("COMNIG") until the full catalog arrived. Upgrade to the real name.
+        setSelectedSpecies((current) => {
+          if (!current || current.sciName) {
+            return current;
+          }
+          return nextConfig.presets.find((species) => species.speciesCode === current.speciesCode) ?? current;
+        });
       })
       .catch(() => {
         setConfig({ hasApiKey: false, states: defaultStates, presets: defaultPresets, maxBackDays: 30 });
@@ -1418,522 +1427,527 @@ export default function App() {
         Skip to controls
       </a>
 
-      <div className="map-layer">
-        <div ref={mapElementRef} className="map-canvas" />
-      </div>
-
-      {loading ? (
-        <div className="map-note loading" role="status" aria-live="polite">
-          <Radar size={13} className="spin" />
-          Reading checklists
-        </div>
-      ) : null}
-
-      {error && selectedSpecies && !loading ? (
-        <div className="map-note alert" role="alert">
-          <span>{error}</span>
-          {/* Retrying cannot fix "no states selected" — the fix lives behind
-              the menu pill, so send the reader there instead. */}
-          {selectedRegions.length ? (
-            <button type="button" onClick={() => void loadSightings({ force: true })}>Retry</button>
-          ) : (
-            <button type="button" onClick={() => setDrawer("menu")}>Pick states</button>
-          )}
-        </div>
-      ) : null}
-
-      {failedRegionSummary && !error && !loading ? (
-        <div className="map-note alert" role="status">
-          <span>Partial results · no response for {failedRegionSummary}</span>
-          <button type="button" onClick={() => void loadSightings({ force: true })}>Retry</button>
-        </div>
-      ) : null}
-
-      {!selectedSpecies ? (
-        <div className="map-empty" role="status">
-          <Feather size={22} />
-          <h2>Choose a bird</h2>
-          <p>
-            Pick any of {presets.length.toLocaleString()} species and Flockline charts where it has been
-            reported across {selectedRegionSummary}.
-          </p>
-          <button type="button" className="pill" onClick={openPicker}>
-            <Search size={13} />
-            Browse species
-          </button>
-        </div>
-      ) : null}
-
-      {selectedSpecies && !loading && payload && !allFeatures.length ? (
-        <div className="map-empty" role="status">
-          <Search size={22} />
-          <h2>No reports found</h2>
-          <p>
-            Nothing for {selectedSpecies.comName} in {selectedRegionSummary} over the past{" "}
-            {lookbackDays} {lookbackDays === 1 ? "day" : "days"}.
-            {allStatesSelected
-              ? " This bird may not occur here at all."
-              : " It may simply be out of range for these states."}
-          </p>
-          {/* Offer the action that can actually help. At 30 days the old
-              "Widen to 30 days" button was already a no-op, which is exactly
-              the case a bird that is out of range lands in. */}
-          {lookbackDays < 30 ? (
-            <button type="button" className="pill" onClick={() => setLookbackDays(30)}>
-              Widen to 30 days
-            </button>
-          ) : !allStatesSelected ? (
-            <button type="button" className="pill" onClick={() => selectRegionPreset("nationwide")}>
-              <MapIcon />
-              Search all states
-            </button>
-          ) : (
-            <button type="button" className="pill" onClick={openPicker}>
-              <Search size={13} />
-              Try another bird
-            </button>
-          )}
-        </div>
-      ) : null}
-
-      {selectedSighting ? (
-        <aside className="sighting-sheet" aria-label="Sighting details">
-          <header>
-            <span className="sighting-kicker">Field record</span>
-            <button
-              type="button"
-              className="icon-btn"
-              onClick={() => setSelectedSighting(null)}
-              aria-label="Close sighting details"
-            >
-              <X size={15} />
-            </button>
-          </header>
-          <h2>{selectedSighting.properties.comName}</h2>
-          <p className="sighting-science">{selectedSighting.properties.sciName}</p>
-          <div className="sighting-place">
-            <MapPin size={14} />
-            <span>
-              <strong>{selectedSighting.properties.locName}</strong>
-              <small>
-                {selectedSighting.properties.regionCode} ·{" "}
-                {formatShortDateTime(selectedSighting.properties.obsDt)}
-              </small>
-            </span>
-          </div>
-          <div className="sighting-facts">
-            <span>
-              <strong>{sightingDetails?.observation?.count ?? selectedSighting.properties.howMany ?? "X"}</strong>
-              <small>Reported</small>
-            </span>
-            <span>
-              <strong>{selectedSighting.properties.obsReviewed ? "Reviewed" : "Recent"}</strong>
-              <small>Status</small>
-            </span>
-            <span>
-              <strong>{selectedSighting.properties.locationPrivate ? "Approx." : "Public"}</strong>
-              <small>Location</small>
-            </span>
-          </div>
-
-          {selectedSighting.properties.subId && /^S\d+$/.test(selectedSighting.properties.subId) ? (
-            <section className="sighting-details" aria-live="polite">
-              <header>
-                <span><Database size={11} /> Checklist detail</span>
-                {sightingDetailsLoading ? <RefreshCw className="spin" size={11} /> : null}
-              </header>
-              {sightingDetailsLoading ? (
-                <div className="detail-skeleton" aria-label="Loading checklist details">
-                  <span />
-                  <span />
-                </div>
-              ) : sightingDetailsError ? (
-                <p className="detail-error">
-                  {sightingDetailsError} The checklist link below still opens the full record.
-                </p>
-              ) : sightingDetails ? (
-                <>
-                  {sightingDetails.observerName ? (
-                    <div className="detail-observer">
-                      <UserRound size={14} />
-                      <span>
-                        <small>Reported by</small>
-                        <strong>{sightingDetails.observerName}</strong>
-                      </span>
-                    </div>
-                  ) : null}
-                  <div className="detail-meta">
-                    {checklistEffort(sightingDetails) ? (
-                      <span><Route size={11} /> {checklistEffort(sightingDetails)}</span>
-                    ) : null}
-                    {sightingDetails.numSpecies !== null ? (
-                      <span>
-                        <ListChecks size={11} /> {sightingDetails.numSpecies}{" "}
-                        {pluralize("species", sightingDetails.numSpecies)}
-                      </span>
-                    ) : null}
-                    {sightingDetails.numObservers !== null ? (
-                      <span>
-                        <UsersRound size={11} /> {sightingDetails.numObservers}{" "}
-                        {pluralize("observer", sightingDetails.numObservers)}
-                      </span>
-                    ) : null}
-                    {sightingDetails.allObsReported !== null ? (
-                      <span>
-                        <Check size={11} />{" "}
-                        {sightingDetails.allObsReported ? "Complete" : "Partial"}
-                      </span>
-                    ) : null}
-                  </div>
-                  {sightingDetails.observation?.breedingCode || sightingDetails.observation?.exoticCategory ? (
-                    <div className="detail-tags">
-                      {sightingDetails.observation.breedingCode ? (
-                        <span>Breeding {sightingDetails.observation.breedingCode}</span>
-                      ) : null}
-                      {sightingDetails.observation.exoticCategory ? (
-                        <span>{sightingDetails.observation.exoticCategory}</span>
-                      ) : null}
-                    </div>
-                  ) : null}
-                  {sightingDetails.observation?.comments ? (
-                    <div className="detail-note">
-                      <span>Species note</span>
-                      <p>{sightingDetails.observation.comments}</p>
-                    </div>
-                  ) : null}
-                  {sightingDetails.checklistComments ? (
-                    <div className="detail-note">
-                      <span>Checklist note</span>
-                      <p>{sightingDetails.checklistComments}</p>
-                    </div>
-                  ) : null}
-                  {sightingDetails.observation && totalMedia(sightingDetails.observation.media) > 0 ? (
-                    <div className="detail-media">
-                      {sightingDetails.observation.media.photos ? (
-                        <span><Camera size={11} /> {sightingDetails.observation.media.photos}</span>
-                      ) : null}
-                      {sightingDetails.observation.media.audio ? (
-                        <span><AudioLines size={11} /> {sightingDetails.observation.media.audio}</span>
-                      ) : null}
-                      {sightingDetails.observation.media.videos ? (
-                        <span><Video size={11} /> {sightingDetails.observation.media.videos}</span>
-                      ) : null}
-                      <small>on eBird</small>
-                    </div>
-                  ) : null}
-                </>
-              ) : null}
-            </section>
-          ) : null}
-
-          <footer>
-            <button type="button" onClick={() => void shareSighting(selectedSighting)}>
-              {sightingShareStatus === "Copied" ? <Check size={11} /> : <Share2 size={11} />}
-              {sightingShareStatus || "Share"}
-            </button>
-            <button
-              type="button"
-              className={watchlist.includes(selectedSighting.properties.speciesCode) ? "active" : ""}
-              onClick={() => toggleWatched(selectedSighting.properties.speciesCode)}
-            >
-              <Star size={11} />
-              {watchlist.includes(selectedSighting.properties.speciesCode) ? "Watching" : "Watch"}
-            </button>
-            {selectedSighting.properties.subId ? (
-              <a
-                href={`https://ebird.org/checklist/${selectedSighting.properties.subId}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Checklist <ExternalLink size={11} />
-              </a>
-            ) : null}
-          </footer>
-        </aside>
-      ) : null}
-
-      {/* ---- Floating chrome ------------------------------------------- */}
-      <div className="chrome">
-        <div className="chrome-top">
-          <div className="chrome-top-left">
-            <div className="segmented window-pills on-paper" role="group" aria-label="Lookback window">
-              {WINDOW_PRESETS.map((days) => (
-                <button
-                  type="button"
-                  key={days}
-                  className={lookbackDays === days ? "active" : ""}
-                  aria-pressed={lookbackDays === days}
-                  onClick={() => setLookbackDays(days)}
-                  title={`Past ${days} ${days === 1 ? "day" : "days"}`}
-                >
-                  {days}D
-                </button>
-              ))}
-              {/* A shared ?days=10 link or a preference saved by the old
-                  1-30 slider is still honoured, so show it rather than leaving
-                  every pill dark while the map plots a window nothing reflects. */}
-              {WINDOW_PRESETS.includes(lookbackDays) ? null : (
-                <button
-                  type="button"
-                  className="active"
-                  aria-pressed="true"
-                  title={`Past ${lookbackDays} days (from a shared link)`}
-                >
-                  {lookbackDays}D
-                </button>
-              )}
+      <div className="app-body">
+        <header className="topbar">
+          <div className="chrome-top">
+            <div className="chrome-top-left">
+              <div className="segmented window-pills on-paper" role="group" aria-label="Lookback window">
+                {WINDOW_PRESETS.map((days) => (
+                  <button
+                    type="button"
+                    key={days}
+                    className={lookbackDays === days ? "active" : ""}
+                    aria-pressed={lookbackDays === days}
+                    onClick={() => setLookbackDays(days)}
+                    title={`Past ${days} ${days === 1 ? "day" : "days"}`}
+                  >
+                    {days}D
+                  </button>
+                ))}
+                {/* A shared ?days=10 link or a preference saved by the old
+                    1-30 slider is still honoured, so show it rather than leaving
+                    every pill dark while the map plots a window nothing reflects. */}
+                {WINDOW_PRESETS.includes(lookbackDays) ? null : (
+                  <button
+                    type="button"
+                    className="active"
+                    aria-pressed="true"
+                    title={`Past ${lookbackDays} days (from a shared link)`}
+                  >
+                    {lookbackDays}D
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="masthead">
-            <span className="masthead-eyebrow">flockline</span>
-            <button
-              type="button"
-              className="masthead-title"
-              ref={mastheadRef}
-              onClick={openPicker}
-              title="Change species"
-              aria-haspopup="dialog"
-            >
-              {selectedSpecies ? selectedSpecies.comName : "Choose a bird"}
-              <ChevronDown className="caret" aria-hidden="true" />
-            </button>
-            <p className="masthead-meta">
-              {selectedSpecies ? (
-                <>
-                  <span>
-                    {loading ? "Counting" : `${windowStats.locations.toLocaleString()} locations`}
-                  </span>
-                  <span className="sep">·</span>
-                  {/* Locations and birds diverge sharply for flocking species,
-                      so showing only locations made a report of 4,000 look
-                      identical to a report of one. */}
-                  {!loading && windowStats.birds > windowStats.locations ? (
-                    <>
-                      <span title="Sum of the counts birders entered, where they gave a number">
-                        {windowStats.birds.toLocaleString()} birds
-                      </span>
-                      <span className="sep">·</span>
-                    </>
-                  ) : null}
-                </>
-              ) : null}
-              <span>{selectedRegionSummary}</span>
-              <span className="sep">·</span>
-              <span>{sourceLabel}</span>
-            </p>
-            {selectedSpecies && underreportedCommon.has(selectedSpecies.speciesCode) ? (
-              <p className="masthead-note">
-                {selectedSpecies.comName} is heavily under-reported on eBird. Birders skip logging
-                common species, so this map shows far fewer spots than where they really are.
-              </p>
-            ) : null}
-          </div>
-
-          <div className="chrome-top-right">
-            {/* The only other way to star a bird is the sighting sheet, which
-                needs a plotted dot to click — so a species with no reports in
-                the window could not be watched at all. */}
-            {selectedSpecies ? (
+            <div className="masthead">
+              <span className="masthead-eyebrow">flockline</span>
               <button
                 type="button"
-                className={`pill icon-only watch-pill ${watchlist.includes(selectedSpecies.speciesCode) ? "active" : ""}`}
-                onClick={() => toggleWatched(selectedSpecies.speciesCode)}
-                aria-pressed={watchlist.includes(selectedSpecies.speciesCode)}
-                title={
-                  watchlist.includes(selectedSpecies.speciesCode)
-                    ? `Remove ${selectedSpecies.comName} from My birds`
-                    : `Add ${selectedSpecies.comName} to My birds`
-                }
-                aria-label={
-                  watchlist.includes(selectedSpecies.speciesCode)
-                    ? `Remove ${selectedSpecies.comName} from My birds`
-                    : `Add ${selectedSpecies.comName} to My birds`
-                }
+                className="masthead-title"
+                ref={mastheadRef}
+                onClick={openPicker}
+                title="Change species"
+                aria-haspopup="dialog"
               >
-                <Star />
+                {selectedSpecies ? selectedSpecies.comName : "Choose a bird"}
+                <ChevronDown className="caret" aria-hidden="true" />
               </button>
-            ) : null}
-            <button
-              type="button"
-              className="pill icon-only tour-pill"
-              onClick={openTour}
-              title="Take the tour"
-              aria-label="Take the tour"
-            >
-              <Compass />
-            </button>
-            <button
-              type="button"
-              className="pill icon-only share-pill"
-              onClick={() => void shareView()}
-              title={shareStatus || "Copy a link to this view"}
-              aria-label={shareStatus || "Copy a link to this view"}
-            >
-              {shareStatus === "Link copied" ? <Check /> : <Share2 />}
-            </button>
-            <button
-              type="button"
-              className="pill icon-only refresh-pill"
-              onClick={() => loadSightings({ force: true })}
-              disabled={loading || !selectedSpecies}
-              title="Refresh from eBird"
-              aria-label="Refresh from eBird"
-            >
-              <RefreshCw className={loading ? "spin" : ""} />
-            </button>
-            <button
-              type="button"
-              className={`pill lower menu-pill ${drawer === "menu" ? "active" : ""}`}
-              onClick={() => openDrawer("menu")}
-              aria-expanded={drawer === "menu"}
-            >
-              menu
-            </button>
-          </div>
-        </div>
+              <p className="masthead-meta">
+                {selectedSpecies ? (
+                  <>
+                    <span>
+                      {loading ? "Counting" : `${windowStats.locations.toLocaleString()} locations`}
+                    </span>
+                    <span className="sep">·</span>
+                    {/* Locations and birds diverge sharply for flocking species,
+                        so showing only locations made a report of 4,000 look
+                        identical to a report of one. */}
+                    {!loading && windowStats.birds > windowStats.locations ? (
+                      <>
+                        <span title="Sum of the counts birders entered, where they gave a number">
+                          {windowStats.birds.toLocaleString()} birds
+                        </span>
+                        <span className="sep">·</span>
+                      </>
+                    ) : null}
+                  </>
+                ) : null}
+                <span>{selectedRegionSummary}</span>
+                <span className="sep">·</span>
+                <span>{sourceLabel}</span>
+              </p>
+              {selectedSpecies && underreportedCommon.has(selectedSpecies.speciesCode) ? (
+                <p className="masthead-note">
+                  {selectedSpecies.comName} is heavily under-reported on eBird. Birders skip logging
+                  common species, so this map shows far fewer spots than where they really are.
+                </p>
+              ) : null}
+            </div>
 
-        <div className="chrome-bottom">
-          {selectedSpecies && dateKeys.length ? (
-            <div className="scrubber" aria-label="Timeline">
-              <div className="scrubber-head">
+            <div className="chrome-top-right">
+              {/* The only other way to star a bird is the sighting sheet, which
+                  needs a plotted dot to click — so a species with no reports in
+                  the window could not be watched at all. */}
+              {selectedSpecies ? (
                 <button
                   type="button"
-                  className="play-button"
-                  onClick={() => (playing ? setPlaying(false) : startPlayback())}
-                  aria-label={playing ? "Pause timeline" : "Play timeline"}
+                  className={`pill icon-only watch-pill ${watchlist.includes(selectedSpecies.speciesCode) ? "active" : ""}`}
+                  onClick={() => toggleWatched(selectedSpecies.speciesCode)}
+                  aria-pressed={watchlist.includes(selectedSpecies.speciesCode)}
+                  title={
+                    watchlist.includes(selectedSpecies.speciesCode)
+                      ? `Remove ${selectedSpecies.comName} from My birds`
+                      : `Add ${selectedSpecies.comName} to My birds`
+                  }
+                  aria-label={
+                    watchlist.includes(selectedSpecies.speciesCode)
+                      ? `Remove ${selectedSpecies.comName} from My birds`
+                      : `Add ${selectedSpecies.comName} to My birds`
+                  }
                 >
-                  {playing ? <Pause /> : <Play />}
+                  <Star />
                 </button>
-                <span className="scrubber-date">
-                  {timelineMode === "daily"
-                    ? formatDateKey(selectedDateKey)
-                    : `${formatDateKey(earliestDateKey)} – ${formatDateKey(selectedDateKey)}`}
-                </span>
-                <span className="spacer" />
-                <div className="segmented" role="group" aria-label="Timeline mode">
-                  <button
-                    type="button"
-                    className={timelineMode === "daily" ? "active" : ""}
-                    aria-pressed={timelineMode === "daily"}
-                    onClick={() => setTimelineMode("daily")}
-                    title="Only locations whose most recent report is the selected day"
-                  >
-                    New
-                  </button>
-                  <button
-                    type="button"
-                    className={timelineMode === "cumulative" ? "active" : ""}
-                    aria-pressed={timelineMode === "cumulative"}
-                    onClick={() => setTimelineMode("cumulative")}
-                    title="Every location reported through the selected day"
-                  >
-                    Trail
-                  </button>
-                </div>
-              </div>
+              ) : null}
+              <button
+                type="button"
+                className="pill icon-only tour-pill"
+                onClick={openTour}
+                title="Take the tour"
+                aria-label="Take the tour"
+              >
+                <Compass />
+              </button>
+              <button
+                type="button"
+                className="pill icon-only share-pill"
+                onClick={() => void shareView()}
+                title={shareStatus || "Copy a link to this view"}
+                aria-label={shareStatus || "Copy a link to this view"}
+              >
+                {shareStatus === "Link copied" ? <Check /> : <Share2 />}
+              </button>
+              <button
+                type="button"
+                className="pill icon-only refresh-pill"
+                onClick={() => loadSightings({ force: true })}
+                disabled={loading || !selectedSpecies}
+                title="Refresh from eBird"
+                aria-label="Refresh from eBird"
+              >
+                <RefreshCw className={loading ? "spin" : ""} />
+              </button>
+              <button
+                type="button"
+                className={`pill lower menu-pill ${drawer === "menu" ? "active" : ""}`}
+                onClick={() => openDrawer("menu")}
+                aria-expanded={drawer === "menu"}
+              >
+                menu
+              </button>
+            </div>
+          </div>
+        </header>
 
-              <div className="histogram" role="group" aria-label="New locations per day">
-                {dateKeys.map((key, index) => {
-                  const count = dailyCounts[index];
-                  const height = maxDaily ? Math.max(6, Math.round((count / maxDaily) * 100)) : 6;
-                  const bucket = recencyBucket(index, dateKeys.length);
-                  const position =
-                    index === selectedDayIndex ? "current" : index < selectedDayIndex ? "past" : "future";
-                  return (
+        <div className="stage">
+        <div className="map-layer">
+          <div ref={mapElementRef} className="map-canvas" />
+        </div>
+
+        {loading ? (
+          <div className="map-note loading" role="status" aria-live="polite">
+            <Radar size={13} className="spin" />
+            Reading checklists
+          </div>
+        ) : null}
+
+        {error && selectedSpecies && !loading ? (
+          <div className="map-note alert" role="alert">
+            <span>{error}</span>
+            {/* Retrying cannot fix "no states selected" — the fix lives behind
+                the menu pill, so send the reader there instead. */}
+            {selectedRegions.length ? (
+              <button type="button" onClick={() => void loadSightings({ force: true })}>Retry</button>
+            ) : (
+              <button type="button" onClick={() => setDrawer("menu")}>Pick states</button>
+            )}
+          </div>
+        ) : null}
+
+        {failedRegionSummary && !error && !loading ? (
+          <div className="map-note alert" role="status">
+            <span>Partial results · no response for {failedRegionSummary}</span>
+            <button type="button" onClick={() => void loadSightings({ force: true })}>Retry</button>
+          </div>
+        ) : null}
+
+        {!selectedSpecies ? (
+          <div className="map-empty" role="status">
+            <Feather size={22} />
+            <h2>Choose a bird</h2>
+            <p>
+              Pick any of {presets.length.toLocaleString()} species and Flockline charts where it has been
+              reported across {selectedRegionSummary}.
+            </p>
+            <button type="button" className="pill" onClick={openPicker}>
+              <Search size={13} />
+              Browse species
+            </button>
+          </div>
+        ) : null}
+
+        {selectedSpecies && !loading && payload && !allFeatures.length ? (
+          <div className="map-empty" role="status">
+            <Search size={22} />
+            <h2>No reports found</h2>
+            <p>
+              Nothing for {selectedSpecies.comName} in {selectedRegionSummary} over the past{" "}
+              {lookbackDays} {lookbackDays === 1 ? "day" : "days"}.
+              {allStatesSelected
+                ? " This bird may not occur here at all."
+                : " It may simply be out of range for these states."}
+            </p>
+            {/* Offer the action that can actually help. At 30 days the old
+                "Widen to 30 days" button was already a no-op, which is exactly
+                the case a bird that is out of range lands in. */}
+            {lookbackDays < 30 ? (
+              <button type="button" className="pill" onClick={() => setLookbackDays(30)}>
+                Widen to 30 days
+              </button>
+            ) : !allStatesSelected ? (
+              <button type="button" className="pill" onClick={() => selectRegionPreset("nationwide")}>
+                <MapIcon />
+                Search all states
+              </button>
+            ) : (
+              <button type="button" className="pill" onClick={openPicker}>
+                <Search size={13} />
+                Try another bird
+              </button>
+            )}
+          </div>
+        ) : null}
+
+        {selectedSighting ? (
+          <aside className="sighting-sheet" aria-label="Sighting details">
+            <header>
+              <span className="sighting-kicker">Field record</span>
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() => setSelectedSighting(null)}
+                aria-label="Close sighting details"
+              >
+                <X size={15} />
+              </button>
+            </header>
+            <h2>{selectedSighting.properties.comName}</h2>
+            <p className="sighting-science">{selectedSighting.properties.sciName}</p>
+            <div className="sighting-place">
+              <MapPin size={14} />
+              <span>
+                <strong>{selectedSighting.properties.locName}</strong>
+                <small>
+                  {selectedSighting.properties.regionCode} ·{" "}
+                  {formatShortDateTime(selectedSighting.properties.obsDt)}
+                </small>
+              </span>
+            </div>
+            <div className="sighting-facts">
+              <span>
+                <strong>{sightingDetails?.observation?.count ?? selectedSighting.properties.howMany ?? "X"}</strong>
+                <small>Reported</small>
+              </span>
+              <span>
+                <strong>{selectedSighting.properties.obsReviewed ? "Reviewed" : "Recent"}</strong>
+                <small>Status</small>
+              </span>
+              <span>
+                <strong>{selectedSighting.properties.locationPrivate ? "Approx." : "Public"}</strong>
+                <small>Location</small>
+              </span>
+            </div>
+
+            {selectedSighting.properties.subId && /^S\d+$/.test(selectedSighting.properties.subId) ? (
+              <section className="sighting-details" aria-live="polite">
+                <header>
+                  <span><Database size={11} /> Checklist detail</span>
+                  {sightingDetailsLoading ? <RefreshCw className="spin" size={11} /> : null}
+                </header>
+                {sightingDetailsLoading ? (
+                  <div className="detail-skeleton" aria-label="Loading checklist details">
+                    <span />
+                    <span />
+                  </div>
+                ) : sightingDetailsError ? (
+                  <p className="detail-error">
+                    {sightingDetailsError} The checklist link below still opens the full record.
+                  </p>
+                ) : sightingDetails ? (
+                  <>
+                    {sightingDetails.observerName ? (
+                      <div className="detail-observer">
+                        <UserRound size={14} />
+                        <span>
+                          <small>Reported by</small>
+                          <strong>{sightingDetails.observerName}</strong>
+                        </span>
+                      </div>
+                    ) : null}
+                    <div className="detail-meta">
+                      {checklistEffort(sightingDetails) ? (
+                        <span><Route size={11} /> {checklistEffort(sightingDetails)}</span>
+                      ) : null}
+                      {sightingDetails.numSpecies !== null ? (
+                        <span>
+                          <ListChecks size={11} /> {sightingDetails.numSpecies}{" "}
+                          {pluralize("species", sightingDetails.numSpecies)}
+                        </span>
+                      ) : null}
+                      {sightingDetails.numObservers !== null ? (
+                        <span>
+                          <UsersRound size={11} /> {sightingDetails.numObservers}{" "}
+                          {pluralize("observer", sightingDetails.numObservers)}
+                        </span>
+                      ) : null}
+                      {sightingDetails.allObsReported !== null ? (
+                        <span>
+                          <Check size={11} />{" "}
+                          {sightingDetails.allObsReported ? "Complete" : "Partial"}
+                        </span>
+                      ) : null}
+                    </div>
+                    {sightingDetails.observation?.breedingCode || sightingDetails.observation?.exoticCategory ? (
+                      <div className="detail-tags">
+                        {sightingDetails.observation.breedingCode ? (
+                          <span>Breeding {sightingDetails.observation.breedingCode}</span>
+                        ) : null}
+                        {sightingDetails.observation.exoticCategory ? (
+                          <span>{sightingDetails.observation.exoticCategory}</span>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {sightingDetails.observation?.comments ? (
+                      <div className="detail-note">
+                        <span>Species note</span>
+                        <p>{sightingDetails.observation.comments}</p>
+                      </div>
+                    ) : null}
+                    {sightingDetails.checklistComments ? (
+                      <div className="detail-note">
+                        <span>Checklist note</span>
+                        <p>{sightingDetails.checklistComments}</p>
+                      </div>
+                    ) : null}
+                    {sightingDetails.observation && totalMedia(sightingDetails.observation.media) > 0 ? (
+                      <div className="detail-media">
+                        {sightingDetails.observation.media.photos ? (
+                          <span><Camera size={11} /> {sightingDetails.observation.media.photos}</span>
+                        ) : null}
+                        {sightingDetails.observation.media.audio ? (
+                          <span><AudioLines size={11} /> {sightingDetails.observation.media.audio}</span>
+                        ) : null}
+                        {sightingDetails.observation.media.videos ? (
+                          <span><Video size={11} /> {sightingDetails.observation.media.videos}</span>
+                        ) : null}
+                        <small>on eBird</small>
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
+              </section>
+            ) : null}
+
+            <footer>
+              <button type="button" onClick={() => void shareSighting(selectedSighting)}>
+                {sightingShareStatus === "Copied" ? <Check size={11} /> : <Share2 size={11} />}
+                {sightingShareStatus || "Share"}
+              </button>
+              <button
+                type="button"
+                className={watchlist.includes(selectedSighting.properties.speciesCode) ? "active" : ""}
+                onClick={() => toggleWatched(selectedSighting.properties.speciesCode)}
+              >
+                <Star size={11} />
+                {watchlist.includes(selectedSighting.properties.speciesCode) ? "Watching" : "Watch"}
+              </button>
+              {selectedSighting.properties.subId ? (
+                <a
+                  href={`https://ebird.org/checklist/${selectedSighting.properties.subId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Checklist <ExternalLink size={11} />
+                </a>
+              ) : null}
+            </footer>
+          </aside>
+        ) : null}
+
+          <div className="chrome">
+            <div className="chrome-bottom">
+              {selectedSpecies && dateKeys.length ? (
+                <div className="scrubber" aria-label="Timeline">
+                  <div className="scrubber-head">
                     <button
                       type="button"
-                      key={key}
-                      className={`${bucket} ${position}`}
-                      style={{ height: `${height}%` }}
-                      onClick={() => {
-                        setPlaying(false);
-                        setSelectedDayIndex(index);
-                      }}
-                      aria-label={`${formatDateKey(key)}: ${count.toLocaleString()} new ${count === 1 ? "location" : "locations"}`}
-                      title={`${formatDateKey(key)} · ${count.toLocaleString()} new`}
-                    />
-                  );
-                })}
-              </div>
-
-              <input
-                type="range"
-                className="day-rail"
-                min={0}
-                max={Math.max(0, lookbackDays - 1)}
-                value={selectedDayIndex}
-                onChange={(event) => {
-                  setPlaying(false);
-                  setSelectedDayIndex(Number(event.target.value));
-                }}
-                aria-label="Timeline day"
-              />
-
-              <div className="scrubber-foot">
-                {timelineMode === "cumulative" ? (
-                  <span>
-                    <strong>{visibleStats.sightings.toLocaleString()}</strong> locations through{" "}
-                    {formatDateKey(selectedDateKey)}
-                  </span>
-                ) : (
-                  <span>
-                    <strong>{visibleStats.sightings.toLocaleString()}</strong> new on{" "}
-                    {formatDateKey(selectedDateKey)} ·{" "}
-                    <button type="button" className="link" onClick={() => setTimelineMode("cumulative")}>
-                      see all {allFeatures.length.toLocaleString()}
+                      className="play-button"
+                      onClick={() => (playing ? setPlaying(false) : startPlayback())}
+                      aria-label={playing ? "Pause timeline" : "Play timeline"}
+                    >
+                      {playing ? <Pause /> : <Play />}
                     </button>
-                  </span>
-                )}
-                <span className="ramp-key" title="Marker color shows how recent each report is">
-                  <i className="old" />
-                  <i className="mid" />
-                  <i className="new" />
-                  older → fresh
-                </span>
-              </div>
-            </div>
-          ) : null}
+                    <span className="scrubber-date">
+                      {timelineMode === "daily"
+                        ? formatDateKey(selectedDateKey)
+                        : `${formatDateKey(earliestDateKey)} – ${formatDateKey(selectedDateKey)}`}
+                    </span>
+                    <span className="spacer" />
+                    <div className="segmented" role="group" aria-label="Timeline mode">
+                      <button
+                        type="button"
+                        className={timelineMode === "daily" ? "active" : ""}
+                        aria-pressed={timelineMode === "daily"}
+                        onClick={() => setTimelineMode("daily")}
+                        title="Only locations whose most recent report is the selected day"
+                      >
+                        New
+                      </button>
+                      <button
+                        type="button"
+                        className={timelineMode === "cumulative" ? "active" : ""}
+                        aria-pressed={timelineMode === "cumulative"}
+                        onClick={() => setTimelineMode("cumulative")}
+                        title="Every location reported through the selected day"
+                      >
+                        Trail
+                      </button>
+                    </div>
+                  </div>
 
-          <nav className="tab-bar" aria-label="Panels">
-            <button
-              type="button"
-              className={`tab-map ${drawer === null ? "active" : ""}`}
-              onClick={() => setDrawer(null)}
-              aria-pressed={drawer === null}
-            >
-              <MapIcon />
-              <span className="label">Map</span>
-            </button>
-            <button
-              type="button"
-              className={`tab-insights ${drawer === "insights" ? "active" : ""}`}
-              onClick={() => openDrawer("insights")}
-              aria-expanded={drawer === "insights"}
-            >
-              <Sparkles />
-              <span className="label">Insights</span>
-            </button>
-            <button
-              type="button"
-              className={`tab-ask ${drawer === "ask" ? "active" : ""}`}
-              onClick={() => openDrawer("ask")}
-              aria-expanded={drawer === "ask"}
-            >
-              <MessageCircle />
-              <span className="label">Ask</span>
-            </button>
-            <button
-              type="button"
-              className={`tab-birds ${drawer === "birds" ? "active" : ""}`}
-              onClick={() => openDrawer("birds")}
-              aria-expanded={drawer === "birds"}
-            >
-              {activeAlertFindings.length ? <BellRing /> : <Star />}
-              <span className="label">My birds</span>
-              {watchlist.length ? <span className="badge">{watchlist.length}</span> : null}
-            </button>
-          </nav>
+                  <div className="histogram" role="group" aria-label="New locations per day">
+                    {dateKeys.map((key, index) => {
+                      const count = dailyCounts[index];
+                      const height = maxDaily ? Math.max(6, Math.round((count / maxDaily) * 100)) : 6;
+                      const bucket = recencyBucket(index, dateKeys.length);
+                      const position =
+                        index === selectedDayIndex ? "current" : index < selectedDayIndex ? "past" : "future";
+                      return (
+                        <button
+                          type="button"
+                          key={key}
+                          className={`${bucket} ${position}`}
+                          style={{ height: `${height}%` }}
+                          onClick={() => {
+                            setPlaying(false);
+                            setSelectedDayIndex(index);
+                          }}
+                          aria-label={`${formatDateKey(key)}: ${count.toLocaleString()} new ${count === 1 ? "location" : "locations"}`}
+                          title={`${formatDateKey(key)} · ${count.toLocaleString()} new`}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  <input
+                    type="range"
+                    className="day-rail"
+                    min={0}
+                    max={Math.max(0, lookbackDays - 1)}
+                    value={selectedDayIndex}
+                    onChange={(event) => {
+                      setPlaying(false);
+                      setSelectedDayIndex(Number(event.target.value));
+                    }}
+                    aria-label="Timeline day"
+                  />
+
+                  <div className="scrubber-foot">
+                    {timelineMode === "cumulative" ? (
+                      <span>
+                        <strong>{visibleStats.sightings.toLocaleString()}</strong> locations through{" "}
+                        {formatDateKey(selectedDateKey)}
+                      </span>
+                    ) : (
+                      <span>
+                        <strong>{visibleStats.sightings.toLocaleString()}</strong> new on{" "}
+                        {formatDateKey(selectedDateKey)} ·{" "}
+                        <button type="button" className="link" onClick={() => setTimelineMode("cumulative")}>
+                          see all {allFeatures.length.toLocaleString()}
+                        </button>
+                      </span>
+                    )}
+                    <span className="ramp-key" title="Marker color shows how recent each report is">
+                      <i className="old" />
+                      <i className="mid" />
+                      <i className="new" />
+                      older → fresh
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+
+              <nav className="tab-bar" aria-label="Panels">
+                <button
+                  type="button"
+                  className={`tab-map ${drawer === null ? "active" : ""}`}
+                  onClick={() => setDrawer(null)}
+                  aria-pressed={drawer === null}
+                >
+                  <MapIcon />
+                  <span className="label">Map</span>
+                </button>
+                <button
+                  type="button"
+                  className={`tab-insights ${drawer === "insights" ? "active" : ""}`}
+                  onClick={() => openDrawer("insights")}
+                  aria-expanded={drawer === "insights"}
+                >
+                  <Sparkles />
+                  <span className="label">Insights</span>
+                </button>
+                <button
+                  type="button"
+                  className={`tab-ask ${drawer === "ask" ? "active" : ""}`}
+                  onClick={() => openDrawer("ask")}
+                  aria-expanded={drawer === "ask"}
+                >
+                  <MessageCircle />
+                  <span className="label">Ask</span>
+                </button>
+                <button
+                  type="button"
+                  className={`tab-birds ${drawer === "birds" ? "active" : ""}`}
+                  onClick={() => openDrawer("birds")}
+                  aria-expanded={drawer === "birds"}
+                >
+                  {activeAlertFindings.length ? <BellRing /> : <Star />}
+                  <span className="label">My birds</span>
+                  {watchlist.length ? <span className="badge">{watchlist.length}</span> : null}
+                </button>
+              </nav>
+          </div>
+          </div>
         </div>
       </div>
 
