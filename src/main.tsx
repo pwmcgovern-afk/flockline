@@ -1,5 +1,6 @@
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { Analytics } from "@vercel/analytics/react";
 import "leaflet/dist/leaflet.css";
 import "./styles.css";
 import App from "./App";
@@ -25,5 +26,6 @@ function Root() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Root />
+    <Analytics />
   </StrictMode>
 );
