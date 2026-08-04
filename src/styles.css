@@ -181,11 +181,41 @@ p {
   overflow: hidden;
 }
 
-.map-layer {
+/* The drawer docks by insetting the whole body, so the topbar and the map
+   shorten together instead of sliding under the panel. */
+.app-body {
   position: absolute;
   inset: 0;
   right: var(--dock);
+  display: flex;
+  flex-direction: column;
   transition: right 320ms var(--ease);
+}
+
+/* The header band. The masthead used to float transparently over the map, so a
+   long two-line name like "Common Nighthawk" landed on top of city labels and
+   markers. Giving the top chrome its own surface puts the bird name above the
+   map instead of on it. */
+.topbar {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 18px 16px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule-soft);
+  z-index: 500;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.map-layer {
+  position: absolute;
+  inset: 0;
 }
 
 .map-canvas {
@@ -262,14 +292,12 @@ p {
 .chrome {
   position: absolute;
   inset: 0;
-  right: var(--dock);
   z-index: 500;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 18px;
   pointer-events: none;
-  transition: right 320ms var(--ease);
 }
 
 .chrome button,
@@ -283,9 +311,10 @@ p {
 }
 
 .chrome-top {
+  flex: 1;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  align-items: start;
+  align-items: center;
   gap: 16px;
 }
 
@@ -428,8 +457,8 @@ button.pill:hover {
   align-items: center;
   gap: 1px;
   text-align: center;
-  max-width: min(560px, 46vw);
-  pointer-events: none;
+  min-width: 0;
+  max-width: min(620px, 52vw);
 }
 
 .masthead-eyebrow {
@@ -442,16 +471,15 @@ button.pill:hover {
 }
 
 .masthead-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
+  display: block;
   pointer-events: auto;
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(1.7rem, 3.4vw, 2.9rem);
-  letter-spacing: 0.055em;
+  font-size: clamp(1.45rem, 2.7vw, 2.3rem);
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  line-height: 1.04;
+  line-height: 1.08;
+  text-wrap: balance;
   color: var(--ink);
   padding: 0 4px;
   border-radius: 6px;
@@ -463,11 +491,13 @@ button.pill:hover {
 }
 
 .masthead-title .caret {
-  width: 15px;
-  height: 15px;
+  display: inline-block;
+  vertical-align: baseline;
+  width: 14px;
+  height: 14px;
+  margin-left: 10px;
   stroke-width: 1.5;
   color: var(--ink-3);
-  flex: none;
 }
 
 .masthead-meta {
@@ -2531,7 +2561,11 @@ button.pill:hover {
   }
 
   .masthead-title {
-    font-size: clamp(1.5rem, 7vw, 2.1rem);
+    font-size: clamp(1.2rem, 5.4vw, 1.75rem);
+  }
+
+  .topbar {
+    padding: 10px 12px 12px;
   }
 
   .chrome-bottom {
