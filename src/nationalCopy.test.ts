@@ -21,7 +21,10 @@ describe("nationwide product copy", () => {
   it("documents region-aware Insights and location-safe Ask behavior", () => {
     const methodology = read("src/Methodology.tsx");
 
-    expect(methodology).toContain("selected states and timeline window");
+    // Insights no longer simply follow the map: they carry their own scope and
+    // that scope is what a shared link encodes.
+    expect(methodology).toContain("Insights carry their own region and window");
+    expect(methodology).toContain("reopens Flockline directly on");
     expect(methodology).toContain("instead of assuming your location");
     expect(methodology).toContain("Nationwide selects all 50 states plus Washington, D.C.");
     expect(methodology).not.toContain("reported across New England");
