@@ -1512,14 +1512,10 @@ export default function App() {
               {selectedSpecies ? (
                 <button
                   type="button"
-                  className={`pill icon-only watch-pill ${watchlist.includes(selectedSpecies.speciesCode) ? "active" : ""}`}
+                  className={`pill icon-only tip watch-pill ${watchlist.includes(selectedSpecies.speciesCode) ? "active" : ""}`}
+                data-tip={watchlist.includes(selectedSpecies.speciesCode) ? "In My birds" : "Save to My birds"}
                   onClick={() => toggleWatched(selectedSpecies.speciesCode)}
                   aria-pressed={watchlist.includes(selectedSpecies.speciesCode)}
-                  title={
-                    watchlist.includes(selectedSpecies.speciesCode)
-                      ? `Remove ${selectedSpecies.comName} from My birds`
-                      : `Add ${selectedSpecies.comName} to My birds`
-                  }
                   aria-label={
                     watchlist.includes(selectedSpecies.speciesCode)
                       ? `Remove ${selectedSpecies.comName} from My birds`
@@ -1531,35 +1527,36 @@ export default function App() {
               ) : null}
               <button
                 type="button"
-                className="pill icon-only tour-pill"
+                className="pill icon-only tip tour-pill"
+              data-tip="Take the tour"
                 onClick={openTour}
-                title="Take the tour"
-                aria-label="Take the tour"
+                  aria-label="Take the tour"
               >
                 <Compass />
               </button>
               <button
                 type="button"
-                className="pill icon-only share-pill"
+                className="pill icon-only tip share-pill"
+              data-tip="Copy link to this view"
                 onClick={() => void shareView()}
-                title={shareStatus || "Copy a link to this view"}
-                aria-label={shareStatus || "Copy a link to this view"}
+                  aria-label={shareStatus || "Copy a link to this view"}
               >
                 {shareStatus === "Link copied" ? <Check /> : <Share2 />}
               </button>
               <button
                 type="button"
-                className="pill icon-only refresh-pill"
+                className="pill icon-only tip refresh-pill"
+              data-tip="Refresh from eBird"
                 onClick={() => loadSightings({ force: true })}
                 disabled={loading || !selectedSpecies}
-                title="Refresh from eBird"
-                aria-label="Refresh from eBird"
+                  aria-label="Refresh from eBird"
               >
                 <RefreshCw className={loading ? "spin" : ""} />
               </button>
               <button
                 type="button"
-                className={`pill lower menu-pill ${drawer === "menu" ? "active" : ""}`}
+                className={`pill lower tip menu-pill ${drawer === "menu" ? "active" : ""}`}
+              data-tip="States and filters"
                 onClick={() => openDrawer("menu")}
                 aria-expanded={drawer === "menu"}
               >
