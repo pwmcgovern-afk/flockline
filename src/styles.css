@@ -446,6 +446,54 @@ button.pill:hover {
   box-shadow: var(--shadow-pill);
 }
 
+/* Tooltip for icon-only controls. aria-label still carries the accessible
+   name; this is the visible affordance. */
+.tip {
+  position: relative;
+}
+
+.tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-3px);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 40;
+  transition: opacity 130ms var(--ease), transform 130ms var(--ease);
+}
+
+.tip:hover::after,
+.tip:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* The rightmost controls would push their tooltip off-screen. */
+.chrome-top-right .tip:last-child::after,
+.chrome-top-right .tip:nth-last-child(2)::after {
+  left: auto;
+  right: 0;
+  transform: translateY(-3px);
+}
+
+.chrome-top-right .tip:last-child:hover::after,
+.chrome-top-right .tip:last-child:focus-visible::after,
+.chrome-top-right .tip:nth-last-child(2):hover::after,
+.chrome-top-right .tip:nth-last-child(2):focus-visible::after {
+  transform: translateY(0);
+}
+
 /* --------------------------------------------------------------------------
    Masthead — the "your birds / HEARD RECENTLY" treatment.
    The title is a button: clicking it opens the species picker.
@@ -2107,13 +2155,18 @@ button.pill:hover {
 }
 
 .picker-tabs {
+  flex: none;
   display: flex;
+  align-items: center;
   gap: 4px;
   overflow-x: auto;
-  /* Vertical padding keeps the active pill from being clipped by the
-     horizontal scroll container. */
-  padding: 2px 0 12px;
+  overscroll-behavior-x: contain;
+  /* Vertical padding keeps the active pill off the scroll container's edges. */
+  padding: 3px 0 12px;
   scrollbar-width: none;
+  /* Most families sit off-screen to the right; fade the edge so it reads as
+     scrollable rather than truncated. */
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
 }
 
 .picker-tabs::-webkit-scrollbar {
