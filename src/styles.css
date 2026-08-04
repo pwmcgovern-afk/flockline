@@ -1625,26 +1625,34 @@ button.pill:hover {
 .insight-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 4px;
   flex-wrap: wrap;
-  margin-top: 11px;
+  margin-top: 12px;
+  /* Pull the padded targets back into line with the card's text column. */
+  margin-left: -9px;
 }
 
 .insight-meta a,
-.insight-meta > span {
+.insight-meta > span,
+.insight-meta button {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 9px;
+  border-radius: 999px;
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--ink-3);
   text-decoration: none;
 }
 
-.insight-meta a:hover {
+.insight-meta a:hover,
+.insight-meta button:hover {
   color: var(--ink);
+  background: var(--paper-sunk);
 }
 
 .insight-meta svg {
@@ -1654,13 +1662,8 @@ button.pill:hover {
 }
 
 .insight-meta button {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
   color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  background: var(--paper-sunk);
 }
 
 .drawer-status {
@@ -2657,6 +2660,76 @@ button.pill:hover {
 /* --------------------------------------------------------------------------
    Motion preferences
    -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   Touch targets
+
+   The design leans on small mono labels, which is right visually and wrong
+   ergonomically. On anything without a precise pointer, grow the interactive
+   chrome toward the 44px guideline without changing how it looks.
+   -------------------------------------------------------------------------- */
+
+@media (pointer: coarse) {
+  .pill,
+  .segmented button,
+  .tab-bar button,
+  .chips button {
+    min-height: 40px;
+  }
+
+  .pill.icon-only {
+    width: 40px;
+  }
+
+  .segmented {
+    padding: 4px;
+  }
+
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .insight-meta a,
+  .insight-meta button {
+    min-height: 40px;
+    padding: 0 12px;
+  }
+
+  .play-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* The bars are 3px wide targets; give the row real height to aim at. */
+  .histogram {
+    height: 46px;
+  }
+
+  .day-rail {
+    height: 6px;
+  }
+
+  .day-rail::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  .day-rail::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  .scope-select {
+    height: 40px;
+  }
+
+  .picker-tabs button,
+  .picker-results button,
+  .suggestions button {
+    min-height: 40px;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,
