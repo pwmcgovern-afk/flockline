@@ -17,8 +17,8 @@
   /* Ink: near-black warm grey, stepping down to label grey. */
   --ink: #1c1b18;
   --ink-2: #56534c;
-  --ink-3: #8b877e;
-  --ink-4: #b3afa5;
+  --ink-3: #6d6961;
+  --ink-4: #8b877e;
 
   --rule: rgba(28, 27, 24, 0.11);
   --rule-soft: rgba(28, 27, 24, 0.06);
@@ -195,9 +195,16 @@ p {
 }
 
 /* Filter the tiles, not the markers: the marker pane sits outside
-   .leaflet-tile-pane, so the data keeps its full color on muted paper. */
-.leaflet-tile-pane {
+   .leaflet-tile-pane, so the data keeps its full color on muted paper.
+   Base and labels are filtered separately — a filter on the shared pane would
+   apply the base's brightening to the label text and erase it. */
+.map-base {
   filter: var(--map-filter);
+}
+
+.map-labels {
+  filter: grayscale(1) brightness(0.72) contrast(1.25);
+  opacity: 0.75;
 }
 
 .leaflet-container {
@@ -235,7 +242,7 @@ p {
 
 .leaflet-control-attribution {
   background: transparent !important;
-  color: var(--ink-4) !important;
+  color: var(--ink-3) !important;
   font-family: var(--mono) !important;
   font-size: 9px !important;
   letter-spacing: 0.06em;
@@ -478,7 +485,7 @@ button.pill:hover {
 }
 
 .masthead-meta .sep {
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 
 .masthead-note {
@@ -1085,7 +1092,7 @@ button.pill:hover {
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 
 .detail-note {
@@ -1412,7 +1419,7 @@ button.pill:hover {
 }
 
 .search input::placeholder {
-  color: var(--ink-4);
+  color: var(--ink-3);
   font-style: italic;
 }
 
@@ -1705,7 +1712,7 @@ button.pill:hover {
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 
 .chat-bubble {
@@ -1842,7 +1849,7 @@ button.pill:hover {
 }
 
 .chat-composer input::placeholder {
-  color: var(--ink-4);
+  color: var(--ink-3);
   font-style: italic;
 }
 
@@ -2142,7 +2149,7 @@ button.pill:hover {
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.08em;
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 
 .picker-empty {
@@ -2217,7 +2224,7 @@ button.pill:hover {
   font-size: 9px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--ink-4);
+  color: var(--ink-3);
   margin-bottom: 7px;
 }
 
@@ -2541,20 +2548,46 @@ button.pill:hover {
     padding: 0 12px;
   }
 
+  /* Visually hidden, not display:none. These labels are the only accessible
+     name each tab has (the icons are decorative), so removing them from the
+     tree left three of four tabs announcing as a bare "button". */
   .tab-bar button .label {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
   }
 
   .tab-bar button.active .label {
-    display: inline;
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
   }
 
-  /* The top row cannot hold five pills at this width, and losing "menu" would
+  /* The top row cannot hold every pill at this width, and losing "menu" would
      strand the state and filter controls. Tour and share both live in the menu
      drawer, so drop them from the bar instead. */
   .tour-pill,
   .share-pill {
     display: none;
+  }
+
+  /* Tighten the window presets so the star, refresh, and menu pills all fit
+     alongside them without the row overflowing the viewport. */
+  .window-pills button {
+    padding: 0 7px;
+  }
+
+  .chrome-top-left,
+  .chrome-top-right {
+    gap: 5px;
   }
 
   /* Pinch-to-zoom covers this on touch, and the buttons collide with the

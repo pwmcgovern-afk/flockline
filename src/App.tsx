@@ -247,10 +247,18 @@ export default function App() {
   // as the ResizeObserver reports a real box.
   const pendingFitRef = useRef<((map: L.Map) => void) | null>(null);
   const fitRetryRef = useRef<number | undefined>(undefined);
+  // Scope key of the last insights request that failed. Without this, a
+  // persistent /api/insights outage turns the auto-load effect's 700ms debounce
+  // into an unbounded retry loop: each failure clears insightsLoading, which
+  // re-runs the effect, which schedules another request. Explicit retry still
+  // works via the Re-run and Update buttons.
+  const failedInsightScopeRef = useRef<string | null>(null);
   // Focus target for the species search and the scroll container for the browse
   // grid, so clearing/selecting can bring the right thing into view.
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const speciesGridRef = useRef<HTMLDivElement | null>(null);
+  const mastheadRef = useRef<HTMLButtonElement | null>(null);
+  const pickerRef = useRef<HTMLDivElement | null>(null);
 
   const [config, setConfig] = useState<ConfigResponse | null>(null);
   const [states, setStates] = useState(defaultStates);
@@ -353,6 +361,9 @@ export default function App() {
   // reader has set one, otherwise whatever the map is showing.
   const effectiveInsightRegions = insightRegions ?? selectedRegions;
   const effectiveInsightBack = insightBack ?? lookbackDays;
+  // Identity for a scope, used to tell "we already tried this and it failed"
+  // from "the reader moved to a new scope".
+  const insightScopeKey = `${effectiveInsightBack}|${[...effectiveInsightRegions].sort().join(",")}`;
 
   // `fresh` forces a regenerate past both the server's 6h cache and any CDN
   // copy (unique URL).
@@ -378,14 +389,17 @@ export default function App() {
         if (!response.ok) {
           throw new Error(data.error || "Insights request failed.");
         }
+        failedInsightScopeRef.current = null;
         setInsights(data);
       } catch (requestError) {
+        // Remember which scope failed so the auto-load effect stops retrying it.
+        failedInsightScopeRef.current = insightScopeKey;
         setInsightsError(requestError instanceof Error ? requestError.message : "Insights request failed.");
       } finally {
         setInsightsLoading(false);
       }
     },
-    [effectiveInsightBack, effectiveInsightRegions]
+    [effectiveInsightBack, effectiveInsightRegions, insightScopeKey]
   );
 
   const openDrawer = (id: DrawerId) => setDrawer((current) => (current === id ? null : id));
@@ -397,6 +411,54 @@ export default function App() {
     setSpeciesQuery("");
     setPickerOpen(true);
   };
+
+  // Send focus back to the masthead, so closing the picker with the keyboard
+  // does not drop the caret onto <body>.
+  const closePicker = useCallback(() => {
+    setPickerOpen(false);
+    mastheadRef.current?.focus();
+  }, []);
+
+  // The picker claims aria-modal, so it has to behave like one: Escape closes
+  // it from anywhere inside (not just the search field), and Tab cycles within
+  // it instead of walking out to the chrome behind the backdrop.
+  useEffect(() => {
+    if (!pickerOpen) {
+      return;
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closePicker();
+        return;
+      }
+      if (event.key !== "Tab") {
+        return;
+      }
+      const root = pickerRef.current;
+      if (!root) {
+        return;
+      }
+      const focusable = [...root.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )].filter((element) => element.offsetParent !== null);
+      if (!focusable.length) {
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (event.shiftKey && (active === first || !root.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [closePicker, pickerOpen]);
 
   // Every programmatic camera move goes through here so it can be deferred
   // until the container is measurable, and so no caller has to remember the
@@ -600,21 +662,29 @@ export default function App() {
 
   // Keep insights in step with whatever scope they're pinned to, debounced so
   // dragging the window presets doesn't fire a request per step.
+  //
+  // Only runs once the reader has actually opened Insights (or has findings
+  // already loaded). Insights fan out to eBird across every selected state and
+  // then to an LLM, so browsing the map alone should never pay for that.
   useEffect(() => {
     if (
-      !effectiveInsightRegions.length
+      (drawer !== "insights" && !insights)
+      || !effectiveInsightRegions.length
       || (insights?.back === effectiveInsightBack && sameCodeSet(insights.regions, effectiveInsightRegions))
       || insightsLoading
+      // This exact scope already failed; wait for an explicit Re-run.
+      || failedInsightScopeRef.current === insightScopeKey
     ) {
       return;
     }
     const timeout = window.setTimeout(() => void loadInsights(), 700);
     return () => window.clearTimeout(timeout);
   }, [
+    drawer,
     effectiveInsightBack,
     effectiveInsightRegions,
-    insights?.back,
-    insights?.regions,
+    insightScopeKey,
+    insights,
     insightsLoading,
     loadInsights
   ]);
@@ -655,8 +725,11 @@ export default function App() {
     const timeout = window.setTimeout(() => {
       fetch(`/api/species?q=${encodeURIComponent(speciesQuery)}`, { signal: controller.signal })
         .then((response) => response.json())
-        .then((data: { items: Species[] }) => setSuggestions(data.items.length ? data.items : presets))
-        .catch(() => setSuggestions(presets));
+        // An empty result must stay empty. Falling back to the full catalog
+        // made a search that matched nothing render 48 unrelated birds, and
+        // made Enter commit whichever one happened to sort first.
+        .then((data: { items: Species[] }) => setSuggestions(data.items))
+        .catch(() => setSuggestions([]));
     }, 180);
 
     return () => {
@@ -762,15 +835,24 @@ export default function App() {
       preferCanvas: true
     }).setView([39.5, -98.35], 4);
 
-    // Positron with no labels, tinted toward the paper in CSS. Labels are
-    // dropped so place names never compete with the masthead or the dots.
+    // Positron split into base + labels so the place names can sit at reduced
+    // opacity: quiet enough not to compete with the masthead, present enough
+    // that a cluster of dots is identifiable without clicking one. Both layers
+    // live in the tile pane, so the paper tint in CSS applies to each.
     const baseLayer = L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
       {
+        className: "map-base",
         maxZoom: 19,
         attribution: "&copy; OpenStreetMap &copy; CARTO"
       }
     ).addTo(map);
+    // Separate class so the two layers can be filtered independently: the paper
+    // tint that suits the base terrain would wash the labels out entirely.
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png", {
+      className: "map-labels",
+      maxZoom: 19
+    }).addTo(map);
     L.control.zoom({ position: "bottomright" }).addTo(map);
     L.control.attribution({ position: "bottomright", prefix: false }).addTo(map);
 
@@ -931,7 +1013,9 @@ export default function App() {
   const selectSpecies = (species: Species) => {
     setSelectedSighting(null);
     setSelectedSpecies(species);
-    setSpeciesQuery(species.comName);
+    // Deliberately does not write speciesQuery. Nothing renders it outside the
+    // picker (which clears it on open), and setting it fired a debounced
+    // /api/species lookup whose result was thrown away on every selection.
   };
 
   // Clearing returns to the "all birds" browse state: no species on the map,
@@ -1140,15 +1224,23 @@ export default function App() {
     }
   };
 
+  // Returns whether it committed, so the caller only closes the picker when a
+  // bird was actually chosen.
   const commitSearch = () => {
+    if (!speciesQuery.trim()) {
+      return false;
+    }
     const match =
       suggestions.find((species) => normalizeSpecies(species.comName) === normalizeSpecies(speciesQuery)) ||
       suggestions.find((species) => normalizeSpecies(species.speciesCode) === normalizeSpecies(speciesQuery)) ||
+      // Only fall through to the top result when the search actually matched
+      // something; `suggestions` is now empty on a miss.
       suggestions[0];
     if (match) {
       selectSpecies(match);
-      return;
+      return true;
     }
+    // A bare token can still be a raw eBird species code, so let that through.
     if (/^[a-z0-9]+$/i.test(speciesQuery.trim())) {
       selectSpecies({
         speciesCode: speciesQuery.trim().toLowerCase(),
@@ -1156,7 +1248,9 @@ export default function App() {
         sciName: "",
         group: "Species"
       });
+      return true;
     }
+    return false;
   };
 
   const toggleRegion = (regionCode: string) => {
@@ -1299,7 +1393,13 @@ export default function App() {
       {error && selectedSpecies && !loading ? (
         <div className="map-note alert" role="alert">
           <span>{error}</span>
-          <button type="button" onClick={() => void loadSightings({ force: true })}>Retry</button>
+          {/* Retrying cannot fix "no states selected" — the fix lives behind
+              the menu pill, so send the reader there instead. */}
+          {selectedRegions.length ? (
+            <button type="button" onClick={() => void loadSightings({ force: true })}>Retry</button>
+          ) : (
+            <button type="button" onClick={() => setDrawer("menu")}>Pick states</button>
+          )}
         </div>
       ) : null}
 
@@ -1512,6 +1612,19 @@ export default function App() {
                   {days}D
                 </button>
               ))}
+              {/* A shared ?days=10 link or a preference saved by the old
+                  1-30 slider is still honoured, so show it rather than leaving
+                  every pill dark while the map plots a window nothing reflects. */}
+              {WINDOW_PRESETS.includes(lookbackDays) ? null : (
+                <button
+                  type="button"
+                  className="active"
+                  aria-pressed="true"
+                  title={`Past ${lookbackDays} days (from a shared link)`}
+                >
+                  {lookbackDays}D
+                </button>
+              )}
             </div>
           </div>
 
@@ -1520,6 +1633,7 @@ export default function App() {
             <button
               type="button"
               className="masthead-title"
+              ref={mastheadRef}
               onClick={openPicker}
               title="Change species"
               aria-haspopup="dialog"
@@ -1534,6 +1648,17 @@ export default function App() {
                     {loading ? "Counting" : `${windowStats.locations.toLocaleString()} locations`}
                   </span>
                   <span className="sep">·</span>
+                  {/* Locations and birds diverge sharply for flocking species,
+                      so showing only locations made a report of 4,000 look
+                      identical to a report of one. */}
+                  {!loading && windowStats.birds > windowStats.locations ? (
+                    <>
+                      <span title="Sum of the counts birders entered, where they gave a number">
+                        {windowStats.birds.toLocaleString()} birds
+                      </span>
+                      <span className="sep">·</span>
+                    </>
+                  ) : null}
                 </>
               ) : null}
               <span>{selectedRegionSummary}</span>
@@ -1549,6 +1674,29 @@ export default function App() {
           </div>
 
           <div className="chrome-top-right">
+            {/* The only other way to star a bird is the sighting sheet, which
+                needs a plotted dot to click — so a species with no reports in
+                the window could not be watched at all. */}
+            {selectedSpecies ? (
+              <button
+                type="button"
+                className={`pill icon-only watch-pill ${watchlist.includes(selectedSpecies.speciesCode) ? "active" : ""}`}
+                onClick={() => toggleWatched(selectedSpecies.speciesCode)}
+                aria-pressed={watchlist.includes(selectedSpecies.speciesCode)}
+                title={
+                  watchlist.includes(selectedSpecies.speciesCode)
+                    ? `Remove ${selectedSpecies.comName} from My birds`
+                    : `Add ${selectedSpecies.comName} to My birds`
+                }
+                aria-label={
+                  watchlist.includes(selectedSpecies.speciesCode)
+                    ? `Remove ${selectedSpecies.comName} from My birds`
+                    : `Add ${selectedSpecies.comName} to My birds`
+                }
+              >
+                <Star />
+              </button>
+            ) : null}
             <button
               type="button"
               className="pill icon-only tour-pill"
@@ -1735,8 +1883,8 @@ export default function App() {
       {/* ---- Species picker -------------------------------------------- */}
       {pickerOpen ? (
         <>
-          <div className="picker-backdrop" onClick={() => setPickerOpen(false)} />
-          <div className="picker" role="dialog" aria-modal="true" aria-label="Choose a species">
+          <div className="picker-backdrop" onClick={closePicker} />
+          <div className="picker" ref={pickerRef} role="dialog" aria-modal="true" aria-label="Choose a species">
             <div className="picker-head">
               <span className="script">of the {presets.length.toLocaleString()} birds on file</span>
               <h2>Choose a bird</h2>
@@ -1751,11 +1899,7 @@ export default function App() {
                 placeholder="Search by name or eBird code…"
                 onChange={(event) => setSpeciesQuery(event.target.value)}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    commitSearch();
-                    setPickerOpen(false);
-                  }
-                  if (event.key === "Escape") {
+                  if (event.key === "Enter" && commitSearch()) {
                     setPickerOpen(false);
                   }
                 }}
@@ -1804,7 +1948,7 @@ export default function App() {
                       aria-pressed={isActive}
                       onClick={() => {
                         selectSpecies(species);
-                        setPickerOpen(false);
+                        closePicker();
                       }}
                     >
                       <strong>{species.comName}</strong>
@@ -1829,7 +1973,7 @@ export default function App() {
                   type="button"
                   onClick={() => {
                     clearSpecies();
-                    setPickerOpen(false);
+                    closePicker();
                   }}
                 >
                   Clear selection
@@ -2024,7 +2168,11 @@ export default function App() {
                   <div className="scope-row">
                     <select
                       className="scope-select"
-                      value={insightRegionPreset?.id ?? "custom"}
+                      // Reflect "following the map" explicitly. Deriving this
+                      // from the effective scope made the select already read
+                      // e.g. "Northeast" while unpinned, so choosing Northeast
+                      // fired no change event and pinning it was impossible.
+                      value={insightRegions === null ? "map" : (insightRegionPreset?.id ?? "custom")}
                       onChange={(event) => {
                         const next = event.target.value;
                         if (next === "map") {

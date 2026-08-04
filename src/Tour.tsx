@@ -44,6 +44,19 @@ export default function Tour({
     }
   }, [open]);
 
+  // Move focus into the card when the tour opens. It auto-opens on first visit,
+  // so without this a keyboard or screen-reader user gets a modal announced
+  // while their focus is still somewhere behind it.
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const frame = requestAnimationFrame(() => {
+      tipRef.current?.querySelector<HTMLElement>(".tour-next")?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [open]);
+
   // Measure the target and place the tooltip; keep it pinned on resize/scroll.
   useLayoutEffect(() => {
     if (!open || !step) {
@@ -74,7 +87,16 @@ export default function Tour({
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
-      } else if (event.key === "ArrowRight") {
+        return;
+      }
+      // Arrows only drive the tour when focus is inside its own card. The tour
+      // spotlights the timeline, and a window-level handler here stole arrow
+      // keys from the day-rail slider it was pointing at.
+      const insideTip = tipRef.current?.contains(document.activeElement);
+      if (!insideTip) {
+        return;
+      }
+      if (event.key === "ArrowRight") {
         setIndex((current) => Math.min(current + 1, visibleSteps.length - 1));
       } else if (event.key === "ArrowLeft") {
         setIndex((current) => Math.max(current - 1, 0));
