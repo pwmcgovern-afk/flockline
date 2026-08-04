@@ -43,6 +43,25 @@ describe("parseAppState", () => {
       regions
     });
   });
+
+  it("opens straight into a scoped Insights view", () => {
+    expect(parseAppState("?bird=osprey&view=insights&iregion=west&iback=3", regions, US_REGION_PRESETS)).toMatchObject({
+      view: "insights",
+      insightBack: 3,
+      insightRegions: US_REGION_PRESETS.find((region) => region.id === "west")?.stateCodes
+    });
+  });
+
+  it("accepts an explicit Insights state list and drops unknown codes", () => {
+    expect(parseAppState("?view=insights&istates=US-CT,US-MA,NOPE", regions, US_REGION_PRESETS)).toMatchObject({
+      view: "insights",
+      insightRegions: ["US-CT", "US-MA"]
+    });
+  });
+
+  it("ignores an unknown view", () => {
+    expect(parseAppState("?view=nonsense", regions, US_REGION_PRESETS)).not.toHaveProperty("view");
+  });
 });
 
 describe("buildAppUrl", () => {
@@ -100,6 +119,41 @@ describe("buildAppUrl", () => {
     };
     expect(buildAppUrl("https://example.com", state, regions, US_REGION_PRESETS)).toBe(
       "https://example.com/?bird=osprey&region=nationwide"
+    );
+  });
+
+  it("serializes a shareable Insights link", () => {
+    const west = US_REGION_PRESETS.find((region) => region.id === "west")?.stateCodes ?? [];
+    const state: AppState = {
+      speciesCode: "osprey",
+      lookbackDays: 7,
+      regions: northeast,
+      timelineMode: "cumulative",
+      includeProvisional: true,
+      hotspotsOnly: false,
+      view: "insights",
+      insightRegions: west,
+      insightBack: 3
+    };
+    expect(buildAppUrl("https://example.com", state, regions, US_REGION_PRESETS)).toBe(
+      "https://example.com/?bird=osprey&view=insights&iback=3&iregion=west"
+    );
+  });
+
+  it("omits an Insights scope that already matches the map", () => {
+    const state: AppState = {
+      speciesCode: "osprey",
+      lookbackDays: 7,
+      regions: northeast,
+      timelineMode: "cumulative",
+      includeProvisional: true,
+      hotspotsOnly: false,
+      view: "insights",
+      insightRegions: northeast,
+      insightBack: 7
+    };
+    expect(buildAppUrl("https://example.com", state, regions, US_REGION_PRESETS)).toBe(
+      "https://example.com/?bird=osprey&view=insights"
     );
   });
 });
