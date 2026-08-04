@@ -73,7 +73,6 @@ const defaultPresets: Species[] = [
   { speciesCode: "scatan", comName: "Scarlet Tanager", sciName: "Piranga olivacea", group: "Grosbeaks" },
   { speciesCode: "balori", comName: "Baltimore Oriole", sciName: "Icterus galbula", group: "Blackbirds" }
 ];
-const defaultSpecies = defaultPresets.find((species) => species.speciesCode === "osprey") ?? defaultPresets[0];
 // Browse-tab order: most birder-salient groups first, the long tail after.
 // Tabs are derived from whatever groups the catalog actually contains.
 const groupOrder = [
@@ -227,10 +226,13 @@ export default function App() {
   const initialState = useRef(
     buildInitialAppState()
   ).current;
-  const initialSpecies =
-    initialState.speciesCode === null
-      ? null
-      : defaultPresets.find((species) => species.speciesCode === initialState.speciesCode) ?? defaultSpecies;
+  // Only an explicit ?bird= selects a species. A first visit opens on "Choose a
+  // bird" rather than silently picking one, so the first thing on screen is the
+  // reader's own choice instead of a default they didn't make.
+  const initialSpecies = initialState.speciesCode
+    ? defaultPresets.find((species) => species.speciesCode === initialState.speciesCode)
+      ?? { speciesCode: initialState.speciesCode, comName: initialState.speciesCode, sciName: "", group: "Species" }
+    : null;
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const baseLayerRef = useRef<L.TileLayer | null>(null);
