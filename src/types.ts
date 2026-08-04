@@ -106,6 +106,9 @@ export type Insight = {
   comName?: string;
   locName?: string;
   region?: string;
+  // Raw eBird region code (e.g. "US-OK"), so "View on map" can widen the map's
+  // states to include wherever the finding actually is.
+  regionCode?: string;
   obsDt?: string;
   subId?: string;
   lat?: number | null;

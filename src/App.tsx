@@ -595,6 +595,11 @@ export default function App() {
     && (insights.back !== effectiveInsightBack || !sameCodeSet(insights.regions, effectiveInsightRegions))
   );
   const insightsPinned = insightRegions !== null || insightBack !== null;
+  const allStatesSelected = states.length > 0 && states.every((state) => selectedRegions.includes(state.code));
+  // Insights are showing a wider area than the map plots, so a finding can name
+  // a state the map would not draw. Worth saying out loud rather than letting
+  // "View on map" quietly land on an empty map.
+  const insightsWiderThanMap = effectiveInsightRegions.some((code) => !selectedRegions.includes(code));
   const failedRegionSummary = useMemo(() => {
     return (payload?.coverage?.failedRegions ?? [])
       .map((code) => states.find((state) => state.code === code)?.abbr ?? code)
@@ -974,9 +979,14 @@ export default function App() {
       return;
     }
     if (!allFeatures.length) {
-      // Nothing to show for this load: drop any pending focus so it can't
-      // fire later against an unrelated species' payload.
-      pendingFocusRef.current = null;
+      // Nothing to show for this load: drop any pending focus so it can't fire
+      // later against an unrelated species' payload — but only once the payload
+      // reflects the states we are actually asking for. Viewing an out-of-region
+      // finding produces an empty intermediate load (the bird is not in the old
+      // states yet), and dropping the focus there lost the zoom to the bird.
+      if (sameCodeSet(payload.regions, selectedRegions)) {
+        pendingFocusRef.current = null;
+      }
       return;
     }
     const fitKey = `${payload.generatedAt}-${payload.species.speciesCode}-${payload.regions.join("|")}`;
@@ -989,9 +999,17 @@ export default function App() {
     // animation is throttled (background tabs).
     const focus = pendingFocusRef.current;
     if (focus) {
-      pendingFocusRef.current = null;
-      lastFitKeyRef.current = fitKey;
-      runFit((map) => map.setView([focus.lat, focus.lng], 11, { animate: false }));
+      // Hold the focus until the payload actually reflects the states we are
+      // asking for. Viewing an out-of-region finding widens the map, which
+      // fires a second load; consuming the focus on the first one let that
+      // second load's broad fit pull the view back out to the whole country
+      // instead of leaving it on the bird.
+      const settled = sameCodeSet(payload.regions, selectedRegions);
+      if (settled) {
+        pendingFocusRef.current = null;
+        lastFitKeyRef.current = fitKey;
+        runFit((map) => map.setView([focus.lat, focus.lng], 11, { animate: false }));
+      }
       return;
     }
 
@@ -1008,7 +1026,7 @@ export default function App() {
     // leaves Leaflet's animated zoom waiting on a frame that never arrives —
     // the move then silently no-ops and the map stays where it was.
     runFit((map) => map.fitBounds(bounds.pad(0.16), { maxZoom: 8, animate: false }));
-  }, [allFeatures, payload, runFit]);
+  }, [allFeatures, payload, runFit, selectedRegions]);
 
   const selectSpecies = (species: Species) => {
     setSelectedSighting(null);
@@ -1038,6 +1056,25 @@ export default function App() {
   const showFindingOnMap = (finding: Insight) => {
     if (!finding.speciesCode) {
       return;
+    }
+    // Insights can be scoped wider than the map. Viewing a Nationwide finding
+    // from Oklahoma while the map covers only the Northeast used to load the
+    // species into a region it does not occur in, so the map went empty and
+    // stayed parked on New England. Widen the map to include the finding's
+    // state first.
+    const findingRegion = finding.regionCode;
+    if (findingRegion && !selectedRegions.includes(findingRegion)) {
+      const known = states.some((state) => state.code === findingRegion);
+      if (known) {
+        setSelectedRegions((current) => [...current, findingRegion]);
+        // Keep the menu's state grid on a region that actually contains it.
+        const home = US_REGION_PRESETS.find(
+          (preset) => preset.id !== "nationwide" && preset.stateCodes.includes(findingRegion)
+        );
+        if (home && !getRegionPreset(focusedRegionId)?.stateCodes.includes(findingRegion)) {
+          setFocusedRegionId(home.id);
+        }
+      }
     }
     const hasFocus = typeof finding.lat === "number" && typeof finding.lng === "number";
     const sameSpecies = selectedSpecies?.speciesCode === finding.speciesCode;
@@ -1431,11 +1468,29 @@ export default function App() {
           <h2>No reports found</h2>
           <p>
             Nothing for {selectedSpecies.comName} in {selectedRegionSummary} over the past{" "}
-            {lookbackDays} {lookbackDays === 1 ? "day" : "days"}. Try a longer window or more states.
+            {lookbackDays} {lookbackDays === 1 ? "day" : "days"}.
+            {allStatesSelected
+              ? " This bird may not occur here at all."
+              : " It may simply be out of range for these states."}
           </p>
-          <button type="button" className="pill" onClick={() => setLookbackDays(30)}>
-            Widen to 30 days
-          </button>
+          {/* Offer the action that can actually help. At 30 days the old
+              "Widen to 30 days" button was already a no-op, which is exactly
+              the case a bird that is out of range lands in. */}
+          {lookbackDays < 30 ? (
+            <button type="button" className="pill" onClick={() => setLookbackDays(30)}>
+              Widen to 30 days
+            </button>
+          ) : !allStatesSelected ? (
+            <button type="button" className="pill" onClick={() => selectRegionPreset("nationwide")}>
+              <MapIcon />
+              Search all states
+            </button>
+          ) : (
+            <button type="button" className="pill" onClick={openPicker}>
+              <Search size={13} />
+              Try another bird
+            </button>
+          )}
         </div>
       ) : null}
 
@@ -2236,6 +2291,13 @@ export default function App() {
                       </button>
                     ) : null}
                   </div>
+
+                  {insightsWiderThanMap ? (
+                    <p className="field-hint">
+                      Insights cover more ground than the map, which is showing{" "}
+                      {selectedRegionSummary}. Opening a finding adds its state to the map.
+                    </p>
+                  ) : null}
 
                   {insights?.coverage.failedRegions.length ? (
                     <p className="field-hint" role="status">
