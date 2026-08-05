@@ -137,6 +137,9 @@ export type ChatRole = "user" | "assistant";
 export type ChatSpeciesRef = {
   speciesCode: string;
   comName: string;
+  // State code (e.g. "US-FL") when a tool told us where the bird is, so the
+  // chip can widen the map's states before loading it.
+  regionCode?: string | null;
 };
 
 export type ChatMessage = {
@@ -152,6 +155,9 @@ export type ChatMapAction = {
   lat: number | null;
   lng: number | null;
   locName: string | null;
+  // Raw eBird state code for the spot, so the map can widen its selected states
+  // to include it before loading. Otherwise an out-of-region bird plots nothing.
+  regionCode: string | null;
 };
 
 export type ChatResponse = {

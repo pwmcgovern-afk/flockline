@@ -93,6 +93,10 @@ const underreportedCommon = new Set([
 
 const featuredSpeciesCodes = ["osprey", "baleag", "comloo", "rthhum", "scatan", "balori"];
 const CATALOG_PREVIEW_LIMIT = 48;
+// The accessible sighting list mirrors the plotted dots for keyboard and
+// screen-reader users. Capped because each entry is a real focusable node and a
+// wide window plots thousands of locations.
+const ACCESSIBLE_SIGHTING_LIMIT = 100;
 const BIRD_ART: Record<string, string> = Object.fromEntries(
   featuredSpeciesCodes.map((code) => [code, `/birds/${code}.jpg`])
 );
@@ -534,8 +538,9 @@ export default function App() {
   const earliestDateKey = dateKeys[0] ?? selectedDateKey;
   const allFeatures = payload?.featureCollection.features ?? [];
 
-  // New detections per day in the window (each feature = one location at its
-  // most-recent report date), aligned to dateKeys for the timeline histogram.
+  // Locations bucketed by their most-recent report date (eBird returns one
+  // record per location), aligned to dateKeys for the timeline histogram. A bar
+  // means last reported that day, not arrived that day.
   const dailyCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const feature of payload?.featureCollection.features ?? []) {
@@ -555,6 +560,20 @@ export default function App() {
       return observationDate >= earliestDateKey && observationDate <= selectedDateKey;
     });
   }, [allFeatures, earliestDateKey, selectedDateKey, timelineMode]);
+
+  // Leaflet paints the dots into a single canvas (preferCanvas), so no marker
+  // has a DOM node of its own to focus or announce. The stage renders this list
+  // as the accessible mirror of what is plotted, newest first.
+  const accessibleSightings = useMemo(() => {
+    return [...visibleFeatures]
+      .sort((left, right) => right.properties.obsDt.localeCompare(left.properties.obsDt))
+      .slice(0, ACCESSIBLE_SIGHTING_LIMIT);
+  }, [visibleFeatures]);
+
+  // One selection path, shared by the marker click and the accessible list.
+  const selectSighting = useCallback((feature: SightingFeature) => {
+    setSelectedSighting(feature);
+  }, []);
 
   const visibleStats = useMemo(() => {
     const checklists = new Set(visibleFeatures.map((feature) => feature.properties.subId).filter(Boolean));
@@ -629,6 +648,13 @@ export default function App() {
   );
   const insightsPinned = insightRegions !== null || insightBack !== null;
   const allStatesSelected = states.length > 0 && states.every((state) => selectedRegions.includes(state.code));
+  // These two ride the /api/sightings request, so they drop records upstream and
+  // an empty map can mean filtered out rather than not seen. Nothing else on the
+  // map says they are on, so the empty state has to.
+  const narrowingFilters = [
+    hotspotsOnly ? "hotspots only" : null,
+    includeProvisional ? null : "provisional off"
+  ].filter((label): label is string => Boolean(label));
   // Insights are showing a wider area than the map plots, so a finding can name
   // a state the map would not draw. Worth saying out loud rather than letting
   // "View on map" quietly land on an empty map.
@@ -707,15 +733,24 @@ export default function App() {
       });
   }, []);
 
+  // Which surfaces on screen actually need findings. Insights obviously, but
+  // also My birds: field alerts are read off the same notable findings, so a
+  // reader who armed an alert and never opened Insights would otherwise never
+  // get one. Both triggers are a drawer the reader opened themselves, so
+  // browsing the map alone still pays nothing.
+  const insightsWanted =
+    drawer === "insights"
+    || Boolean(insights)
+    || (drawer === "birds" && alerts.length > 0);
+
   // Keep insights in step with whatever scope they're pinned to, debounced so
   // dragging the window presets doesn't fire a request per step.
   //
-  // Only runs once the reader has actually opened Insights (or has findings
-  // already loaded). Insights fan out to eBird across every selected state and
-  // then to an LLM, so browsing the map alone should never pay for that.
+  // Insights fan out to eBird across every selected state and then to an LLM,
+  // so this only runs when something on screen is waiting on them.
   useEffect(() => {
     if (
-      (drawer !== "insights" && !insights)
+      !insightsWanted
       || !effectiveInsightRegions.length
       || (insights?.back === effectiveInsightBack && sameCodeSet(insights.regions, effectiveInsightRegions))
       || insightsLoading
@@ -727,12 +762,12 @@ export default function App() {
     const timeout = window.setTimeout(() => void loadInsights(), 700);
     return () => window.clearTimeout(timeout);
   }, [
-    drawer,
     effectiveInsightBack,
     effectiveInsightRegions,
     insightScopeKey,
     insights,
     insightsLoading,
+    insightsWanted,
     loadInsights
   ]);
 
@@ -978,24 +1013,12 @@ export default function App() {
         opacity: 0.9,
         weight: feature.properties.locationPrivate ? 0.75 : 1.1
       });
-      const openSighting = () => setSelectedSighting(feature);
-      marker.on("click", openSighting);
+      // No aria here: under preferCanvas the marker has no element of its own
+      // (getElement() returns null), so keyboard and screen-reader access to a
+      // sighting lives in the .sighting-index list, which calls this same
+      // handler.
+      marker.on("click", () => selectSighting(feature));
       marker.addTo(layer);
-      const markerElement = marker.getElement();
-      if (markerElement) {
-        markerElement.setAttribute(
-          "aria-label",
-          `${feature.properties.comName} at ${feature.properties.locName}, ${feature.properties.regionCode}, ${formatShortDateTime(feature.properties.obsDt)}`
-        );
-        markerElement.setAttribute("role", "button");
-        markerElement.addEventListener("keydown", (event) => {
-          const keyboardEvent = event as KeyboardEvent;
-          if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
-            event.preventDefault();
-            openSighting();
-          }
-        });
-      }
     }
 
     const pulseFeatures = visibleFeatures
@@ -1014,7 +1037,7 @@ export default function App() {
         })
       }).addTo(layer);
     }
-  }, [dateKeys, playing, selectedDateKey, visibleFeatures]);
+  }, [dateKeys, playing, selectSighting, selectedDateKey, visibleFeatures]);
 
   useEffect(() => {
     if (!payload || !mapRef.current) {
@@ -1099,31 +1122,44 @@ export default function App() {
     pendingFocusRef.current = null;
   };
 
+  // Insights and the chat both surface birds that can sit outside the map's
+  // states. Loading one into a region it does not occur in leaves the map empty
+  // with no explanation, so widen the selection to the bird's state first.
+  // Returns true when the selection actually changed, which means a reload is
+  // coming and the caller must leave the camera to pendingFocusRef.
+  const widenRegionsFor = useCallback(
+    (regionCode?: string | null) => {
+      if (!regionCode) {
+        return false;
+      }
+      // Held in a const so the narrowed type survives into the callbacks below.
+      const code = regionCode;
+      if (selectedRegions.includes(code) || !states.some((state) => state.code === code)) {
+        return false;
+      }
+      setSelectedRegions((current) => (current.includes(code) ? current : [...current, code]));
+      // Keep the menu's state grid on a region that actually contains it.
+      const home = US_REGION_PRESETS.find(
+        (preset) => preset.id !== "nationwide" && preset.stateCodes.includes(code)
+      );
+      if (home && !getRegionPreset(focusedRegionId)?.stateCodes.includes(code)) {
+        setFocusedRegionId(home.id);
+      }
+      return true;
+    },
+    [focusedRegionId, selectedRegions, states]
+  );
+
   // Load an insight's species and fly to the exact spot it names, rather than
   // doing a broad fit that's easy to miss behind the docked drawer.
   const showFindingOnMap = (finding: Insight) => {
     if (!finding.speciesCode) {
       return;
     }
-    // Insights can be scoped wider than the map. Viewing a Nationwide finding
+    // Insights can be scoped wider than the map: viewing a Nationwide finding
     // from Oklahoma while the map covers only the Northeast used to load the
-    // species into a region it does not occur in, so the map went empty and
-    // stayed parked on New England. Widen the map to include the finding's
-    // state first.
-    const findingRegion = finding.regionCode;
-    if (findingRegion && !selectedRegions.includes(findingRegion)) {
-      const known = states.some((state) => state.code === findingRegion);
-      if (known) {
-        setSelectedRegions((current) => [...current, findingRegion]);
-        // Keep the menu's state grid on a region that actually contains it.
-        const home = US_REGION_PRESETS.find(
-          (preset) => preset.id !== "nationwide" && preset.stateCodes.includes(findingRegion)
-        );
-        if (home && !getRegionPreset(focusedRegionId)?.stateCodes.includes(findingRegion)) {
-          setFocusedRegionId(home.id);
-        }
-      }
-    }
+    // species into a region it does not occur in.
+    const widened = widenRegionsFor(finding.regionCode);
     const hasFocus = typeof finding.lat === "number" && typeof finding.lng === "number";
     const sameSpecies = selectedSpecies?.speciesCode === finding.speciesCode;
     if (hasFocus) {
@@ -1136,8 +1172,9 @@ export default function App() {
       group: "Species"
     });
     // Already the active species: no reload fires the fit effect, so move now.
-    // Instant, per the Leaflet animate gotcha above.
-    if (sameSpecies && hasFocus && mapRef.current) {
+    // Instant, per the Leaflet animate gotcha above. Skipped when we just
+    // widened, because that does force a reload whose fit would undo the move.
+    if (sameSpecies && !widened && hasFocus && mapRef.current) {
       pendingFocusRef.current = null;
       mapRef.current.setView([finding.lat as number, finding.lng as number], 11, { animate: false });
     }
@@ -1208,6 +1245,9 @@ export default function App() {
   );
 
   const viewSpeciesFromChat = (ref: ChatSpeciesRef) => {
+    // The assistant answers nationwide, so a bird it named can sit outside the
+    // map's states. Widen first, exactly as an insight's View on map does.
+    widenRegionsFor(ref.regionCode);
     selectSpecies({ speciesCode: ref.speciesCode, comName: ref.comName, sciName: "", group: "Species" });
     // When docked the panel sits beside the map, so keep it open; when it
     // overlays (narrow screens), close it so the map is visible.
@@ -1224,6 +1264,36 @@ export default function App() {
     }
   }, [chatMessages, chatLoading, drawer]);
 
+  // Both async panels announce through one short status line rather than making
+  // their results live: aria-live on the transcript would re-read the whole
+  // thread every turn, and on the insights list it would re-read every card each
+  // time the scope changes.
+  const chatAnnouncement = useMemo(() => {
+    if (chatError) {
+      return chatError;
+    }
+    if (chatLoading) {
+      return "Checking eBird";
+    }
+    const latest = chatMessages[chatMessages.length - 1];
+    return latest?.role === "assistant" ? latest.content : "";
+  }, [chatError, chatLoading, chatMessages]);
+
+  const insightsAnnouncement = useMemo(() => {
+    if (insightsLoading) {
+      return "Reading recent checklists";
+    }
+    if (insightsError) {
+      return insightsError;
+    }
+    if (!insights) {
+      return "";
+    }
+    return insights.findings.length
+      ? `${insights.findings.length} ${insights.findings.length === 1 ? "finding" : "findings"} in ${insightsScopeLabel}.`
+      : `No notable sightings in ${insightsScopeLabel}.`;
+  }, [insights, insightsError, insightsLoading, insightsScopeLabel]);
+
   // Apply a map action the chat requested: load the species and, if it named a
   // spot, zoom there (pendingFocusRef is consumed by the fit effect on reload).
   useEffect(() => {
@@ -1232,6 +1302,9 @@ export default function App() {
     }
     const action = pendingMapAction;
     setPendingMapAction(null);
+    // The assistant works nationwide while the map may be pinned to a few
+    // states, so widen to the spot's state before the species loads.
+    const widened = widenRegionsFor(action.regionCode);
     const hasFocus = action.lat != null && action.lng != null;
     const sameSpecies = selectedSpecies?.speciesCode === action.speciesCode;
     if (hasFocus) {
@@ -1243,8 +1316,11 @@ export default function App() {
       sciName: "",
       group: "Species"
     });
-    // If it's already the active species, no reload fires the focus move, so do it now.
-    if (sameSpecies && hasFocus && mapRef.current) {
+    // If it's already the active species, no reload fires the focus move, so do
+    // it now. Widening does force a reload, so in that case leave the camera to
+    // the fit effect, which holds the focus until the payload matches the new
+    // states.
+    if (sameSpecies && !widened && hasFocus && mapRef.current) {
       pendingFocusRef.current = null;
       mapRef.current.setView([action.lat as number, action.lng as number], 11, { animate: false });
     }
@@ -1252,7 +1328,7 @@ export default function App() {
     if (!isWide) {
       setDrawer(null);
     }
-  }, [pendingMapAction, selectedSpecies?.speciesCode, isWide]);
+  }, [pendingMapAction, selectedSpecies?.speciesCode, isWide, widenRegionsFor]);
 
   // Track whether we're wide enough to dock the drawers (vs. overlay).
   useEffect(() => {
@@ -1294,7 +1370,7 @@ export default function App() {
           target: ".scrubber",
           side: "top",
           title: "Scrub through the days",
-          body: "Drag the rail or press play to watch movement unfold. Bars show new locations per day, and dot color runs blue for older to red for freshest."
+          body: "Drag the rail or press play to watch movement unfold. Bars count locations by their latest report date, and dot color runs blue for older to red for freshest."
         }
       : {
           side: "center",
@@ -1656,6 +1732,36 @@ export default function App() {
           <div ref={mapElementRef} className="map-canvas" />
         </div>
 
+        {/* Keyboard and screen-reader path to the dots. The canvas renderer
+            gives the markers no DOM of their own, so this list mirrors what is
+            plotted and shares the marker's selection handler. It stays clipped
+            until it holds focus, like the skip link, so focus is never
+            invisible. */}
+        {accessibleSightings.length ? (
+          <div className="sighting-index">
+            <h2 id="sighting-index-label">Plotted sightings</h2>
+            <p>
+              {visibleFeatures.length.toLocaleString()}{" "}
+              {visibleFeatures.length === 1 ? "location" : "locations"} on the map
+              {visibleFeatures.length > accessibleSightings.length
+                ? `, listing the ${accessibleSightings.length} most recent`
+                : ""}
+              .
+            </p>
+            <ul aria-labelledby="sighting-index-label">
+              {accessibleSightings.map((feature, index) => (
+                <li key={`${feature.properties.subId ?? "x"}-${index}`}>
+                  <button type="button" onClick={() => selectSighting(feature)}>
+                    {feature.properties.comName} at {feature.properties.locName},{" "}
+                    {feature.properties.regionCode},{" "}
+                    {formatShortDateTime(feature.properties.obsDt)}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         {loading ? (
           <div className="map-note loading" role="status" aria-live="polite">
             <Radar size={13} className="spin" />
@@ -1705,14 +1811,30 @@ export default function App() {
             <p>
               Nothing for {selectedSpecies.comName} in {selectedRegionSummary} over the past{" "}
               {lookbackDays} {lookbackDays === 1 ? "day" : "days"}.
-              {allStatesSelected
-                ? " This bird may not occur here at all."
-                : " It may simply be out of range for these states."}
+              {narrowingFilters.length
+                ? ` Filters are also narrowing this view: ${narrowingFilters.join(", ")}. Reports may exist outside them.`
+                : allStatesSelected
+                  ? " This bird may not occur here at all."
+                  : " It may simply be out of range for these states."}
             </p>
-            {/* Offer the action that can actually help. At 30 days the old
-                "Widen to 30 days" button was already a no-op, which is exactly
-                the case a bird that is out of range lands in. */}
-            {lookbackDays < 30 ? (
+            {/* Offer the action that can actually help. A narrowing filter is the
+                one cause the reader cannot see from the map, so clearing it comes
+                first. At 30 days the old "Widen to 30 days" button was already a
+                no-op, which is exactly the case a bird that is out of range lands
+                in. */}
+            {narrowingFilters.length ? (
+              <button
+                type="button"
+                className="pill"
+                onClick={() => {
+                  setIncludeProvisional(true);
+                  setHotspotsOnly(false);
+                }}
+              >
+                <RotateCcw />
+                Clear filters
+              </button>
+            ) : lookbackDays < 30 ? (
               <button type="button" className="pill" onClick={() => setLookbackDays(30)}>
                 Widen to 30 days
               </button>
@@ -1927,7 +2049,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="histogram" role="group" aria-label="New locations per day">
+                  <div className="histogram" role="group" aria-label="Locations by latest report date">
                     {dateKeys.map((key, index) => {
                       const count = dailyCounts[index];
                       const height = maxDaily ? Math.max(6, Math.round((count / maxDaily) * 100)) : 6;
@@ -1944,8 +2066,8 @@ export default function App() {
                             setPlaying(false);
                             setSelectedDayIndex(index);
                           }}
-                          aria-label={`${formatDateKey(key)}: ${count.toLocaleString()} new ${count === 1 ? "location" : "locations"}`}
-                          title={`${formatDateKey(key)} · ${count.toLocaleString()} new`}
+                          aria-label={`${formatDateKey(key)}: ${count.toLocaleString()} ${count === 1 ? "location" : "locations"} last reported`}
+                          title={`${formatDateKey(key)} · ${count.toLocaleString()} last reported`}
                         />
                       );
                     })}
@@ -1972,7 +2094,7 @@ export default function App() {
                       </span>
                     ) : (
                       <span>
-                        <strong>{visibleStats.sightings.toLocaleString()}</strong> new on{" "}
+                        <strong>{visibleStats.sightings.toLocaleString()}</strong> last reported{" "}
                         {formatDateKey(selectedDateKey)}
                         {/* With nothing in the window there is no fuller view to
                             switch to, so the link would read "see all 0". */}
@@ -2416,7 +2538,26 @@ export default function App() {
                       {insights.coverage.failedRegions.length === 1 ? "state" : "states"}.
                     </p>
                   ) : null}
+
+                  {/* A failed re-run must not take the reader's findings away.
+                      The loaded list stays below and the failure is reported
+                      here; when the list is stale the copy says so, since the
+                      header kicker is already showing the new scope. */}
+                  {insightsError && insights?.findings.length ? (
+                    <p className="field-hint error" role="status">
+                      Update failed · {insightsError} Showing the last results
+                      {insightsStale ? " from the previous scope" : ""}.
+                    </p>
+                  ) : null}
                 </div>
+
+                {/* Results land asynchronously, so a screen reader needs a
+                    spoken cue. It is a short summary in its own status region:
+                    marking the card list live would re-read every finding each
+                    time the scope changes. */}
+                <span className="sr-only" role="status" aria-live="polite">
+                  {insightsAnnouncement}
+                </span>
 
                 {/* `!insights` covers the gap between opening the panel and the
                     debounced request starting. Without it that window fell
@@ -2424,7 +2565,7 @@ export default function App() {
                     notable sightings" before it had looked. */}
                 {insightsLoading || (!insights && !insightsError) ? (
                   <p className="drawer-status">Reading recent checklists…</p>
-                ) : insightsError ? (
+                ) : insightsError && !insights?.findings.length ? (
                   <p className="drawer-status error">{insightsError}</p>
                 ) : insights && insights.findings.length ? (
                   <div className="insights-list">
@@ -2528,6 +2669,13 @@ export default function App() {
 
                 {chatError ? <p className="chat-error">{chatError}</p> : null}
               </div>
+
+              {/* The reply arrives in one piece, so announce it once from a
+                  status region. aria-live on the transcript itself would re-read
+                  the whole thread on every turn. */}
+              <span className="sr-only" role="status" aria-live="polite">
+                {chatAnnouncement}
+              </span>
 
               {chatMessages.length === 0 && chatSuggestions.length ? (
                 <div className="chat-suggestions">
@@ -2652,6 +2800,28 @@ export default function App() {
                     </div>
                   </div>
                 )}
+
+                {/* The starter chips only exist in the empty state, so the panel
+                    lost every route back to the catalog the moment a first bird
+                    was saved. This row is that route. */}
+                {watchlistSpecies.length ? (
+                  <div className="watch-add">
+                    <button
+                      type="button"
+                      className="pill"
+                      onClick={() => {
+                        // On narrow the drawer is a full-height sheet: leaving it open
+                        // would hide the bird just picked and the star that saves it.
+                        if (!isWide) setDrawer(null);
+                        openPicker();
+                      }}
+                    >
+                      <Search size={13} />
+                      Browse species
+                    </button>
+                    <p className="field-hint">Pick a bird, then star it to keep it here.</p>
+                  </div>
+                ) : null}
               </div>
               <footer className="drawer-foot">
                 Field alerts surface notable eBird reports inside Flockline. Your choices stay on this device.
