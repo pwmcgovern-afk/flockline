@@ -813,6 +813,23 @@ button.pill:hover {
   background: var(--paper-sunk);
 }
 
+/* Insights is the part of this app worth finding, and in a row of four
+   identical grey labels nothing said so. --accent is the warm end of the
+   recency ramp, so this reads as the same red the map already uses rather
+   than a new colour introduced for chrome. */
+.tab-bar button.tab-insights {
+  color: var(--accent);
+}
+
+.tab-bar button.tab-insights:hover {
+  color: color-mix(in srgb, var(--accent) 80%, var(--ink));
+}
+
+.tab-bar button.tab-insights.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .tab-bar .badge {
   min-width: 15px;
   height: 15px;

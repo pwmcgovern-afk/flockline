@@ -11,137 +11,55 @@ async function freeze(page) {
 async function goto(page, url) {
   for (let i = 0; i < 4; i++) {
     try { await page.goto(BASE + url, { waitUntil: "domcontentloaded", timeout: 45000 }); return; }
-    catch { console.log("  retry goto", i); await page.waitForTimeout(3000); }
+    catch { console.log("  retry", i); await page.waitForTimeout(3000); }
   }
-  throw new Error("goto failed " + url);
+  throw new Error("goto failed");
 }
-async function boot(browser, { width = 1440, height = 900, url = "/", mobile = false } = {}) {
-  const ctx = await browser.newContext({
-    viewport: { width, height },
-    deviceScaleFactor: 1,
-    ...(mobile ? { isMobile: true, hasTouch: true, userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1" } : {})
-  });
-  const page = await ctx.newPage();
-  page.on("pageerror", (e) => console.log("  [pageerror]", String(e).slice(0, 200)));
-  await goto(page, url);
-  await page.evaluate(() => localStorage.setItem("flockline.tourSeen.v2", "1"));
-  await goto(page, url);
-  await page.waitForTimeout(2500);
-  await freeze(page);
-  return { ctx, page };
-}
-const rects = (page, sels) =>
-  page.evaluate((list) =>
-    list.map((s) => {
-      const el = document.querySelector(s);
-      if (!el) return { s, missing: true };
-      const r = el.getBoundingClientRect();
-      const cs = getComputedStyle(el);
-      return { s, r: [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)], z: cs.zIndex, pos: cs.position, disp: cs.display, vis: cs.visibility, text: el.innerText.replace(/\s+/g, " ").trim().slice(0, 60) };
-    }), sels);
 
 const browser = await chromium.launch();
 
-// ---------- PHASE 16: mobile chrome collisions ----------
-console.log("\n=== PHASE 16: 375x667 drawer chrome ===");
+// precise text-line geometry: does the attribution sit on top of footer text?
+console.log("\n=== PHASE 30: exact footer-vs-attribution geometry (375x667) ===");
 {
-  const { ctx, page } = await boot(browser, { width: 375, height: 667, mobile: true });
-  await page.evaluate(() => localStorage.setItem("flockline.watchlist.v1", JSON.stringify(["osprey", "baleag", "comloo", "rthhum", "scatan", "balori"])));
-  await goto(page, "/");
-  await page.waitForTimeout(2500);
-  await page.click("button.tab-birds");
-  await page.waitForTimeout(900);
+  const ctx = await browser.newContext({ viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true });
+  await ctx.addInitScript(() => { try { localStorage.setItem("flockline.tourSeen.v2", "1"); localStorage.setItem("flockline.watchlist.v1", JSON.stringify(["osprey", "baleag"])); } catch {} });
+  const page = await ctx.newPage();
+  await goto(page, "/?view=birds");
+  await page.waitForTimeout(4000);
   await freeze(page);
-  console.log(JSON.stringify(await rects(page, [".drawer-foot", ".leaflet-control-attribution", "aside", ".tabbar", "nav", ".drawer-body", ".watch-add"]), null, 1));
-  // what is on top at the attribution point
-  console.log("elementFromPoint at attribution:", await page.evaluate(() => {
-    const a = document.querySelector(".leaflet-control-attribution");
-    const r = a.getBoundingClientRect();
-    const e = document.elementFromPoint(r.x + r.width - 8, r.y + r.height / 2);
-    return e ? e.className + " | " + e.tagName : null;
-  }));
-  await page.screenshot({ path: `${SHOTS}/34-m-birds-six.png` });
-
-  // Escape
-  console.log("-- Escape --");
-  await page.keyboard.press("Escape");
-  await page.waitForTimeout(600);
-  await freeze(page);
-  console.log("drawer after esc:", await page.evaluate(() => !!document.querySelector("aside .watch-list")));
-  console.log("focus after esc:", await page.evaluate(() => document.activeElement?.className + " | " + (document.activeElement?.innerText || "").slice(0, 30)));
-  console.log("URL after esc:", page.url());
-
-  // tab order / trap when drawer open
-  await page.click("button.tab-birds");
-  await page.waitForTimeout(700);
-  await freeze(page);
-  const order = [];
-  for (let i = 0; i < 16; i++) {
-    await page.keyboard.press("Tab");
-    order.push(await page.evaluate(() => {
-      const a = document.activeElement;
-      if (!a) return "none";
-      const r = a.getBoundingClientRect();
-      return `${a.tagName}.${(a.className || "").toString().slice(0, 26)} "${(a.innerText || a.getAttribute("aria-label") || "").replace(/\s+/g, " ").trim().slice(0, 22)}" y=${Math.round(r.y)} h=${Math.round(r.height)}`;
-    }));
-  }
-  console.log("tab order:\n  " + order.join("\n  "));
-  await ctx.close();
-}
-
-// ---------- PHASE 17: back button ----------
-console.log("\n=== PHASE 17: back button ===");
-{
-  const { ctx, page } = await boot(browser, { width: 375, height: 667, mobile: true });
-  const start = page.url();
-  await page.click("button.tab-birds");
-  await page.waitForTimeout(700);
-  console.log("after open:", page.url());
-  await page.goBack({ waitUntil: "domcontentloaded" }).catch((e) => console.log("  goBack:", String(e).slice(0, 80)));
-  await page.waitForTimeout(2000);
-  console.log("after back URL:", page.url());
-  console.log("still on flockline?", page.url().includes("flockline"));
-  console.log("drawer open?", await page.evaluate(() => !!document.querySelector("aside")));
-  await ctx.close();
-}
-
-// ---------- PHASE 18: landscape / short viewport ----------
-console.log("\n=== PHASE 18: 740x420 landscape ===");
-{
-  const { ctx, page } = await boot(browser, { width: 740, height: 420, mobile: true });
-  await page.evaluate(() => localStorage.setItem("flockline.watchlist.v1", JSON.stringify(["osprey", "baleag", "comloo", "rthhum", "scatan", "balori"])));
-  await goto(page, "/");
-  await page.waitForTimeout(2500);
-  await page.click("button.tab-birds");
-  await page.waitForTimeout(900);
-  await freeze(page);
-  console.log(JSON.stringify(await rects(page, ["aside", ".drawer-body", ".drawer-foot", ".watch-add", ".leaflet-control-attribution"]), null, 1));
-  console.log("scroll:", await page.evaluate(() => { const e = document.querySelector(".drawer-body"); return e ? { sh: e.scrollHeight, ch: e.clientHeight } : null; }));
-  await page.screenshot({ path: `${SHOTS}/35-landscape-birds.png` });
-  await ctx.close();
-}
-
-// ---------- PHASE 19: 419 vs 420 ----------
-for (const w of [360, 419, 420, 520, 860, 861]) {
-  const { ctx, page } = await boot(browser, { width: w, height: 800, mobile: w < 861 });
-  await page.evaluate(() => localStorage.setItem("flockline.watchlist.v1", JSON.stringify(["osprey", "baleag"])));
-  await goto(page, "/");
-  await page.waitForTimeout(2200);
-  await page.click("button.tab-birds");
-  await page.waitForTimeout(800);
-  await freeze(page);
-  const info = await page.evaluate(() => {
-    const rowEls = Array.from(document.querySelectorAll(".watch-row"));
-    return {
-      rows: rowEls.map((e) => { const r = e.getBoundingClientRect(); return [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)]; }),
-      overflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-      sw: document.documentElement.scrollWidth,
-      cw: document.documentElement.clientWidth,
-      clipped: rowEls.map((e) => { const b = e.querySelector(".pick strong"); return b ? b.scrollWidth > b.clientWidth : null; })
-    };
+  const geo = await page.evaluate(() => {
+    const foot = document.querySelector(".drawer-foot");
+    const range = document.createRange();
+    range.selectNodeContents(foot);
+    const lines = Array.from(range.getClientRects()).map((r) => [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)]);
+    const attr = document.querySelector(".leaflet-control-attribution");
+    const ar = attr.getBoundingClientRect();
+    const arect = [Math.round(ar.x), Math.round(ar.y), Math.round(ar.width), Math.round(ar.height)];
+    const overlapsAny = lines.some((l) => !(l[0] + l[2] <= arect[0] || l[0] >= arect[0] + arect[2] || l[1] + l[3] <= arect[1] || l[1] >= arect[1] + arect[3]));
+    const cs = getComputedStyle(attr);
+    return { footerTextLines: lines, attribution: arect, overlapsAny, attrBg: cs.backgroundColor, attrZ: cs.zIndex };
   });
-  console.log(`w=${w}`, JSON.stringify(info));
-  await page.screenshot({ path: `${SHOTS}/36-w${w}.png` });
+  console.log(JSON.stringify(geo, null, 1));
+  await page.screenshot({ path: `${SHOTS}/44-m-footer-attribution.png` });
+
+  // and at 419 / 520 / 860 (bottom sheet range)
+  for (const w of [419, 520, 860]) {
+    await page.setViewportSize({ width: w, height: 700 });
+    await page.waitForTimeout(800);
+    await freeze(page);
+    const g = await page.evaluate(() => {
+      const foot = document.querySelector(".drawer-foot");
+      if (!foot) return null;
+      const range = document.createRange();
+      range.selectNodeContents(foot);
+      const lines = Array.from(range.getClientRects()).map((r) => [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)]);
+      const attr = document.querySelector(".leaflet-control-attribution").getBoundingClientRect();
+      const arect = [Math.round(attr.x), Math.round(attr.y), Math.round(attr.width), Math.round(attr.height)];
+      const ov = lines.some((l) => !(l[0] + l[2] <= arect[0] || l[0] >= arect[0] + arect[2] || l[1] + l[3] <= arect[1] || l[1] >= arect[1] + arect[3]));
+      return { w: window.innerWidth, lines: lines.slice(-2), attr: arect, ov };
+    });
+    console.log(JSON.stringify(g));
+  }
   await ctx.close();
 }
 

@@ -62,9 +62,9 @@ app.get("/api/insights", async (request, response) => {
   const fresh = parseBoolean(request.query.fresh, false);
   if (fresh && !enforceRateLimit(request, response, {
     name: "fresh-insights",
-    limit: 3,
+    limit: 40,
     windowMs: 60 * 60 * 1000,
-    message: "Insights were refreshed recently. Please try again later."
+    message: "Too many refreshes in a row. Give it a minute and try again."
   })) {
     return;
   }
