@@ -60,7 +60,7 @@ export default function Methodology() {
             <li>
               <strong>New</strong> shows only the locations whose freshest report is the selected
               day, so you can watch fresh detections appear day by day. The bars above the rail count
-              those new detections.
+              those locations for every day in the window.
             </li>
           </ul>
         </section>
