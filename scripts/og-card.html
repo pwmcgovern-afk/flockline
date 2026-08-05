@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=IBM+Plex+Mono:wght@400;500&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      /* Same tokens as src/styles.css. Duplicated rather than imported because
+         this file renders standalone in Playwright with no build step. */
+      :root {
+        --paper: #f4f2ed;
+        --ink: #1c1b18;
+        --ink-2: #56534c;
+        --ink-3: #6d6961;
+        --accent: #b0543a;
+        --ramp-old: #5c7a99;
+        --ramp-mid: #c99a3f;
+        --ramp-new: #b0543a;
+        --rule: rgba(28, 27, 24, 0.14);
+        --serif: "Newsreader", Georgia, serif;
+        --mono: "IBM Plex Mono", ui-monospace, monospace;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        background: var(--paper);
+        overflow: hidden;
+        position: relative;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* The osprey plate is a watercolour on a cream ground that is already
+         within a hair of --paper, so it can bleed straight off the right edge
+         and dissolve into the page instead of sitting in a box. */
+      .plate {
+        position: absolute;
+        top: -40px;
+        right: -70px;
+        width: 720px;
+        height: 700px;
+        background-image: url("../public/birds/osprey.jpg");
+        background-size: cover;
+        background-position: 58% 40%;
+        /* Nudged toward the map's own treatment so the bird reads as part of
+           the same printed object, not a stock photo dropped on top. The slight
+           desaturation also pulls the plate's cream ground onto --paper, which
+           is what lets the edges dissolve instead of showing a seam. */
+        filter: sepia(0.06) saturate(0.86) contrast(0.96) brightness(1.03);
+        /* A long fade on every open edge. Anything shorter leaves a visible
+           rectangle where the plate's ground meets the page. */
+        -webkit-mask-image:
+          linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 30%, #000 62%),
+          linear-gradient(to bottom, transparent 0%, #000 14%, #000 76%, transparent 97%);
+        -webkit-mask-composite: source-in;
+        mask-image:
+          linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 30%, #000 62%),
+          linear-gradient(to bottom, transparent 0%, #000 14%, #000 76%, transparent 97%);
+        mask-composite: intersect;
+      }
+
+      /* The one saturated element, and it carries meaning: this is the same
+         old-to-new recency ramp the map dots use. */
+      .ramp {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(
+          to right,
+          var(--ramp-old) 0%,
+          var(--ramp-mid) 52%,
+          var(--ramp-new) 100%
+        );
+      }
+
+      .copy {
+        position: absolute;
+        left: 72px;
+        top: 128px;
+        width: 620px;
+        z-index: 2;
+      }
+
+      .eyebrow {
+        font-family: var(--serif);
+        font-style: italic;
+        font-weight: 300;
+        font-size: 30px;
+        line-height: 1;
+        color: var(--ink-2);
+        letter-spacing: 0.01em;
+      }
+
+      .wordmark {
+        margin-top: 16px;
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: 112px;
+        line-height: 0.86;
+        letter-spacing: -0.022em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+
+      .rule {
+        margin: 32px 0 24px;
+        width: 84px;
+        height: 1px;
+        background: var(--ink-3);
+      }
+
+      .deck {
+        font-family: var(--serif);
+        font-weight: 300;
+        font-size: 25px;
+        line-height: 1.42;
+        color: var(--ink-2);
+        max-width: 470px;
+      }
+
+      /* Monospace is the product's UI voice, so the chrome bar at the bottom
+         reads as the same object as the app's controls. */
+      /* Held to the left column rather than spanning the full width. A rule and
+         mono type running under the bird's grass was unreadable, and a short
+         measure is closer to the printed-page logic the card is borrowing. */
+      .chrome {
+        position: absolute;
+        left: 72px;
+        width: 620px;
+        bottom: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--rule);
+        font-family: var(--mono);
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        z-index: 2;
+      }
+
+      .chrome .site { color: var(--ink); }
+
+      .chrome .key {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .chrome .key i {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .chrome .key i.old { background: var(--ramp-old); }
+      .chrome .key i.mid { background: var(--ramp-mid); }
+      .chrome .key i.new { background: var(--ramp-new); }
+    </style>
+  </head>
+  <body>
+    <div class="plate"></div>
+    <div class="ramp"></div>
+
+    <div class="copy">
+      <div class="eyebrow">Live from the field</div>
+      <h1 class="wordmark">Flockline</h1>
+      <div class="rule"></div>
+      <p class="deck">
+        Every bird reported to eBird, plotted and timelined across the whole country.
+      </p>
+    </div>
+
+    <div class="chrome">
+      <span class="site">flockline.app</span>
+      <span class="key">
+        <i class="old"></i><i class="mid"></i><i class="new"></i>
+        &nbsp;Older sightings to newer
+      </span>
+    </div>
+  </body>
+</html>

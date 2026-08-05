@@ -313,7 +313,7 @@ export default function App() {
   const [pendingMapAction, setPendingMapAction] = useState<ChatMapAction | null>(null);
   // Wide screens dock the drawers (push the map over); narrow screens overlay.
   const [isWide, setIsWide] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(min-width: 1100px)").matches
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 861px)").matches
   );
 
   useEffect(() => {
@@ -434,6 +434,21 @@ export default function App() {
   // The picker claims aria-modal, so it has to behave like one: Escape closes
   // it from anywhere inside (not just the search field), and Tab cycles within
   // it instead of walking out to the chrome behind the backdrop.
+  // Escape closes the drawer too. It used to only close the picker, so an
+  // overlaying drawer had no keyboard exit at all.
+  useEffect(() => {
+    if (!drawer || pickerOpen) {
+      return;
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setDrawer(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawer, pickerOpen]);
+
   useEffect(() => {
     if (!pickerOpen) {
       return;
@@ -562,13 +577,19 @@ export default function App() {
   // count for the entire selected period. Birds sums each location's reported
   // count (a report with no number, "X", counts as at least 1).
   const windowStats = useMemo(() => {
-    const features = payload?.featureCollection.features ?? [];
+    // Clamp to the timeline's own range. eBird returns a few records outside the
+    // requested window, and counting them here made the header claim locations
+    // the map could never plot at any scrubber position.
+    const features = (payload?.featureCollection.features ?? []).filter((feature) => {
+      const day = feature.properties.obsDt.slice(0, 10);
+      return day >= earliestDateKey && day <= (dateKeys[dateKeys.length - 1] ?? day);
+    });
     const birds = features.reduce(
       (sum, feature) => sum + Math.max(1, Number(feature.properties.howMany) || 0),
       0
     );
     return { locations: features.length, birds };
-  }, [payload]);
+  }, [dateKeys, earliestDateKey, payload]);
 
   const selectedRegionLabels = useMemo(() => {
     return states.filter((state) => selectedRegions.includes(state.code)).map((state) => state.abbr);
@@ -1051,6 +1072,12 @@ export default function App() {
 
   const selectSpecies = (species: Species) => {
     setSelectedSighting(null);
+    // Drop the outgoing bird's dots immediately. Without this the map showed the
+    // previous species' distribution and counts under the new species' name for
+    // the length of the request.
+    if (species.speciesCode !== selectedSpecies?.speciesCode) {
+      setPayload(null);
+    }
     setSelectedSpecies(species);
     // Deliberately does not write speciesQuery. Nothing renders it outside the
     // picker (which clears it on open), and setting it fired a debounced
@@ -1147,6 +1174,8 @@ export default function App() {
       setChatMessages(history);
       setChatInput("");
       setChatError("");
+      // Keep the text so a failure can restore it; retyping after a rate limit
+      // just burns another request.
       setChatLoading(true);
       try {
         const response = await fetch("/api/chat", {
@@ -1169,6 +1198,7 @@ export default function App() {
           setPendingMapAction(data.mapAction);
         }
       } catch (requestError) {
+        setChatInput(trimmed);
         setChatError(requestError instanceof Error ? requestError.message : "Chat request failed.");
       } finally {
         setChatLoading(false);
@@ -1226,7 +1256,7 @@ export default function App() {
 
   // Track whether we're wide enough to dock the drawers (vs. overlay).
   useEffect(() => {
-    const query = window.matchMedia("(min-width: 1100px)");
+    const query = window.matchMedia("(min-width: 861px)");
     const handler = (event: MediaQueryListEvent) => setIsWide(event.matches);
     query.addEventListener("change", handler);
     return () => query.removeEventListener("change", handler);
@@ -1274,7 +1304,13 @@ export default function App() {
     return [...TOUR_STEPS.slice(0, 3), timelineStep, ...TOUR_STEPS.slice(3)];
   }, [selectedSpecies]);
 
-  const openTour = () => setTourOpen(true);
+  // Close the menu first: below 860px the drawer is the only route to the tour,
+  // and every step targeting the scrubber or tabs would spotlight a blank patch
+  // of the drawer sheet.
+  const openTour = () => {
+    setDrawer(null);
+    setTourOpen(true);
+  };
 
   // First visit opens the tour on its own, once the map has painted so the
   // spotlight measures against the real layout rather than an empty shell.
@@ -1317,16 +1353,10 @@ export default function App() {
       selectSpecies(match);
       return true;
     }
-    // A bare token can still be a raw eBird species code, so let that through.
-    if (/^[a-z0-9]+$/i.test(speciesQuery.trim())) {
-      selectSpecies({
-        speciesCode: speciesQuery.trim().toLowerCase(),
-        comName: speciesQuery.trim(),
-        sciName: "",
-        group: "Species"
-      });
-      return true;
-    }
+    // Deliberately no raw-code escape hatch. Accepting any bare token as a
+    // species code turned a typo ("ospry") into a 502 that the UI reported as
+    // an eBird outage, with a Retry that could never succeed. A miss now leaves
+    // the picker open on "No birds match that search."
     return false;
   };
 
@@ -1448,7 +1478,9 @@ export default function App() {
   // In the browse state there's no payload, so reflect the configured source (a
   // live key is live, just idle) instead of mislabeling it "Demo stream".
   const isLiveSource = payload ? payload.source === "ebird" : hasApiKey;
-  const sourceLabel = isLiveSource ? "Live eBird" : "Demo stream";
+  // Blank until config lands: defaulting hasApiKey to false made the line read
+  // "Demo stream" for the first moment of every visit.
+  const sourceLabel = config === null ? "" : isLiveSource ? "Live eBird" : "Demo stream";
 
   return (
     <main className={`app ${docked ? "docked" : ""}`}>
@@ -1490,7 +1522,18 @@ export default function App() {
             </div>
 
             <div className="masthead">
-              <span className="masthead-eyebrow">flockline</span>
+              {/* The wordmark doubles as the home control. Clicking a logo to
+                  get back to a clean slate is the one navigation convention
+                  everyone already knows, so it should not be the one thing on
+                  the page that does nothing. */}
+              <button
+                type="button"
+                className="masthead-eyebrow"
+                onClick={startOver}
+                title="Back to the start: all states, no bird"
+              >
+                flockline
+              </button>
               <button
                 type="button"
                 className="masthead-title"
@@ -1935,7 +1978,14 @@ export default function App() {
                             switch to, so the link would read "see all 0". */}
                         {allFeatures.length ? " · " : null}
                         {allFeatures.length ? (
-                          <button type="button" className="link" onClick={() => setTimelineMode("cumulative")}>
+                          <button
+                            type="button"
+                            className="link"
+                            onClick={() => {
+                              setTimelineMode("cumulative");
+                              setSelectedDayIndex(lookbackDays - 1);
+                            }}
+                          >
                             see all {allFeatures.length.toLocaleString()}
                           </button>
                         ) : null}
@@ -2015,7 +2065,7 @@ export default function App() {
                 onChange={(event) => setSpeciesQuery(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && commitSearch()) {
-                    setPickerOpen(false);
+                    closePicker();
                   }
                 }}
                 aria-label="Species name or eBird species code"
