@@ -2838,6 +2838,25 @@ button.pill:hover {
   .masthead-meta {
     font-size: 9px;
     gap: 6px;
+    /* 0.15em tracking pushed this line to a second row on a 375px screen, and
+       the header is already the thing squeezing the map. Tighter tracking keeps
+       all four facts on one line. */
+    letter-spacing: 0.06em;
+  }
+
+  /* Three lines of serif italic cost ~110px of a 667px phone, and the header
+     was already taking 85% of the screen from the map. Two lines still carry
+     the warning itself; the ellipsis signals there is more, and Methodology
+     has the full story. */
+  .masthead-note {
+    margin-top: 6px;
+    font-size: 0.78rem;
+    line-height: 1.38;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .scope-row {

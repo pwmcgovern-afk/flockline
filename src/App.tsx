@@ -109,6 +109,34 @@ type ChecklistMedia = NonNullable<ChecklistDetailsResponse["observation"]>["medi
 // land on a useful number, and these are the windows birders actually think in.
 const WINDOW_PRESETS = [1, 3, 7, 14, 30];
 
+// Far enough from the lower 48 that letting them set the frame costs every
+// other state its legibility. Used only for framing, never to filter data.
+const OFFSHORE_STATES = new Set(["US-AK", "US-HI"]);
+
+// The scrubber and the tab bar float over the map's lower edge, so padding a
+// fit evenly buries the southern end of the data underneath them. Measure the
+// band they actually occupy and keep the data clear of it. Falls back to a
+// fixed guess when the chrome has not rendered yet.
+function fitPadding(): L.FitBoundsOptions {
+  const stage = document.querySelector(".stage");
+  const overlays = [".scrubber", ".tab-bar"]
+    .map((sel) => document.querySelector(sel))
+    .filter((el): el is Element => Boolean(el));
+
+  let bottom = 132;
+  if (stage && overlays.length) {
+    const stageBottom = stage.getBoundingClientRect().bottom;
+    bottom = Math.max(
+      ...overlays.map((el) => stageBottom - el.getBoundingClientRect().top)
+    );
+  }
+
+  return {
+    paddingTopLeft: [28, 28],
+    paddingBottomRight: [28, Math.round(Math.min(bottom, 260)) + 16]
+  };
+}
+
 // One drawer at a time, by construction: "menu" holds the region and filter
 // controls, the rest are the three feature panels.
 type DrawerId = Exclude<AppView, "map"> | "menu";
@@ -977,16 +1005,20 @@ export default function App() {
     if (payload && allFeatures.length) {
       return;
     }
-    const centers = states
-      .filter((state) => selectedRegions.includes(state.code))
-      .map((state) => state.center);
+    const selected = states.filter((state) => selectedRegions.includes(state.code));
+    // Alaska and Hawaii sit 50+ degrees of longitude off the mainland, so
+    // including them in the frame drags the whole view out to a hemisphere:
+    // "Nationwide" opened on Greenland and Japan with the US too small to read.
+    // Frame the contiguous states unless the selection is only offshore ones.
+    const contiguous = selected.filter((state) => !OFFSHORE_STATES.has(state.code));
+    const centers = (contiguous.length ? contiguous : selected).map((state) => state.center);
     runFit((map) => {
       if (!centers.length) {
         map.setView([39.5, -98.35], 4, { animate: false });
       } else if (centers.length === 1) {
         map.setView(centers[0], 6, { animate: false });
       } else {
-        map.fitBounds(L.latLngBounds(centers).pad(0.35), { maxZoom: 6, animate: false });
+        map.fitBounds(L.latLngBounds(centers), { maxZoom: 6, animate: false, ...fitPadding() });
       }
     });
   }, [allFeatures.length, payload, runFit, selectedRegions, states]);
@@ -1090,7 +1122,9 @@ export default function App() {
     // transition durations and background tabs throttle rAF, either of which
     // leaves Leaflet's animated zoom waiting on a frame that never arrives —
     // the move then silently no-ops and the map stays where it was.
-    runFit((map) => map.fitBounds(bounds.pad(0.16), { maxZoom: 8, animate: false }));
+    runFit((map) =>
+      map.fitBounds(bounds, { maxZoom: 8, animate: false, ...fitPadding() })
+    );
   }, [allFeatures, payload, runFit, selectedRegions]);
 
   const selectSpecies = (species: Species) => {
