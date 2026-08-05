@@ -3,3 +3,7 @@
 node_modules
 dist
 *.png
+# The social card is a real shipped asset, not a stray screenshot, so it has
+# to survive the blanket *.png rule above or /og.png falls through to the SPA
+# rewrite and unfurls as HTML.
+!public/og.png
