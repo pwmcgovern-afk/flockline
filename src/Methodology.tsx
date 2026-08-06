@@ -43,6 +43,12 @@ export default function Methodology() {
               report from each spot. A dot count is the number of distinct locations a bird turned
               up at, not the number of checklists and not the number of individual birds.
             </p>
+            <p>
+              The <strong>birds</strong> figure beside it is a different thing: the sum of the
+              counts birders actually typed in. Plenty of checklists record that a bird was present
+              without saying how many, and those contribute nothing to it. So that number is a
+              floor too, and always lower than the birds really out there.
+            </p>
           </div>
         </section>
 

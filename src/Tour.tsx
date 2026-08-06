@@ -89,6 +89,36 @@ export default function Tour({
         onClose();
         return;
       }
+      // This claims aria-modal, so Tab has to stay inside it. Focus used to
+      // escape to the chrome behind the backdrop on the very first Tab, where
+      // controls were still operable even though they looked dimmed out.
+      if (event.key === "Tab") {
+        const tip = tipRef.current;
+        if (!tip) {
+          return;
+        }
+        const focusable = [...tip.querySelectorAll<HTMLElement>("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")]
+          .filter((element) => !element.hasAttribute("disabled"));
+        if (!focusable.length) {
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+        if (!tip.contains(active)) {
+          event.preventDefault();
+          first.focus();
+          return;
+        }
+        if (event.shiftKey && active === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+        return;
+      }
       // Arrows only drive the tour when focus is inside its own card. The tour
       // spotlights the timeline, and a window-level handler here stole arrow
       // keys from the day-rail slider it was pointing at.
@@ -179,20 +209,24 @@ function computeTipPosition(rect: DOMRect | null, side: string, tipHeight: numbe
   const vh = window.innerHeight;
   const gap = 14;
   const margin = 16;
+  // The card is capped at TIP_WIDTH but shrinks on narrow screens (see the
+  // min() in .tour-tip). Clamping against the constant instead left no room
+  // for the margin at 320px, so the card sat flush against the left edge.
+  const width = Math.min(TIP_WIDTH, vw - margin * 2);
 
   if (!rect || side === "center") {
-    return { top: Math.max(margin, vh / 2 - tipHeight / 2), left: Math.max(margin, vw / 2 - TIP_WIDTH / 2) };
+    return { top: Math.max(margin, vh / 2 - tipHeight / 2), left: Math.max(margin, vw / 2 - width / 2) };
   }
 
-  const clampLeft = (value: number) => Math.min(Math.max(value, margin), vw - TIP_WIDTH - margin);
+  const clampLeft = (value: number) => Math.min(Math.max(value, margin), Math.max(margin, vw - width - margin));
   const clampTop = (value: number) => Math.min(Math.max(value, margin), vh - tipHeight - margin);
-  const centerLeft = clampLeft(rect.left + rect.width / 2 - TIP_WIDTH / 2);
+  const centerLeft = clampLeft(rect.left + rect.width / 2 - width / 2);
 
-  if (side === "right" && rect.right + TIP_WIDTH + gap <= vw) {
+  if (side === "right" && rect.right + width + gap <= vw) {
     return { top: clampTop(rect.top), left: rect.right + gap };
   }
-  if (side === "left" && rect.left - TIP_WIDTH - gap >= 0) {
-    return { top: clampTop(rect.top), left: rect.left - TIP_WIDTH - gap };
+  if (side === "left" && rect.left - width - gap >= 0) {
+    return { top: clampTop(rect.top), left: rect.left - width - gap };
   }
   if (side === "top" && rect.top - tipHeight - gap >= 0) {
     return { top: rect.top - tipHeight - gap, left: centerLeft };
@@ -203,7 +237,7 @@ function computeTipPosition(rect: DOMRect | null, side: string, tipHeight: numbe
   if (rect.top - tipHeight - gap >= 0) {
     return { top: rect.top - tipHeight - gap, left: centerLeft };
   }
-  if (rect.right + TIP_WIDTH + gap <= vw) {
+  if (rect.right + width + gap <= vw) {
     return { top: clampTop(rect.top), left: rect.right + gap };
   }
   return { top: clampTop(rect.top), left: clampLeft(rect.left) };
