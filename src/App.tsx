@@ -109,6 +109,73 @@ type ChecklistMedia = NonNullable<ChecklistDetailsResponse["observation"]>["medi
 // land on a useful number, and these are the windows birders actually think in.
 const WINDOW_PRESETS = [1, 3, 7, 14, 30];
 
+// Far enough from the lower 48 that letting them set the frame costs every
+// other state its legibility. Used only for framing, never to filter data.
+const OFFSHORE_STATES = new Set(["US-AK", "US-HI"]);
+
+// The catalog arrives grouped, and "Aerial" sorts first, so the picker's front
+// door was 36 swifts, swallows and nightjars: 1,422 birds on file and not one
+// a reader is likely to be looking for. Lead with the featured species, then
+// take one from each group in turn so the opening screen spans the catalog.
+// Order within a group is preserved, so the per-family tabs are unaffected.
+function browseOrder(all: Species[], featured: Species[]): Species[] {
+  const byCode = new Map(all.map((species) => [species.speciesCode, species]));
+  const lead = featured
+    .map((species) => byCode.get(species.speciesCode))
+    .filter((species): species is Species => Boolean(species));
+  const leadCodes = new Set(lead.map((species) => species.speciesCode));
+
+  const groups = new Map<string, Species[]>();
+  for (const species of all) {
+    if (leadCodes.has(species.speciesCode)) {
+      continue;
+    }
+    const key = species.group || "Other";
+    const bucket = groups.get(key);
+    if (bucket) {
+      bucket.push(species);
+    } else {
+      groups.set(key, [species]);
+    }
+  }
+
+  const queues = [...groups.values()];
+  const rest: Species[] = [];
+  for (let depth = 0; queues.some((queue) => depth < queue.length); depth += 1) {
+    for (const queue of queues) {
+      if (depth < queue.length) {
+        rest.push(queue[depth]);
+      }
+    }
+  }
+
+  return [...lead, ...rest];
+}
+
+// The scrubber and the tab bar float over the map's lower edge, so padding a
+// fit evenly buries the southern end of the data underneath them. Measure the
+// band they actually occupy and keep the data clear of it. Falls back to a
+// fixed guess when the chrome has not rendered yet.
+function fitPadding(): L.FitBoundsOptions {
+  const stage = document.querySelector(".stage");
+  const overlays = [".scrubber", ".tab-bar"]
+    .map((sel) => document.querySelector(sel))
+    .filter((el): el is Element => Boolean(el));
+
+  let bottom = 132;
+  if (stage && overlays.length) {
+    const stageBottom = stage.getBoundingClientRect().bottom;
+    bottom = Math.max(
+      ...overlays.map((el) => stageBottom - el.getBoundingClientRect().top)
+    );
+  }
+
+  return {
+    paddingTopLeft: [28, 28],
+    paddingBottomRight: [28, Math.round(Math.min(bottom, 260)) + 16]
+  };
+}
+
 // One drawer at a time, by construction: "menu" holds the region and filter
 // controls, the rest are the three feature panels.
 type DrawerId = Exclude<AppView, "map"> | "menu";
@@ -182,7 +249,10 @@ const TOUR_STEPS: TourStep[] = [
   {
     side: "center",
     title: "Welcome to Flockline",
-    body: "A live map of where birds are being reported across the United States, drawn from eBird checklists. Here is the 30-second tour."
+    // Says "starting in" rather than a flat claim about coverage: the app
+    // covers all fifty states but opens scoped to one region, and the old copy
+    // promised the whole country while the map showed the Northeast.
+    body: "A live map of where birds are being reported, drawn from eBird checklists. All fifty states are here; you are starting in one region. Here is the 30-second tour."
   },
   {
     target: ".masthead-title",
@@ -273,6 +343,9 @@ export default function App() {
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(initialSpecies);
   const [speciesQuery, setSpeciesQuery] = useState(initialSpecies?.comName ?? "");
   const [suggestions, setSuggestions] = useState<Species[]>(defaultPresets);
+  const [searchFailed, setSearchFailed] = useState(false);
+  const [unknownCode, setUnknownCode] = useState<string | null>(null);
+  const resolvedCodesRef = useRef(new Set<string>());
   const [speciesGroup, setSpeciesGroup] = useState("All");
   const [lookbackDays, setLookbackDays] = useState(initialState.lookbackDays ?? 7);
   const [selectedDayIndex, setSelectedDayIndex] = useState((initialState.lookbackDays ?? 7) - 1);
@@ -712,8 +785,9 @@ export default function App() {
       .then((nextConfig: ConfigResponse) => {
         setConfig(nextConfig);
         setStates(nextConfig.states);
-        setPresets(nextConfig.presets);
-        setSuggestions(nextConfig.presets);
+        const browsable = browseOrder(nextConfig.presets, defaultPresets);
+        setPresets(browsable);
+        setSuggestions(browsable);
         setSelectedRegions((current) => {
           const validCodes = nextConfig.states.map((state) => state.code);
           return current.filter((code) => validCodes.includes(code));
@@ -732,6 +806,49 @@ export default function App() {
         setConfig({ hasApiKey: false, states: defaultStates, presets: defaultPresets, maxBackDays: 30 });
       });
   }, []);
+
+  // A shared ?bird= link can name a code this build has never heard of: a typo,
+  // or a real taxonomy-only species outside the local catalog. Mounting it as a
+  // species regardless put the raw token in the masthead as the page headline
+  // ("NOTAREALBIRD") and let the doomed sightings request report a made-up eBird
+  // outage, complete with a Retry that could never succeed. Resolve it properly
+  // and only then decide, so genuine rare codes still work.
+  useEffect(() => {
+    if (!config || !selectedSpecies || selectedSpecies.sciName) {
+      return;
+    }
+    const code = selectedSpecies.speciesCode;
+    if (resolvedCodesRef.current.has(code)) {
+      return;
+    }
+    resolvedCodesRef.current.add(code);
+
+    let cancelled = false;
+    fetch(`/api/species?q=${encodeURIComponent(code)}`)
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error("lookup failed"))))
+      .then((data: { items?: Species[] }) => {
+        if (cancelled) {
+          return;
+        }
+        const match = (Array.isArray(data?.items) ? data.items : []).find(
+          (species) => species.speciesCode.toLowerCase() === code.toLowerCase()
+        );
+        if (match) {
+          setSelectedSpecies(match);
+          return;
+        }
+        setUnknownCode(code);
+        setSelectedSpecies(null);
+        setPayload(null);
+      })
+      // A failed lookup is not proof the code is bad. Leave the species alone
+      // and let the normal sightings error path speak for itself.
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [config, selectedSpecies]);
 
   // Which surfaces on screen actually need findings. Insights obviously, but
   // also My birds: field alerts are read off the same notable findings, so a
@@ -800,18 +917,36 @@ export default function App() {
   useEffect(() => {
     if (!speciesQuery.trim()) {
       setSuggestions(presets);
+      setSearchFailed(false);
       return;
     }
 
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
+      setSearchFailed(false);
       fetch(`/api/species?q=${encodeURIComponent(speciesQuery)}`, { signal: controller.signal })
-        .then((response) => response.json())
+        .then((response) => {
+          // An error body has no items. Parsing it anyway and handing the
+          // undefined straight to state crashed the render to a blank page.
+          if (!response.ok) {
+            throw new Error(String(response.status));
+          }
+          return response.json();
+        })
         // An empty result must stay empty. Falling back to the full catalog
         // made a search that matched nothing render 48 unrelated birds, and
         // made Enter commit whichever one happened to sort first.
-        .then((data: { items: Species[] }) => setSuggestions(data.items))
-        .catch(() => setSuggestions([]));
+        .then((data: { items?: Species[] }) => setSuggestions(Array.isArray(data?.items) ? data.items : []))
+        .catch((error: unknown) => {
+          // An aborted request is the next keystroke arriving, not a failure.
+          if (error instanceof DOMException && error.name === "AbortError") {
+            return;
+          }
+          // Reporting a dead search as "No birds match that search" told the
+          // reader their bird does not exist. Say the search broke instead.
+          setSearchFailed(true);
+          setSuggestions([]);
+        });
     }, 180);
 
     return () => {
@@ -977,16 +1112,20 @@ export default function App() {
     if (payload && allFeatures.length) {
       return;
     }
-    const centers = states
-      .filter((state) => selectedRegions.includes(state.code))
-      .map((state) => state.center);
+    const selected = states.filter((state) => selectedRegions.includes(state.code));
+    // Alaska and Hawaii sit 50+ degrees of longitude off the mainland, so
+    // including them in the frame drags the whole view out to a hemisphere:
+    // "Nationwide" opened on Greenland and Japan with the US too small to read.
+    // Frame the contiguous states unless the selection is only offshore ones.
+    const contiguous = selected.filter((state) => !OFFSHORE_STATES.has(state.code));
+    const centers = (contiguous.length ? contiguous : selected).map((state) => state.center);
     runFit((map) => {
       if (!centers.length) {
         map.setView([39.5, -98.35], 4, { animate: false });
       } else if (centers.length === 1) {
         map.setView(centers[0], 6, { animate: false });
       } else {
-        map.fitBounds(L.latLngBounds(centers).pad(0.35), { maxZoom: 6, animate: false });
+        map.fitBounds(L.latLngBounds(centers), { maxZoom: 6, animate: false, ...fitPadding() });
       }
     });
   }, [allFeatures.length, payload, runFit, selectedRegions, states]);
@@ -1090,11 +1229,14 @@ export default function App() {
     // transition durations and background tabs throttle rAF, either of which
     // leaves Leaflet's animated zoom waiting on a frame that never arrives —
     // the move then silently no-ops and the map stays where it was.
-    runFit((map) => map.fitBounds(bounds.pad(0.16), { maxZoom: 8, animate: false }));
+    runFit((map) =>
+      map.fitBounds(bounds, { maxZoom: 8, animate: false, ...fitPadding() })
+    );
   }, [allFeatures, payload, runFit, selectedRegions]);
 
   const selectSpecies = (species: Species) => {
     setSelectedSighting(null);
+    setUnknownCode(null);
     // Drop the outgoing bird's dots immediately. Without this the map showed the
     // previous species' distribution and counts under the new species' name for
     // the length of the request.
@@ -1400,8 +1542,25 @@ export default function App() {
     if (seen) {
       return;
     }
-    const timeout = window.setTimeout(() => setTourOpen(true), 900);
-    return () => window.clearTimeout(timeout);
+    // Someone who starts using the app inside the first 900ms should not have
+    // it taken away from them. The tour used to open over whatever they had
+    // begun, steal focus, and swallow the keystrokes they were typing. Cancel
+    // on the first real interaction, and leave the seen flag unwritten so the
+    // tour is still offered next visit.
+    const timeout = window.setTimeout(() => {
+      // openTour, not setTourOpen: the manual path closes any open drawer
+      // first, otherwise every step spotlights a blank patch of drawer sheet.
+      openTour();
+    }, 900);
+    const cancel = () => window.clearTimeout(timeout);
+    window.addEventListener("pointerdown", cancel, { once: true });
+    window.addEventListener("keydown", cancel, { once: true });
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener("pointerdown", cancel);
+      window.removeEventListener("keydown", cancel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const closeTour = () => {
@@ -1698,7 +1857,10 @@ export default function App() {
               <button
                 type="button"
                 className="pill icon-only tip share-pill"
-              data-tip="Copy link to this view"
+                /* Driven from status like aria-label already is. The icon
+                   switched to a tick while the tooltip underneath still read
+                   "Copy link", so the two contradicted each other. */
+                data-tip={shareStatus || "Copy link to this view"}
                 onClick={() => void shareView()}
                   aria-label={shareStatus || "Copy a link to this view"}
               >
@@ -1792,10 +1954,23 @@ export default function App() {
         {!selectedSpecies ? (
           <div className="map-empty" role="status">
             <Feather size={22} />
-            <h2>Choose a bird</h2>
+            <h2>{unknownCode ? "We don't know that bird" : "Choose a bird"}</h2>
             <p>
-              Pick any of {presets.length.toLocaleString()} species and Flockline charts where it has been
-              reported across {selectedRegionSummary}.
+              {unknownCode ? (
+                <>
+                  That link asked for the species code <strong>{unknownCode}</strong>, which is not in
+                  eBird's taxonomy. Pick a bird instead.
+                </>
+              ) : selectedRegions.length ? (
+                <>
+                  Pick any of {presets.length.toLocaleString()} species and Flockline charts where it has
+                  been reported across {selectedRegionSummary}.
+                </>
+              ) : (
+                // Interpolating the summary here read "reported across No
+                // states selected." Say what to do about it instead.
+                <>No states are selected. Choose some from Menu, then pick a bird.</>
+              )}
             </p>
             <button type="button" className="pill" onClick={openPicker}>
               <Search size={13} />
@@ -2175,6 +2350,12 @@ export default function App() {
             <div className="picker-head">
               <span className="script">of the {presets.length.toLocaleString()} birds on file</span>
               <h2>Choose a bird</h2>
+              {/* Every other overlay in the app has a visible X. Without one
+                  here the only ways out were Escape and a backdrop click,
+                  neither of which is discoverable on a touch screen. */}
+              <button type="button" className="icon-btn picker-close" onClick={closePicker} aria-label="Close">
+                <X size={15} />
+              </button>
             </div>
 
             <div className="search">
@@ -2187,6 +2368,12 @@ export default function App() {
                 onChange={(event) => setSpeciesQuery(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && commitSearch()) {
+                    // closePicker() focuses the masthead button synchronously.
+                    // Without this the still-in-flight Enter then lands on that
+                    // button as a keypress, activates it, and reopens the picker
+                    // on a blank search, so committing a search looked like it
+                    // had been thrown away.
+                    event.preventDefault();
                     closePicker();
                   }
                 }}
@@ -2243,6 +2430,10 @@ export default function App() {
                     </button>
                   );
                 })
+              ) : searchFailed ? (
+                <p className="picker-empty">
+                  Search is unavailable right now. Check your connection and try again.
+                </p>
               ) : (
                 <p className="picker-empty">No birds match that search.</p>
               )}

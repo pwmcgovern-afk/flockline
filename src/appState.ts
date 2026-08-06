@@ -57,7 +57,15 @@ export function parseAppState(
   return {
     ...(bird ? { speciesCode: bird === "browse" ? null : bird } : {}),
     ...(Number.isFinite(days) ? { lookbackDays: clamp(days, 1, 30) } : {}),
-    ...(presetRegions ? { regions: presetRegions } : params.has("states") ? { regions: requestedRegions } : {}),
+    // Only honour a states list that resolved to something. A link written as
+    // ?states=CT,MA instead of US-CT,US-MA drops every code, and committing the
+    // empty result made "no states selected" the reader's saved preference, so
+    // every later visit to the bare domain opened on an empty map.
+    ...(presetRegions
+      ? { regions: presetRegions }
+      : requestedRegions.length
+        ? { regions: requestedRegions }
+        : {}),
     ...(params.get("mode") === "new" ? { timelineMode: "daily" as const } : {}),
     ...(params.get("mode") === "trail" ? { timelineMode: "cumulative" as const } : {}),
     ...(params.has("provisional") ? { includeProvisional: params.get("provisional") !== "0" } : {}),
@@ -79,6 +87,10 @@ export function buildAppUrl(
   regionPresets: RegionPreset[] = []
 ) {
   const url = new URL(input);
+  // The SPA rewrite serves the app from any path, so a stray /nonsense used to
+  // stay in the address bar and get baked into every copied link. There is one
+  // page here; normalize to it.
+  url.pathname = "/";
   const params = new URLSearchParams();
   const matchingPreset = regionPresets.find((preset) => sameRegions(state.regions, preset.stateCodes));
 

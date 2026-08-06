@@ -549,6 +549,16 @@ button.pill:hover {
   padding: 0 4px;
   border-radius: 6px;
   transition: opacity 140ms var(--ease);
+  /* Defensive: a very long name should wrap and clamp inside the masthead
+     column rather than stretch off both edges and collide with the window
+     rail, which is what an unvalidated species code used to do. */
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .masthead-title:hover {
@@ -811,6 +821,23 @@ button.pill:hover {
 .tab-bar button.active {
   color: var(--ink);
   background: var(--paper-sunk);
+}
+
+/* Insights is the part of this app worth finding, and in a row of four
+   identical grey labels nothing said so. --accent is the warm end of the
+   recency ramp, so this reads as the same red the map already uses rather
+   than a new colour introduced for chrome. */
+.tab-bar button.tab-insights {
+  color: var(--accent);
+}
+
+.tab-bar button.tab-insights:hover {
+  color: color-mix(in srgb, var(--accent) 80%, var(--ink));
+}
+
+.tab-bar button.tab-insights.active {
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .tab-bar .badge {
@@ -2229,8 +2256,17 @@ button.pill:hover {
 }
 
 .picker-head {
+  position: relative;
   text-align: center;
   margin-bottom: 16px;
+}
+
+/* Sits over the centred heading rather than in flow, so adding it does not
+   shift the title off centre. */
+.picker-close {
+  position: absolute;
+  top: -4px;
+  right: -4px;
 }
 
 .picker-head .script {
@@ -2337,6 +2373,9 @@ button.pill:hover {
 }
 
 .picker-empty {
+  /* The results area is a grid. Left in a single column the message wrapped
+     mid-sentence down a narrow strip while the card collapsed around it. */
+  grid-column: 1 / -1;
   padding: 26px 4px;
   font-style: italic;
   color: var(--ink-3);
@@ -2433,6 +2472,15 @@ button.pill:hover {
   top: 14px;
   right: 14px;
   color: var(--ink-4);
+}
+
+/* The painted glyph is 14px, which is a small target with a mouse too, not
+   only on touch. The pseudo-element grows the hit area without moving the
+   glyph or the focus ring, so it costs nothing to apply everywhere. */
+.tour-close::after {
+  content: "";
+  position: absolute;
+  inset: -13px;
 }
 
 .tour-close:hover {
@@ -2838,6 +2886,25 @@ button.pill:hover {
   .masthead-meta {
     font-size: 9px;
     gap: 6px;
+    /* 0.15em tracking pushed this line to a second row on a 375px screen, and
+       the header is already the thing squeezing the map. Tighter tracking keeps
+       all four facts on one line. */
+    letter-spacing: 0.06em;
+  }
+
+  /* Three lines of serif italic cost ~110px of a 667px phone, and the header
+     was already taking 85% of the screen from the map. Two lines still carry
+     the warning itself; the ellipsis signals there is more, and Methodology
+     has the full story. */
+  .masthead-note {
+    margin-top: 6px;
+    font-size: 0.78rem;
+    line-height: 1.38;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .scope-row {
@@ -2941,14 +3008,7 @@ button.pill:hover {
     min-height: 40px;
   }
 
-  /* The tour's close X is a 14px glyph. Grow the tap area to 40px with a
-     pseudo-element rather than padding, so the button's own box, and the
-     focus ring drawn around it, stay inside the card's rounded corner. */
-  .tour-close::after {
-    content: "";
-    position: absolute;
-    inset: -13px;
-  }
+  /* Hit area now applied at every pointer type, see .tour-close::after. */
 }
 
 /* --------------------------------------------------------------------------
