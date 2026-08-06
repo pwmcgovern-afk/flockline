@@ -6,3 +6,8 @@ dist
 .vercel
 *.png
 !public/og.png
+
+# Scratch scripts from browser-driving audit agents
+.uxaudit-*.mjs
+.verify.mjs
+.shots.mjs
