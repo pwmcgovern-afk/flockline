@@ -158,21 +158,30 @@ function browseOrder(all: Species[], featured: Species[]): Species[] {
 // fixed guess when the chrome has not rendered yet.
 function fitPadding(): L.FitBoundsOptions {
   const stage = document.querySelector(".stage");
+  const box = stage?.getBoundingClientRect() ?? null;
   const overlays = [".scrubber", ".tab-bar"]
-    .map((sel) => document.querySelector(sel))
-    .filter((el): el is Element => Boolean(el));
+    .map((selector) => document.querySelector(selector))
+    .filter((element): element is Element => Boolean(element));
 
   let bottom = 132;
-  if (stage && overlays.length) {
-    const stageBottom = stage.getBoundingClientRect().bottom;
+  if (box && overlays.length) {
     bottom = Math.max(
-      ...overlays.map((el) => stageBottom - el.getBoundingClientRect().top)
+      ...overlays.map((element) => box.bottom - element.getBoundingClientRect().top)
     );
   }
 
+  // Leaflet subtracts padding from the box before solving for zoom, and falls
+  // back to minZoom when what remains collapses. On a short phone the chrome
+  // band is most of the map's height, so reserving all of it fitted the entire
+  // world into a 320x568 screen. Cap the reservation at a third of the box:
+  // better that a few dots sit under the scrubber than that none are readable.
+  const height = box?.height ?? 0;
+  const edge = height ? Math.min(28, Math.round(height * 0.06)) : 28;
+  const budget = height ? Math.max(0, Math.round(height / 3) - edge) : 132;
+
   return {
-    paddingTopLeft: [28, 28],
-    paddingBottomRight: [28, Math.round(Math.min(bottom, 260)) + 16]
+    paddingTopLeft: [28, edge],
+    paddingBottomRight: [28, Math.min(Math.max(bottom, 0), budget) + edge]
   };
 }
 
@@ -2293,7 +2302,7 @@ export default function App() {
         ) : null}
 
           <div className="chrome">
-            <div className="chrome-bottom">
+            <div className={`chrome-bottom ${selectedSighting ? "beside-record" : ""}`}>
               {selectedSpecies && dateKeys.length ? (
                 <div className="scrubber" aria-label="Timeline">
                   <div className="scrubber-head">

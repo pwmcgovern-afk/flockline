@@ -338,6 +338,18 @@ p {
   gap: 14px;
 }
 
+/* The record sheet is pinned to the stage's left edge while the scrubber
+   centres inside the same stage, so docking a drawer narrowed the stage and
+   slid the scrubber underneath the sheet: the play button ended up behind it
+   and genuinely unclickable, and the date caption was cut to a fragment.
+   Reserve the sheet's column so the two cannot meet. Only above the
+   bottom-sheet breakpoint, where the record is a full-width sheet instead. */
+@media (min-width: 861px) {
+  .chrome-bottom.beside-record {
+    padding-left: min(358px, calc(100vw - 36px));
+  }
+}
+
 /* --------------------------------------------------------------------------
    Pills + segmented controls — the reference's signature control
    -------------------------------------------------------------------------- */
