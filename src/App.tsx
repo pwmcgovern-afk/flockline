@@ -344,6 +344,7 @@ export default function App() {
   const [speciesQuery, setSpeciesQuery] = useState(initialSpecies?.comName ?? "");
   const [suggestions, setSuggestions] = useState<Species[]>(defaultPresets);
   const [searchFailed, setSearchFailed] = useState(false);
+  const [searchTotal, setSearchTotal] = useState(0);
   const [unknownCode, setUnknownCode] = useState<string | null>(null);
   const resolvedCodesRef = useRef(new Set<string>());
   const [speciesGroup, setSpeciesGroup] = useState("All");
@@ -936,7 +937,11 @@ export default function App() {
         // An empty result must stay empty. Falling back to the full catalog
         // made a search that matched nothing render 48 unrelated birds, and
         // made Enter commit whichever one happened to sort first.
-        .then((data: { items?: Species[] }) => setSuggestions(Array.isArray(data?.items) ? data.items : []))
+        .then((data: { items?: Species[]; total?: number }) => {
+          const items = Array.isArray(data?.items) ? data.items : [];
+          setSuggestions(items);
+          setSearchTotal(typeof data?.total === "number" ? data.total : items.length);
+        })
         .catch((error: unknown) => {
           // An aborted request is the next keystroke arriving, not a failure.
           if (error instanceof DOMException && error.name === "AbortError") {
@@ -1654,6 +1659,26 @@ export default function App() {
     [allRegionCodes, baseAppState, drawer, insightBack, insightRegions]
   );
 
+  // What the share button copies. Explicit on every field, unlike the address
+  // bar: a link that omits a default gets filled in from the RECIPIENT's saved
+  // preferences, so the view they open is not the view that was shared.
+  const shareableUrl = useMemo(
+    () =>
+      buildAppUrl(
+        window.location.href,
+        {
+          ...baseAppState,
+          view: drawer && drawer !== "menu" ? drawer : "map",
+          insightRegions,
+          insightBack
+        },
+        allRegionCodes,
+        US_REGION_PRESETS,
+        { explicit: true }
+      ),
+    [allRegionCodes, baseAppState, drawer, insightBack, insightRegions]
+  );
+
   // A link that always lands on Insights at the scope currently on screen,
   // whether or not the reader pinned it. This is the one people share.
   const insightsShareUrl = useMemo(
@@ -1667,18 +1692,88 @@ export default function App() {
           insightBack: effectiveInsightBack
         },
         allRegionCodes,
-        US_REGION_PRESETS
+        US_REGION_PRESETS,
+        { explicit: true }
       ),
     [allRegionCodes, baseAppState, effectiveInsightBack, effectiveInsightRegions]
   );
 
+  // Back used to leave the site: every state change replaced the URL, so the
+  // app never put an entry in history and the browser's Back went to whatever
+  // page came before Flockline. Give the coarse, deliberate transitions their
+  // own entry (choosing a bird, opening or closing a panel) and keep replacing
+  // for the continuous ones, or Back would have to walk back through every
+  // intermediate value of the day rail.
+  const historyKeyRef = useRef<string | null>(null);
   useEffect(() => {
-    window.history.replaceState(null, "", currentAppUrl);
-  }, [currentAppUrl]);
+    const key = `${baseAppState.speciesCode ?? "browse"}|${drawer && drawer !== "menu" ? drawer : "map"}`;
+    const first = historyKeyRef.current === null;
+    const coarseChange = !first && historyKeyRef.current !== key;
+    historyKeyRef.current = key;
+    if (coarseChange) {
+      window.history.pushState(null, "", currentAppUrl);
+    } else {
+      window.history.replaceState(null, "", currentAppUrl);
+    }
+  }, [baseAppState.speciesCode, currentAppUrl, drawer]);
+
+  // Rehydrate from the URL when the reader goes Back or Forward. Without this
+  // the address bar would move but the screen would not follow it.
+  useEffect(() => {
+    const onPopState = () => {
+      const next = parseAppState(window.location.search, allRegionCodes, US_REGION_PRESETS);
+
+      const nextCode = next.speciesCode;
+      if (nextCode === null || typeof nextCode === "string") {
+        setSelectedSpecies((current) => {
+          if (nextCode === null) {
+            return null;
+          }
+          if (current?.speciesCode === nextCode) {
+            return current;
+          }
+          return (
+            presets.find((species) => species.speciesCode === nextCode)
+            ?? { speciesCode: nextCode, comName: nextCode, sciName: "", group: "Species" }
+          );
+        });
+      }
+      if (next.regions?.length) {
+        setSelectedRegions(next.regions);
+      }
+      if (typeof next.lookbackDays === "number") {
+        setLookbackDays(next.lookbackDays);
+      }
+      if (next.timelineMode) {
+        setTimelineMode(next.timelineMode);
+      }
+      if (typeof next.includeProvisional === "boolean") {
+        setIncludeProvisional(next.includeProvisional);
+      }
+      if (typeof next.hotspotsOnly === "boolean") {
+        setHotspotsOnly(next.hotspotsOnly);
+      }
+      if (next.insightRegions !== undefined) {
+        setInsightRegions(next.insightRegions);
+      }
+      if (next.insightBack !== undefined) {
+        setInsightBack(next.insightBack);
+      }
+      const view = next.view ?? "map";
+      setDrawer(view === "map" ? null : view);
+      // Keep the key in step, otherwise the sync effect reads this as a fresh
+      // coarse change and pushes a duplicate entry on top of the one we just
+      // navigated to.
+      historyKeyRef.current = `${next.speciesCode ?? "browse"}|${view}`;
+    };
+
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [allRegionCodes, presets]);
 
   const shareView = async () => {
     try {
-      await navigator.clipboard.writeText(currentAppUrl);
+      await navigator.clipboard.writeText(shareableUrl);
       setShareStatus("Link copied");
     } catch {
       setShareStatus("Copy failed");
@@ -2444,7 +2539,11 @@ export default function App() {
                 {pickerResults.length.toLocaleString()}
                 {!speciesQuery.trim() && filteredCatalog.length > pickerResults.length
                   ? ` of ${filteredCatalog.length.toLocaleString()} · search to narrow`
-                  : " shown"}
+                  // Search caps at 28. Saying so, and how many matched, stops a
+                  // common bird past the cap from looking like it is missing.
+                  : speciesQuery.trim() && searchTotal > pickerResults.length
+                    ? ` of ${searchTotal.toLocaleString()} matches · keep typing to narrow`
+                    : " shown"}
               </span>
               {selectedSpecies ? (
                 <button

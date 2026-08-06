@@ -2417,9 +2417,14 @@ button.pill:hover {
   z-index: 800;
 }
 
+/* Matches the spotlight's own wash exactly, and no blur. The two treatments
+   used to differ, so the background blurred and unblurred as you stepped
+   through the tour, and on a spotlit step the page looked live enough that
+   people clicked the highlighted control (which only dismissed the tour,
+   since .tour-catch swallows the click). Now every step looks the same and
+   the whole surface reads as a backdrop. */
 .tour-catch.dim {
-  background: color-mix(in srgb, var(--paper) 62%, transparent);
-  backdrop-filter: blur(3px);
+  background: color-mix(in srgb, var(--paper) 66%, transparent);
 }
 
 .tour-spotlight {

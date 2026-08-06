@@ -80,11 +80,17 @@ export function parseAppState(
   };
 }
 
+// `explicit` writes every field even when it matches a default. The address
+// bar stays terse without it, but a SHARED link must be explicit: anything
+// left out falls back to the recipient's own saved preferences, so a link to
+// "past 30 days, hotspots only" opened on the recipient's 7-day default and
+// showed them a different map from the one the sender was looking at.
 export function buildAppUrl(
   input: string,
   state: AppState,
   allRegions: string[],
-  regionPresets: RegionPreset[] = []
+  regionPresets: RegionPreset[] = [],
+  { explicit = false }: { explicit?: boolean } = {}
 ) {
   const url = new URL(input);
   // The SPA rewrite serves the app from any path, so a stray /nonsense used to
@@ -95,22 +101,28 @@ export function buildAppUrl(
   const matchingPreset = regionPresets.find((preset) => sameRegions(state.regions, preset.stateCodes));
 
   params.set("bird", state.speciesCode ?? "browse");
-  if (state.lookbackDays !== DEFAULT_DAYS) {
+  if (explicit || state.lookbackDays !== DEFAULT_DAYS) {
     params.set("days", String(state.lookbackDays));
   }
-  if (matchingPreset && matchingPreset.id !== DEFAULT_REGION_ID) {
+  if (matchingPreset && (explicit || matchingPreset.id !== DEFAULT_REGION_ID)) {
     params.set("region", matchingPreset.id);
-  } else if (!matchingPreset && !sameRegions(state.regions, allRegions)) {
+  } else if (!matchingPreset && (explicit || !sameRegions(state.regions, allRegions))) {
     params.set("states", state.regions.join(","));
   }
-  if (state.timelineMode === "daily") {
-    params.set("mode", "new");
-  }
-  if (!state.includeProvisional) {
-    params.set("provisional", "0");
-  }
-  if (state.hotspotsOnly) {
-    params.set("hotspots", "1");
+  if (explicit) {
+    params.set("mode", state.timelineMode === "daily" ? "new" : "trail");
+    params.set("provisional", state.includeProvisional ? "1" : "0");
+    params.set("hotspots", state.hotspotsOnly ? "1" : "0");
+  } else {
+    if (state.timelineMode === "daily") {
+      params.set("mode", "new");
+    }
+    if (!state.includeProvisional) {
+      params.set("provisional", "0");
+    }
+    if (state.hotspotsOnly) {
+      params.set("hotspots", "1");
+    }
   }
   if (state.view && state.view !== "map") {
     params.set("view", state.view);

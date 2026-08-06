@@ -89,6 +89,36 @@ export default function Tour({
         onClose();
         return;
       }
+      // This claims aria-modal, so Tab has to stay inside it. Focus used to
+      // escape to the chrome behind the backdrop on the very first Tab, where
+      // controls were still operable even though they looked dimmed out.
+      if (event.key === "Tab") {
+        const tip = tipRef.current;
+        if (!tip) {
+          return;
+        }
+        const focusable = [...tip.querySelectorAll<HTMLElement>("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")]
+          .filter((element) => !element.hasAttribute("disabled"));
+        if (!focusable.length) {
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+        if (!tip.contains(active)) {
+          event.preventDefault();
+          first.focus();
+          return;
+        }
+        if (event.shiftKey && active === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+        return;
+      }
       // Arrows only drive the tour when focus is inside its own card. The tour
       // spotlights the timeline, and a window-level handler here stole arrow
       // keys from the day-rail slider it was pointing at.
