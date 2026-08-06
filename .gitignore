@@ -9,5 +9,6 @@ dist
 
 # Scratch scripts from browser-driving audit agents
 .uxaudit-*.mjs
-.verify.mjs
+.r2-*.mjs
+.verify*.mjs
 .shots.mjs
