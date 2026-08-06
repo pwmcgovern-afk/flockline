@@ -39,7 +39,16 @@
     <title>Flockline · Live U.S. Bird Sightings</title>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- On a slow connection the first ~1.7s were a blank paper-coloured
+         window with nothing on it, which reads as a dead page rather than an
+         app that is loading. React replaces this on its first render. -->
+    <div id="root">
+      <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f4f2ed">
+        <span style="font-family:Newsreader,Georgia,serif;font-style:italic;font-size:1.05rem;letter-spacing:.02em;color:#8b877e">
+          flockline
+        </span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

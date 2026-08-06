@@ -1583,12 +1583,15 @@ export default function App() {
     if (!speciesQuery.trim()) {
       return false;
     }
-    const match =
+    const exact =
       suggestions.find((species) => normalizeSpecies(species.comName) === normalizeSpecies(speciesQuery)) ||
-      suggestions.find((species) => normalizeSpecies(species.speciesCode) === normalizeSpecies(speciesQuery)) ||
-      // Only fall through to the top result when the search actually matched
-      // something; `suggestions` is now empty on a miss.
-      suggestions[0];
+      suggestions.find((species) => normalizeSpecies(species.speciesCode) === normalizeSpecies(speciesQuery));
+    // Commit only when the answer is unambiguous. eBird splits some birds into
+    // groups, so "yellow warbler" has no exact match and five equally good
+    // ones; taking the first alphabetically committed Mangrove Yellow Warbler
+    // to someone who meant the ordinary one. On a tie the caller focuses the
+    // result list instead, so the reader picks.
+    const match = exact || (suggestions.length === 1 ? suggestions[0] : null);
     if (match) {
       selectSpecies(match);
       return true;
@@ -1716,6 +1719,17 @@ export default function App() {
       window.history.replaceState(null, "", currentAppUrl);
     }
   }, [baseAppState.speciesCode, currentAppUrl, drawer]);
+
+  // Every URL shared the same tab title, so several Flockline tabs were
+  // indistinguishable and a bookmark said nothing about what it pointed at.
+  // The og tags still need prerendering; this is the part that is a few lines.
+  useEffect(() => {
+    const bird = selectedSpecies?.comName;
+    const scope = selectedRegionSummary;
+    document.title = bird
+      ? `${bird} · past ${lookbackDays === 1 ? "day" : `${lookbackDays} days`} · ${scope} · Flockline`
+      : "Flockline · Live U.S. Bird Sightings";
+  }, [lookbackDays, selectedRegionSummary, selectedSpecies]);
 
   // Rehydrate from the URL when the reader goes Back or Forward. Without this
   // the address bar would move but the screen would not follow it.
@@ -2460,9 +2474,20 @@ export default function App() {
                 value={speciesQuery}
                 autoFocus
                 placeholder="Search by name or eBird code…"
-                onChange={(event) => setSpeciesQuery(event.target.value)}
+                onChange={(event) => {
+                  setSpeciesQuery(event.target.value);
+                  // Search is global, and the family row hides while it runs.
+                  // Leaving the family set meant clearing the search dropped
+                  // you back into a filter you could no longer see.
+                  if (event.target.value.trim()) {
+                    setSpeciesGroup("All");
+                  }
+                }}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter" && commitSearch()) {
+                  if (event.key !== "Enter") {
+                    return;
+                  }
+                  if (commitSearch()) {
                     // closePicker() focuses the masthead button synchronously.
                     // Without this the still-in-flight Enter then lands on that
                     // button as a keypress, activates it, and reopens the picker
@@ -2470,6 +2495,14 @@ export default function App() {
                     // had been thrown away.
                     event.preventDefault();
                     closePicker();
+                    return;
+                  }
+                  // Ambiguous query: hand the reader the list rather than
+                  // guessing, and never leave Enter feeling inert.
+                  const first = speciesGridRef.current?.querySelector("button");
+                  if (first) {
+                    event.preventDefault();
+                    first.focus();
                   }
                 }}
                 aria-label="Species name or eBird species code"
@@ -2538,7 +2571,10 @@ export default function App() {
               <span>
                 {pickerResults.length.toLocaleString()}
                 {!speciesQuery.trim() && filteredCatalog.length > pickerResults.length
-                  ? ` of ${filteredCatalog.length.toLocaleString()} · search to narrow`
+                  // Not "search to narrow": search reaches the whole eBird
+                  // taxonomy, which is wider than the birds on file, so the
+                  // old copy promised a subset and delivered a superset.
+                  ? ` of ${filteredCatalog.length.toLocaleString()} · search all eBird species`
                   // Search caps at 28. Saying so, and how many matched, stops a
                   // common bird past the cap from looking like it is missing.
                   : speciesQuery.trim() && searchTotal > pickerResults.length

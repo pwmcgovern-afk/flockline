@@ -2439,7 +2439,8 @@ button.pill:hover {
 .tour-tip {
   position: fixed;
   z-index: 820;
-  width: 304px;
+  /* Keeps a 16px gutter on a 320px screen, where a flat 304px left none. */
+  width: min(304px, calc(100vw - 32px));
   padding: 20px;
   border-radius: 20px;
   background: var(--paper-raised);
