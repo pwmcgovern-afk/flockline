@@ -87,6 +87,10 @@ export function buildAppUrl(
   regionPresets: RegionPreset[] = []
 ) {
   const url = new URL(input);
+  // The SPA rewrite serves the app from any path, so a stray /nonsense used to
+  // stay in the address bar and get baked into every copied link. There is one
+  // page here; normalize to it.
+  url.pathname = "/";
   const params = new URLSearchParams();
   const matchingPreset = regionPresets.find((preset) => sameRegions(state.regions, preset.stateCodes));
 

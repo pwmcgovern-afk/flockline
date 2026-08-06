@@ -113,6 +113,45 @@ const WINDOW_PRESETS = [1, 3, 7, 14, 30];
 // other state its legibility. Used only for framing, never to filter data.
 const OFFSHORE_STATES = new Set(["US-AK", "US-HI"]);
 
+// The catalog arrives grouped, and "Aerial" sorts first, so the picker's front
+// door was 36 swifts, swallows and nightjars: 1,422 birds on file and not one
+// a reader is likely to be looking for. Lead with the featured species, then
+// take one from each group in turn so the opening screen spans the catalog.
+// Order within a group is preserved, so the per-family tabs are unaffected.
+function browseOrder(all: Species[], featured: Species[]): Species[] {
+  const byCode = new Map(all.map((species) => [species.speciesCode, species]));
+  const lead = featured
+    .map((species) => byCode.get(species.speciesCode))
+    .filter((species): species is Species => Boolean(species));
+  const leadCodes = new Set(lead.map((species) => species.speciesCode));
+
+  const groups = new Map<string, Species[]>();
+  for (const species of all) {
+    if (leadCodes.has(species.speciesCode)) {
+      continue;
+    }
+    const key = species.group || "Other";
+    const bucket = groups.get(key);
+    if (bucket) {
+      bucket.push(species);
+    } else {
+      groups.set(key, [species]);
+    }
+  }
+
+  const queues = [...groups.values()];
+  const rest: Species[] = [];
+  for (let depth = 0; queues.some((queue) => depth < queue.length); depth += 1) {
+    for (const queue of queues) {
+      if (depth < queue.length) {
+        rest.push(queue[depth]);
+      }
+    }
+  }
+
+  return [...lead, ...rest];
+}
+
 // The scrubber and the tab bar float over the map's lower edge, so padding a
 // fit evenly buries the southern end of the data underneath them. Measure the
 // band they actually occupy and keep the data clear of it. Falls back to a
@@ -210,7 +249,10 @@ const TOUR_STEPS: TourStep[] = [
   {
     side: "center",
     title: "Welcome to Flockline",
-    body: "A live map of where birds are being reported across the United States, drawn from eBird checklists. Here is the 30-second tour."
+    // Says "starting in" rather than a flat claim about coverage: the app
+    // covers all fifty states but opens scoped to one region, and the old copy
+    // promised the whole country while the map showed the Northeast.
+    body: "A live map of where birds are being reported, drawn from eBird checklists. All fifty states are here; you are starting in one region. Here is the 30-second tour."
   },
   {
     target: ".masthead-title",
@@ -743,8 +785,9 @@ export default function App() {
       .then((nextConfig: ConfigResponse) => {
         setConfig(nextConfig);
         setStates(nextConfig.states);
-        setPresets(nextConfig.presets);
-        setSuggestions(nextConfig.presets);
+        const browsable = browseOrder(nextConfig.presets, defaultPresets);
+        setPresets(browsable);
+        setSuggestions(browsable);
         setSelectedRegions((current) => {
           const validCodes = nextConfig.states.map((state) => state.code);
           return current.filter((code) => validCodes.includes(code));
@@ -1499,8 +1542,25 @@ export default function App() {
     if (seen) {
       return;
     }
-    const timeout = window.setTimeout(() => setTourOpen(true), 900);
-    return () => window.clearTimeout(timeout);
+    // Someone who starts using the app inside the first 900ms should not have
+    // it taken away from them. The tour used to open over whatever they had
+    // begun, steal focus, and swallow the keystrokes they were typing. Cancel
+    // on the first real interaction, and leave the seen flag unwritten so the
+    // tour is still offered next visit.
+    const timeout = window.setTimeout(() => {
+      // openTour, not setTourOpen: the manual path closes any open drawer
+      // first, otherwise every step spotlights a blank patch of drawer sheet.
+      openTour();
+    }, 900);
+    const cancel = () => window.clearTimeout(timeout);
+    window.addEventListener("pointerdown", cancel, { once: true });
+    window.addEventListener("keydown", cancel, { once: true });
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener("pointerdown", cancel);
+      window.removeEventListener("keydown", cancel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const closeTour = () => {
@@ -1797,7 +1857,10 @@ export default function App() {
               <button
                 type="button"
                 className="pill icon-only tip share-pill"
-              data-tip="Copy link to this view"
+                /* Driven from status like aria-label already is. The icon
+                   switched to a tick while the tooltip underneath still read
+                   "Copy link", so the two contradicted each other. */
+                data-tip={shareStatus || "Copy link to this view"}
                 onClick={() => void shareView()}
                   aria-label={shareStatus || "Copy a link to this view"}
               >
@@ -1898,11 +1961,15 @@ export default function App() {
                   That link asked for the species code <strong>{unknownCode}</strong>, which is not in
                   eBird's taxonomy. Pick a bird instead.
                 </>
-              ) : (
+              ) : selectedRegions.length ? (
                 <>
                   Pick any of {presets.length.toLocaleString()} species and Flockline charts where it has
                   been reported across {selectedRegionSummary}.
                 </>
+              ) : (
+                // Interpolating the summary here read "reported across No
+                // states selected." Say what to do about it instead.
+                <>No states are selected. Choose some from Menu, then pick a bird.</>
               )}
             </p>
             <button type="button" className="pill" onClick={openPicker}>
@@ -2283,6 +2350,12 @@ export default function App() {
             <div className="picker-head">
               <span className="script">of the {presets.length.toLocaleString()} birds on file</span>
               <h2>Choose a bird</h2>
+              {/* Every other overlay in the app has a visible X. Without one
+                  here the only ways out were Escape and a backdrop click,
+                  neither of which is discoverable on a touch screen. */}
+              <button type="button" className="icon-btn picker-close" onClick={closePicker} aria-label="Close">
+                <X size={15} />
+              </button>
             </div>
 
             <div className="search">
