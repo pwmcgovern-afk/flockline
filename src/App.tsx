@@ -158,21 +158,30 @@ function browseOrder(all: Species[], featured: Species[]): Species[] {
 // fixed guess when the chrome has not rendered yet.
 function fitPadding(): L.FitBoundsOptions {
   const stage = document.querySelector(".stage");
+  const box = stage?.getBoundingClientRect() ?? null;
   const overlays = [".scrubber", ".tab-bar"]
-    .map((sel) => document.querySelector(sel))
-    .filter((el): el is Element => Boolean(el));
+    .map((selector) => document.querySelector(selector))
+    .filter((element): element is Element => Boolean(element));
 
   let bottom = 132;
-  if (stage && overlays.length) {
-    const stageBottom = stage.getBoundingClientRect().bottom;
+  if (box && overlays.length) {
     bottom = Math.max(
-      ...overlays.map((el) => stageBottom - el.getBoundingClientRect().top)
+      ...overlays.map((element) => box.bottom - element.getBoundingClientRect().top)
     );
   }
 
+  // Leaflet subtracts padding from the box before solving for zoom, and falls
+  // back to minZoom when what remains collapses. On a short phone the chrome
+  // band is most of the map's height, so reserving all of it fitted the entire
+  // world into a 320x568 screen. Cap the reservation at a third of the box:
+  // better that a few dots sit under the scrubber than that none are readable.
+  const height = box?.height ?? 0;
+  const edge = height ? Math.min(28, Math.round(height * 0.06)) : 28;
+  const budget = height ? Math.max(0, Math.round(height / 3) - edge) : 132;
+
   return {
-    paddingTopLeft: [28, 28],
-    paddingBottomRight: [28, Math.round(Math.min(bottom, 260)) + 16]
+    paddingTopLeft: [28, edge],
+    paddingBottomRight: [28, Math.min(Math.max(bottom, 0), budget) + edge]
   };
 }
 
@@ -389,6 +398,9 @@ export default function App() {
   const [tourOpen, setTourOpen] = useState(false);
   // Pending map action requested by the chat assistant (load species / zoom).
   const [pendingMapAction, setPendingMapAction] = useState<ChatMapAction | null>(null);
+  // Read inside the awaited chat request, where the captured state is stale.
+  const selectedSpeciesRef = useRef<Species | null>(null);
+  const drawerRef = useRef<DrawerId | null>(null);
   // Wide screens dock the drawers (push the map over); narrow screens overlay.
   const [isWide, setIsWide] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(min-width: 861px)").matches
@@ -495,6 +507,11 @@ export default function App() {
     selectRegionPreset("nationwide");
     setLookbackDays(7);
     setTimelineMode("cumulative");
+    // These persist to localStorage, so leaving them out of "start over" meant
+    // a Hotspots-only filter set once kept suppressing ~40% of reports in every
+    // future session, with nothing on screen saying so.
+    setHotspotsOnly(false);
+    setIncludeProvisional(true);
     setInsightRegions(null);
     setInsightBack(null);
     setDrawer(null);
@@ -515,17 +532,25 @@ export default function App() {
   // Escape closes the drawer too. It used to only close the picker, so an
   // overlaying drawer had no keyboard exit at all.
   useEffect(() => {
-    if (!drawer || pickerOpen) {
+    if ((!drawer && !selectedSighting) || pickerOpen) {
       return;
     }
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setDrawer(null);
+      if (event.key !== "Escape") {
+        return;
       }
+      // The field record was the one overlay Escape did not close, which is
+      // the sort of inconsistency you only notice by being annoyed by it.
+      // Drawer first: it sits on top when both are open.
+      if (drawer) {
+        setDrawer(null);
+        return;
+      }
+      setSelectedSighting(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [drawer, pickerOpen]);
+  }, [drawer, pickerOpen, selectedSighting]);
 
   useEffect(() => {
     if (!pickerOpen) {
@@ -771,8 +796,22 @@ export default function App() {
     const extras = [...present].filter((group) => !groupOrder.includes(group)).sort();
     return ["All", ...ordered, ...extras];
   }, [presets]);
+  // Every saved code gets a row. Dropping the ones the catalog cannot resolve
+  // (which happens while the bootstrap list is still in play, or for a
+  // taxonomy-only bird) meant the tab badge counted birds the panel refused to
+  // show, so saved birds looked lost with no way to remove them.
+  useEffect(() => {
+    selectedSpeciesRef.current = selectedSpecies;
+    drawerRef.current = drawer;
+  }, [drawer, selectedSpecies]);
+
   const watchlistSpecies = useMemo(
-    () => watchlist.map((code) => presets.find((species) => species.speciesCode === code)).filter((species): species is Species => Boolean(species)),
+    () =>
+      watchlist.map(
+        (code) =>
+          presets.find((species) => species.speciesCode === code)
+          ?? { speciesCode: code, comName: code, sciName: "", group: "Species" }
+      ),
     [presets, watchlist]
   );
   const activeAlertFindings = useMemo(
@@ -1307,6 +1346,13 @@ export default function App() {
     // from Oklahoma while the map covers only the Northeast used to load the
     // species into a region it does not occur in.
     const widened = widenRegionsFor(finding.regionCode);
+    // Insights can also be scoped to a LONGER window than the map. A finding
+    // built from 30 days of reports, opened while the map is on 7, plotted
+    // almost nothing and looked like the card was making things up. Widen the
+    // map's window to cover the one the finding was written from.
+    if (effectiveInsightBack > lookbackDays) {
+      setLookbackDays(effectiveInsightBack);
+    }
     const hasFocus = typeof finding.lat === "number" && typeof finding.lng === "number";
     const sameSpecies = selectedSpecies?.speciesCode === finding.speciesCode;
     if (hasFocus) {
@@ -1361,6 +1407,14 @@ export default function App() {
       // Keep the text so a failure can restore it; retyping after a rate limit
       // just burns another request.
       setChatLoading(true);
+      // A reply can take many seconds. If the reader gave up and closed Ask, or
+      // picked a different bird meanwhile, the answer used to drive the map
+      // anyway: the species and states changed on their own, minutes later,
+      // with the reply that caused it out of sight.
+      const askedUnder = {
+        species: selectedSpecies?.speciesCode ?? null,
+        drawer
+      };
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -1378,7 +1432,12 @@ export default function App() {
           ...current,
           { role: "assistant", content: data.reply, speciesRefs: data.speciesRefs ?? [] }
         ]);
-        if (data.mapAction) {
+        // Only steer the map if the reader is still where they asked from.
+        // The reply itself always lands in the transcript.
+        const stillThere =
+          (selectedSpeciesRef.current?.speciesCode ?? null) === askedUnder.species
+          && drawerRef.current === askedUnder.drawer;
+        if (data.mapAction && stillThere) {
           setPendingMapAction(data.mapAction);
         }
       } catch (requestError) {
@@ -1545,6 +1604,13 @@ export default function App() {
       // Storage blocked: skip the tour rather than showing it on every load.
     }
     if (seen) {
+      return;
+    }
+    // Someone arriving on a shared ?view= link came through a door, not the
+    // front page. Autostarting over it clobbered the view they were sent and
+    // left them on a plain map with the drawer never opening. The tour stays
+    // available from the compass button, and the seen flag stays unwritten.
+    if (initialState.view && initialState.view !== "map") {
       return;
     }
     // Someone who starts using the app inside the first 900ms should not have
@@ -1912,6 +1978,26 @@ export default function App() {
                 <span>{selectedRegionSummary}</span>
                 <span className="sep">·</span>
                 <span>{sourceLabel}</span>
+                {/* A narrowing filter was only ever named in the "no reports
+                    found" state, so whenever results existed it silently
+                    withheld up to 40% of them with nothing on screen saying so
+                    and no obvious way back. */}
+                {narrowingFilters.length ? (
+                  <>
+                    <span className="sep">·</span>
+                    <button
+                      type="button"
+                      className="meta-filter"
+                      onClick={() => {
+                        setHotspotsOnly(false);
+                        setIncludeProvisional(true);
+                      }}
+                      title="Clear these filters"
+                    >
+                      {narrowingFilters.join(" + ")} · clear
+                    </button>
+                  </>
+                ) : null}
               </p>
               {selectedSpecies && underreportedCommon.has(selectedSpecies.speciesCode) ? (
                 <p className="masthead-note">
@@ -2293,7 +2379,7 @@ export default function App() {
         ) : null}
 
           <div className="chrome">
-            <div className="chrome-bottom">
+            <div className={`chrome-bottom ${selectedSighting ? "beside-record" : ""}`}>
               {selectedSpecies && dateKeys.length ? (
                 <div className="scrubber" aria-label="Timeline">
                   <div className="scrubber-head">
@@ -2443,7 +2529,7 @@ export default function App() {
                 >
                   {activeAlertFindings.length ? <BellRing /> : <Star />}
                   <span className="label">My birds</span>
-                  {watchlist.length ? <span className="badge">{watchlist.length}</span> : null}
+                  {watchlistSpecies.length ? <span className="badge">{watchlistSpecies.length}</span> : null}
                 </button>
               </nav>
           </div>

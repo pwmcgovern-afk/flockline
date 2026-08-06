@@ -338,6 +338,18 @@ p {
   gap: 14px;
 }
 
+/* The record sheet is pinned to the stage's left edge while the scrubber
+   centres inside the same stage, so docking a drawer narrowed the stage and
+   slid the scrubber underneath the sheet: the play button ended up behind it
+   and genuinely unclickable, and the date caption was cut to a fragment.
+   Reserve the sheet's column so the two cannot meet. Only above the
+   bottom-sheet breakpoint, where the record is a full-width sheet instead. */
+@media (min-width: 861px) {
+  .chrome-bottom.beside-record {
+    padding-left: min(358px, calc(100vw - 36px));
+  }
+}
+
 /* --------------------------------------------------------------------------
    Pills + segmented controls — the reference's signature control
    -------------------------------------------------------------------------- */
@@ -591,6 +603,20 @@ button.pill:hover {
 
 .masthead-meta .sep {
   color: var(--ink-3);
+}
+
+/* Reads as part of the stat line, not a button competing with the masthead,
+   but is clickable because the filter it names is the thing you want gone. */
+.meta-filter {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--accent);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.meta-filter:hover {
+  color: color-mix(in srgb, var(--accent) 80%, var(--ink));
 }
 
 .masthead-note {
@@ -2961,6 +2987,21 @@ button.pill:hover {
     min-height: 40px;
   }
 
+  /* The wordmark wipes the whole session and sat 1px above the species name,
+     which opens the picker: two ~23px targets stacked, so a thumb aimed at the
+     top of the bird's name hit the reset instead. Give the title a real target
+     and put dead space between them. The circular Start over button in the
+     top-right is the discoverable way to reset on touch. */
+  .masthead-title {
+    min-height: 44px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .masthead-eyebrow {
+    margin-bottom: 8px;
+  }
+
   .pill.icon-only {
     width: 40px;
   }
@@ -2972,6 +3013,14 @@ button.pill:hover {
   .icon-btn {
     width: 40px;
     height: 40px;
+  }
+
+  /* iOS Safari zooms the whole page when a focused input is under 16px, and
+     the Ask composer was 15.5px, so tapping it threw the layout off. */
+  .chat-composer input,
+  .chat-composer textarea,
+  .picker input {
+    font-size: 16px;
   }
 
   .insight-meta a,
