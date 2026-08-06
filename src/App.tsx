@@ -301,6 +301,9 @@ export default function App() {
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(initialSpecies);
   const [speciesQuery, setSpeciesQuery] = useState(initialSpecies?.comName ?? "");
   const [suggestions, setSuggestions] = useState<Species[]>(defaultPresets);
+  const [searchFailed, setSearchFailed] = useState(false);
+  const [unknownCode, setUnknownCode] = useState<string | null>(null);
+  const resolvedCodesRef = useRef(new Set<string>());
   const [speciesGroup, setSpeciesGroup] = useState("All");
   const [lookbackDays, setLookbackDays] = useState(initialState.lookbackDays ?? 7);
   const [selectedDayIndex, setSelectedDayIndex] = useState((initialState.lookbackDays ?? 7) - 1);
@@ -761,6 +764,49 @@ export default function App() {
       });
   }, []);
 
+  // A shared ?bird= link can name a code this build has never heard of: a typo,
+  // or a real taxonomy-only species outside the local catalog. Mounting it as a
+  // species regardless put the raw token in the masthead as the page headline
+  // ("NOTAREALBIRD") and let the doomed sightings request report a made-up eBird
+  // outage, complete with a Retry that could never succeed. Resolve it properly
+  // and only then decide, so genuine rare codes still work.
+  useEffect(() => {
+    if (!config || !selectedSpecies || selectedSpecies.sciName) {
+      return;
+    }
+    const code = selectedSpecies.speciesCode;
+    if (resolvedCodesRef.current.has(code)) {
+      return;
+    }
+    resolvedCodesRef.current.add(code);
+
+    let cancelled = false;
+    fetch(`/api/species?q=${encodeURIComponent(code)}`)
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error("lookup failed"))))
+      .then((data: { items?: Species[] }) => {
+        if (cancelled) {
+          return;
+        }
+        const match = (Array.isArray(data?.items) ? data.items : []).find(
+          (species) => species.speciesCode.toLowerCase() === code.toLowerCase()
+        );
+        if (match) {
+          setSelectedSpecies(match);
+          return;
+        }
+        setUnknownCode(code);
+        setSelectedSpecies(null);
+        setPayload(null);
+      })
+      // A failed lookup is not proof the code is bad. Leave the species alone
+      // and let the normal sightings error path speak for itself.
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [config, selectedSpecies]);
+
   // Which surfaces on screen actually need findings. Insights obviously, but
   // also My birds: field alerts are read off the same notable findings, so a
   // reader who armed an alert and never opened Insights would otherwise never
@@ -828,18 +874,36 @@ export default function App() {
   useEffect(() => {
     if (!speciesQuery.trim()) {
       setSuggestions(presets);
+      setSearchFailed(false);
       return;
     }
 
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
+      setSearchFailed(false);
       fetch(`/api/species?q=${encodeURIComponent(speciesQuery)}`, { signal: controller.signal })
-        .then((response) => response.json())
+        .then((response) => {
+          // An error body has no items. Parsing it anyway and handing the
+          // undefined straight to state crashed the render to a blank page.
+          if (!response.ok) {
+            throw new Error(String(response.status));
+          }
+          return response.json();
+        })
         // An empty result must stay empty. Falling back to the full catalog
         // made a search that matched nothing render 48 unrelated birds, and
         // made Enter commit whichever one happened to sort first.
-        .then((data: { items: Species[] }) => setSuggestions(data.items))
-        .catch(() => setSuggestions([]));
+        .then((data: { items?: Species[] }) => setSuggestions(Array.isArray(data?.items) ? data.items : []))
+        .catch((error: unknown) => {
+          // An aborted request is the next keystroke arriving, not a failure.
+          if (error instanceof DOMException && error.name === "AbortError") {
+            return;
+          }
+          // Reporting a dead search as "No birds match that search" told the
+          // reader their bird does not exist. Say the search broke instead.
+          setSearchFailed(true);
+          setSuggestions([]);
+        });
     }, 180);
 
     return () => {
@@ -1129,6 +1193,7 @@ export default function App() {
 
   const selectSpecies = (species: Species) => {
     setSelectedSighting(null);
+    setUnknownCode(null);
     // Drop the outgoing bird's dots immediately. Without this the map showed the
     // previous species' distribution and counts under the new species' name for
     // the length of the request.
@@ -1826,10 +1891,19 @@ export default function App() {
         {!selectedSpecies ? (
           <div className="map-empty" role="status">
             <Feather size={22} />
-            <h2>Choose a bird</h2>
+            <h2>{unknownCode ? "We don't know that bird" : "Choose a bird"}</h2>
             <p>
-              Pick any of {presets.length.toLocaleString()} species and Flockline charts where it has been
-              reported across {selectedRegionSummary}.
+              {unknownCode ? (
+                <>
+                  That link asked for the species code <strong>{unknownCode}</strong>, which is not in
+                  eBird's taxonomy. Pick a bird instead.
+                </>
+              ) : (
+                <>
+                  Pick any of {presets.length.toLocaleString()} species and Flockline charts where it has
+                  been reported across {selectedRegionSummary}.
+                </>
+              )}
             </p>
             <button type="button" className="pill" onClick={openPicker}>
               <Search size={13} />
@@ -2221,6 +2295,12 @@ export default function App() {
                 onChange={(event) => setSpeciesQuery(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && commitSearch()) {
+                    // closePicker() focuses the masthead button synchronously.
+                    // Without this the still-in-flight Enter then lands on that
+                    // button as a keypress, activates it, and reopens the picker
+                    // on a blank search, so committing a search looked like it
+                    // had been thrown away.
+                    event.preventDefault();
                     closePicker();
                   }
                 }}
@@ -2277,6 +2357,10 @@ export default function App() {
                     </button>
                   );
                 })
+              ) : searchFailed ? (
+                <p className="picker-empty">
+                  Search is unavailable right now. Check your connection and try again.
+                </p>
               ) : (
                 <p className="picker-empty">No birds match that search.</p>
               )}
