@@ -994,6 +994,17 @@ button.pill:hover {
   flex: none;
 }
 
+.map-empty-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: var(--ink-4);
+}
+
+.map-empty-close:hover {
+  color: var(--ink);
+}
+
 .map-empty {
   position: absolute;
   left: 50%;
