@@ -355,6 +355,7 @@ export default function App() {
   const [searchFailed, setSearchFailed] = useState(false);
   const [searchTotal, setSearchTotal] = useState(0);
   const [unknownCode, setUnknownCode] = useState<string | null>(null);
+  const [emptyCardHidden, setEmptyCardHidden] = useState(false);
   const resolvedCodesRef = useRef(new Set<string>());
   const [speciesGroup, setSpeciesGroup] = useState("All");
   const [lookbackDays, setLookbackDays] = useState(initialState.lookbackDays ?? 7);
@@ -451,6 +452,9 @@ export default function App() {
   // Identity for a scope, used to tell "we already tried this and it failed"
   // from "the reader moved to a new scope".
   const insightScopeKey = `${effectiveInsightBack}|${[...effectiveInsightRegions].sort().join(",")}`;
+  // Read inside the in-flight fast request, where the captured value is stale.
+  const insightScopeKeyRef = useRef(insightScopeKey);
+  insightScopeKeyRef.current = insightScopeKey;
 
   // `fresh` forces a regenerate past both the server's 6h cache and any CDN
   // copy (unique URL).
@@ -462,6 +466,7 @@ export default function App() {
       }
       setInsightsLoading(true);
       setInsightsError("");
+      const scopeAtStart = insightScopeKey;
       try {
         const params = new URLSearchParams({
           back: String(effectiveInsightBack),
@@ -471,6 +476,24 @@ export default function App() {
           params.set("fresh", "1");
           params.set("_t", String(Date.now()));
         }
+
+        // The eBird pull is ~270ms and the model is ~5s. Show the ranked
+        // findings as soon as the data lands so the drawer fills with real
+        // content, then replace them in place with the written phrasing. The
+        // reader gets something to read almost immediately either way.
+        const fastParams = new URLSearchParams(params);
+        fastParams.set("phrasing", "fast");
+        void fetch(`/api/insights?${fastParams.toString()}`)
+          .then((response) => (response.ok ? response.json() : null))
+          .then((fast) => {
+            // Only fill an empty panel, and only if the reader has not moved on.
+            if (!fast?.findings?.length || insightScopeKeyRef.current !== scopeAtStart) {
+              return;
+            }
+            setInsights((current) => (current ? current : { ...fast, provisionalPhrasing: true }));
+          })
+          .catch(() => undefined);
+
         const response = await fetch(`/api/insights?${params.toString()}`);
         const data = await response.json();
         if (!response.ok) {
@@ -1297,6 +1320,7 @@ export default function App() {
   // search emptied. The map, metric rail, and timeline each show empty states.
   const clearSpecies = () => {
     setSelectedSighting(null);
+    setEmptyCardHidden(false);
     setSelectedSpecies(null);
     setSpeciesQuery("");
     setPayload(null);
@@ -2146,8 +2170,19 @@ export default function App() {
           </div>
         ) : null}
 
-        {!selectedSpecies ? (
+        {!selectedSpecies && !emptyCardHidden ? (
           <div className="map-empty" role="status">
+            {/* Sits over the middle of the map, which is exactly where you want
+                to look once Insights is open. Let it be dismissed; it comes
+                back when the reader clears a bird and needs it again. */}
+            <button
+              type="button"
+              className="icon-btn map-empty-close"
+              onClick={() => setEmptyCardHidden(true)}
+              aria-label="Dismiss"
+            >
+              <X size={14} />
+            </button>
             <Feather size={22} />
             <h2>{unknownCode ? "We don't know that bird" : "Choose a bird"}</h2>
             <p>
@@ -2975,7 +3010,11 @@ export default function App() {
                     debounced request starting. Without it that window fell
                     through to the empty state, so the panel announced "no
                     notable sightings" before it had looked. */}
-                {insightsLoading || (!insights && !insightsError) ? (
+                {/* Only hold the spinner while there is genuinely nothing to
+                    read. Once the fast pass has landed, show those findings and
+                    let the written phrasing replace them in place, rather than
+                    sitting on five seconds of "Reading recent checklists". */}
+                {(insightsLoading && !insights?.findings.length) || (!insights && !insightsError) ? (
                   <p className="drawer-status">Reading recent checklists…</p>
                 ) : insightsError && !insights?.findings.length ? (
                   <p className="drawer-status error">{insightsError}</p>
