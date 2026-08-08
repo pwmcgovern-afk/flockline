@@ -2823,31 +2823,27 @@ button.pill:hover {
     height: 30px;
   }
 
+  /* Every tab keeps its label. Hiding the inactive three left a touch user
+     looking at a sparkle, a speech bubble and a star with no way to find out
+     what they were: the .tip tooltips that explain them on desktop need a
+     hover, which a phone does not have. Smaller type and tighter padding buy
+     the room, and the wider buttons also fix targets that were 37px apart by
+     2px. Measured at 320px: the row fits with the labels on. */
+  .tab-bar {
+    gap: 0;
+    padding: 3px;
+  }
+
   .tab-bar button {
-    padding: 0 12px;
+    gap: 5px;
+    padding: 0 8px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
   }
 
-  /* Visually hidden, not display:none. These labels are the only accessible
-     name each tab has (the icons are decorative), so removing them from the
-     tree left three of four tabs announcing as a bare "button". */
-  .tab-bar button .label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-  }
-
-  .tab-bar button.active .label {
-    position: static;
-    width: auto;
-    height: auto;
-    margin: 0;
-    overflow: visible;
-    clip: auto;
+  .tab-bar button svg {
+    width: 12px;
+    height: 12px;
   }
 
   /* The top row cannot hold every pill at this width, and losing "menu" would
