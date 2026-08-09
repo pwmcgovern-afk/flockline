@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "leaflet/dist/leaflet.css";
 import "./styles.css";
 import App from "./App";
+import ErrorBoundary from "./ErrorBoundary";
 import Methodology from "./Methodology";
 
 // Tiny hash router: /#methodology serves the methodology page, everything else
@@ -24,6 +25,8 @@ function Root() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Root />
+    <ErrorBoundary>
+      <Root />
+    </ErrorBoundary>
   </StrictMode>
 );

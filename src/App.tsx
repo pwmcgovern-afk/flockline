@@ -107,6 +107,17 @@ type ChecklistMedia = NonNullable<ChecklistDetailsResponse["observation"]>["medi
 
 // The lookback windows offered as presets. A 1..30 slider was too fiddly to
 // land on a useful number, and these are the windows birders actually think in.
+// Errors we raised ourselves carry a message the API wrote for a person. A
+// failed fetch throws a TypeError whose message is a browser string, and bad
+// JSON throws a SyntaxError quoting the payload; both used to be printed
+// straight into the panel, so readers saw things like "Unexpected token < in
+// JSON at position 0" where an explanation belonged.
+class ApiError extends Error {}
+
+function readableError(error: unknown, fallback: string) {
+  return error instanceof ApiError && error.message ? error.message : fallback;
+}
+
 const WINDOW_PRESETS = [1, 3, 7, 14, 30];
 
 // Far enough from the lower 48 that letting them set the frame costs every
@@ -497,14 +508,14 @@ export default function App() {
         const response = await fetch(`/api/insights?${params.toString()}`);
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error || "Insights request failed.");
+          throw new ApiError(data.error || "Insights request failed.");
         }
         failedInsightScopeRef.current = null;
         setInsights(data);
       } catch (requestError) {
         // Remember which scope failed so the auto-load effect stops retrying it.
         failedInsightScopeRef.current = insightScopeKey;
-        setInsightsError(requestError instanceof Error ? requestError.message : "Insights request failed.");
+        setInsightsError(readableError(requestError, "Insights could not be loaded. Check your connection and try again."));
       } finally {
         setInsightsLoading(false);
       }
@@ -714,23 +725,19 @@ export default function App() {
     };
   }, [payload?.stats.latestObsDt, visibleFeatures]);
 
-  // Whole-window totals (independent of New/Trail or the scrubbed day): the
-  // count for the entire selected period. Birds sums each location's reported
+  // Counts what is actually plotted right now, so the headline agrees with the
+  // map and with the scrubber's own caption. It used to total the whole window
+  // regardless of the scrubber, so dragging back a few days left the masthead
+  // claiming 2,467 locations over a map showing a few hundred, and the caption
+  // underneath quoting a third number. Birds sums each location's reported
   // count (a report with no number, "X", counts as at least 1).
   const windowStats = useMemo(() => {
-    // Clamp to the timeline's own range. eBird returns a few records outside the
-    // requested window, and counting them here made the header claim locations
-    // the map could never plot at any scrubber position.
-    const features = (payload?.featureCollection.features ?? []).filter((feature) => {
-      const day = feature.properties.obsDt.slice(0, 10);
-      return day >= earliestDateKey && day <= (dateKeys[dateKeys.length - 1] ?? day);
-    });
-    const birds = features.reduce(
+    const birds = visibleFeatures.reduce(
       (sum, feature) => sum + Math.max(1, Number(feature.properties.howMany) || 0),
       0
     );
-    return { locations: features.length, birds };
-  }, [dateKeys, earliestDateKey, payload]);
+    return { locations: visibleFeatures.length, birds };
+  }, [visibleFeatures]);
 
   const selectedRegionLabels = useMemo(() => {
     return states.filter((state) => selectedRegions.includes(state.code)).map((state) => state.abbr);
@@ -1450,7 +1457,7 @@ export default function App() {
         });
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error || "Chat request failed.");
+          throw new ApiError(data.error || "Chat request failed.");
         }
         setChatMessages((current) => [
           ...current,
@@ -1466,7 +1473,15 @@ export default function App() {
         }
       } catch (requestError) {
         setChatInput(trimmed);
-        setChatError(requestError instanceof Error ? requestError.message : "Chat request failed.");
+        // Take the unanswered question back out of the thread. The text is
+        // already restored to the composer, so leaving it also in the
+        // transcript meant a retry posted the same question twice.
+        setChatMessages((current) =>
+          current.length && current[current.length - 1].role === "user"
+            ? current.slice(0, -1)
+            : current
+        );
+        setChatError(readableError(requestError, "That did not go through. Check your connection and try again."));
       } finally {
         setChatLoading(false);
       }
@@ -2423,6 +2438,11 @@ export default function App() {
                       className="play-button"
                       onClick={() => (playing ? setPlaying(false) : startPlayback())}
                       aria-label={playing ? "Pause timeline" : "Play timeline"}
+                      // A one-day window has nothing to animate. The control
+                      // stayed live and simply did nothing when pressed, which
+                      // reads as broken rather than as not-applicable.
+                      disabled={dateKeys.length < 2}
+                      title={dateKeys.length < 2 ? "Pick a longer window to play the timeline" : undefined}
                     >
                       {playing ? <Pause /> : <Play />}
                     </button>
@@ -2978,11 +2998,11 @@ export default function App() {
                     </p>
                   ) : null}
 
-                  {insights?.coverage.failedRegions.length ? (
+                  {insights?.coverage?.failedRegions?.length ? (
                     <p className="field-hint" role="status">
                       Partial data · eBird did not respond for{" "}
-                      {insights.coverage.failedRegions.length}{" "}
-                      {insights.coverage.failedRegions.length === 1 ? "state" : "states"}.
+                      {insights.coverage!.failedRegions.length}{" "}
+                      {insights.coverage!.failedRegions.length === 1 ? "state" : "states"}.
                     </p>
                   ) : null}
 

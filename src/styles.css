@@ -678,6 +678,16 @@ button.pill:hover {
   transition: color 140ms var(--ease), background 140ms var(--ease);
 }
 
+.play-button:disabled {
+  opacity: 0.36;
+  cursor: default;
+}
+
+.play-button:disabled:hover {
+  color: var(--ink-2);
+  background: var(--paper-sunk);
+}
+
 .play-button:hover {
   color: var(--ink);
   background: var(--paper);
@@ -3159,4 +3169,49 @@ button.pill:hover {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* The last resort, when a render throws. Anything is better than the blank
+   paper-coloured page this used to be. */
+.app-error {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 32px;
+  text-align: center;
+  background: var(--paper);
+}
+
+.app-error-mark {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--ink-4);
+}
+
+.app-error h1 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.app-error p {
+  max-width: 46ch;
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.app-error-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
 }
