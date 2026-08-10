@@ -1932,7 +1932,7 @@ export default function App() {
   const sourceLabel = config === null ? "" : isLiveSource ? "Live eBird" : "Demo stream";
 
   return (
-    <main className={`app ${docked ? "docked" : ""}`}>
+    <main className={`app ${docked ? "docked" : ""} ${drawer ? "drawer-open" : ""}`}>
       <a className="skip-link" href="#drawer-panel" onClick={() => openDrawer("menu")}>
         Skip to controls
       </a>
@@ -3496,7 +3496,11 @@ function readStoredObject<T>(key: string): T | null {
 function readStoredList(key: string) {
   const value = readStoredObject<unknown>(key);
   return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string").slice(0, 50)
+    // Was 50, which silently dropped saved birds on the next load with no
+    // warning. This is a list of six-character species codes, so even a
+    // thousand is a rounding error in localStorage; the cap only exists to
+    // stop a corrupted value growing without bound.
+    ? value.filter((item): item is string => typeof item === "string").slice(0, 1000)
     : [];
 }
 
