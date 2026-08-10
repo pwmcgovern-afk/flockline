@@ -1,4 +1,6 @@
-import speciesCatalog from "./speciesCatalog.json" with { type: "json" };
+// No import attribute: Vercel bundles middleware with esbuild, which reads
+// JSON imports natively and rejects the `with { type: "json" }` syntax.
+import speciesCatalog from "./speciesCatalog.json";
 import { US_REGION_PRESETS, US_STATES } from "./usGeography.js";
 
 // Pure metadata derivation, kept out of middleware.js so it can be unit tested
