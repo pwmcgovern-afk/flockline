@@ -177,6 +177,12 @@ p {
 .app {
   position: fixed;
   inset: 0;
+  /* iOS Safari's layout viewport includes the area behind the collapsing
+     address bar, so `inset: 0` alone left the tab bar and scrubber sitting
+     under the browser's own toolbar on a phone. dvh tracks the visible
+     viewport instead; vh stays first as the fallback. */
+  height: 100vh;
+  height: 100dvh;
   background: var(--paper);
   overflow: hidden;
 }
@@ -281,6 +287,27 @@ p {
 
 .leaflet-control-attribution a {
   color: var(--ink-3) !important;
+  pointer-events: auto;
+}
+
+/* It floated above every panel, including ones that cover the map completely,
+   and swallowed taps in the bottom-right corner. Attribution has to stay
+   visible over the map, so it is suppressed only while a drawer has replaced
+   the map rather than removed outright. */
+.leaflet-control-attribution {
+  pointer-events: none;
+  z-index: 450 !important;
+}
+
+.app.docked .leaflet-control-attribution {
+  opacity: 1;
+}
+
+@media (max-width: 860px) {
+  .app.drawer-open .leaflet-control-attribution {
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -818,6 +845,11 @@ button.pill:hover {
 .tab-bar {
   display: inline-flex;
   align-items: center;
+  /* Above the drawer (600). The bottom sheet used to cover the tab bar
+     outright, so the only way to another panel was to close the one you were
+     in, with nothing on screen saying why the tap did nothing. */
+  position: relative;
+  z-index: 620;
   gap: 2px;
   padding: 4px;
   border-radius: 999px;
@@ -830,6 +862,7 @@ button.pill:hover {
   position: relative;
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
   gap: 7px;
   height: 30px;
   padding: 0 15px;
@@ -2822,6 +2855,8 @@ button.pill:hover {
 
   .chrome-bottom {
     gap: 10px;
+    /* Clears the home indicator. Resolves to 0 everywhere else. */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .scrubber {
@@ -2894,11 +2929,21 @@ button.pill:hover {
     gap: 3px;
   }
 
+  /* The sheet used to run to the bottom edge and cover the tab bar outright,
+     so the only way to another panel was to close the one you were in. Raising
+     the tab bar could not fix it: .chrome carries z-index 500 and so traps its
+     children in a stacking context the drawer's 600 beats wholesale. Stopping
+     the sheet above the tab bar sidesteps the fight and matches the floating
+     cards the scrubber and tab bar already are. */
   .drawer {
-    width: 100vw;
+    left: 8px;
+    right: 8px;
+    width: auto;
     top: auto;
-    height: 88vh;
-    border-radius: 24px 24px 0 0;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    height: 76dvh;
+    max-height: calc(100dvh - 74px - env(safe-area-inset-bottom, 0px));
+    border-radius: 24px;
     box-shadow: 0 -8px 40px rgba(28, 27, 24, 0.16);
     animation: sheet-in 260ms var(--ease);
   }
@@ -3158,6 +3203,60 @@ button.pill:hover {
   .chrome-top-right,
   .masthead {
     grid-area: auto;
+  }
+}
+
+/* A phone on its side is short, not narrow, and the sheet's chrome does not
+   shrink with it: at 812x375 the header, the scope control and the window
+   presets used the whole panel and the findings list had nothing left to
+   scroll, so it showed a header, some controls, a footer, and no content.
+   Docking it as a side panel instead squeezed the masthead to "OSP RE...", so
+   the answer is to give the sheet the height and compress its own chrome. */
+@media (orientation: landscape) and (max-height: 540px) {
+  .drawer {
+    height: calc(100dvh - 66px - env(safe-area-inset-bottom, 0px));
+    max-height: none;
+  }
+
+  .drawer-head {
+    padding: 12px 18px 10px;
+  }
+
+  .drawer-kicker {
+    display: none;
+  }
+
+  .drawer-head h2 {
+    font-size: 1.15rem;
+  }
+
+  .drawer-body {
+    padding-top: 10px;
+  }
+
+  /* The scope picker and the window presets are each a full-width row by
+     default, which is two rows of chrome the panel cannot spare here. */
+  .insights-scope {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .insights-scope .scope-row {
+    margin: 0;
+  }
+
+  .insights-scope .scope-row:last-of-type {
+    grid-column: 1 / -1;
+  }
+
+  /* The sheet stops above the tab bar, which in landscape leaves a band the
+     scrubber pokes out of: histogram bars and a count sticking out from under
+     the panel, looking like a layering accident. The map it describes is
+     covered anyway. */
+  .app.drawer-open .scrubber {
+    visibility: hidden;
   }
 }
 
