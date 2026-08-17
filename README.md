@@ -1,6 +1,6 @@
 # Flockline
 
-Flockline is a live, eBird-backed map for following recent bird movement across the United States. It combines a 1,400+ species national catalog, a Nationwide view plus four U.S. Census region presets with state-level refinement, resilient multi-state data loading, a daily timeline, region-aware notable-sighting insights, a grounded birding assistant, original field-guide artwork, Field/Dusk themes, and a persistent My Birds watchlist with in-app field alerts.
+Flockline is a live, eBird-backed map for following recent bird movement across the United States. It combines a 1,400+ species national catalog, a Nationwide view plus four U.S. Census region presets with state-level refinement, resilient multi-state data loading, a daily timeline, region-aware notable-sighting insights, weekly regional email digests, a grounded birding assistant, original field-guide artwork, Field/Dusk themes, and a persistent My Birds watchlist with in-app field alerts.
 
 Production: [flockline.app](https://flockline.app)
 
@@ -31,6 +31,19 @@ ANTHROPIC_API_KEY=your_anthropic_api_key_here
 ```
 
 Without an eBird token, Flockline uses deterministic demo sightings so the map and timeline remain usable. Without an Anthropic key, live map data still works and AI-authored features fall back gracefully.
+
+### Weekly email digest
+
+The email flow uses Resend Contacts, one subscriber Segment, and five opt-in Topics. An encrypted confirmation link prevents an address from being subscribed without its owner's approval. A secured Vercel Cron sends each regional edition at 10:00 a.m. Eastern every Monday, with a daylight-saving guard around its two possible UTC invocations.
+
+After connecting Resend and verifying `flockline.app`, pull the Vercel environment and run the one-time mailing-list setup:
+
+```bash
+npx vercel env pull .env.local --yes
+npm run setup:digest
+```
+
+The script prints the Segment and Topic IDs to add to Vercel. Configure every digest variable shown in `.env.example`, including separate random values for `DIGEST_SIGNING_SECRET` and `CRON_SECRET`. Resend Broadcasts supply the preference page and unsubscribe handling.
 
 ## Quality checks
 

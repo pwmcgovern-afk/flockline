@@ -13,6 +13,8 @@ import {
 } from "../lib/ebirdCore.js";
 import { enforceRateLimit } from "../lib/rateLimit.js";
 import { US_STATES, getCensusRegion } from "../shared/usGeography.js";
+import digestSubscriptionHandler from "../api/digest-subscription.js";
+import digestConfirmHandler from "../api/digest-confirm.js";
 
 const PORT = Number(process.env.PORT || 8787);
 const ebirdApiKey = process.env.EBIRD_API_KEY || "";
@@ -96,6 +98,9 @@ app.get("/api/roundup", async (request, response) => {
     });
   }
 });
+
+app.post("/api/digest-subscription", digestSubscriptionHandler);
+app.get("/api/digest-confirm", digestConfirmHandler);
 
 app.get("/api/checklist", async (request, response) => {
   try {

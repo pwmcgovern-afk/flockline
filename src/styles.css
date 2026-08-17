@@ -1914,6 +1914,299 @@ button.pill:hover {
   font-style: italic;
 }
 
+.digest-signup {
+  width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--paper-raised);
+}
+
+.digest-cta {
+  width: 100%;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 16px;
+  color: var(--ink);
+  text-align: left;
+  border-radius: inherit;
+  transition: background 140ms var(--ease), border-color 140ms var(--ease);
+}
+
+.digest-cta:hover,
+.digest-cta:focus-visible {
+  background: var(--paper-sunk);
+}
+
+.digest-cta > svg,
+.digest-form-heading > svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--accent);
+  stroke-width: 1.5;
+}
+
+.digest-cta span,
+.digest-cta strong,
+.digest-cta small {
+  display: block;
+}
+
+.digest-cta strong,
+.digest-form-heading strong,
+.digest-signup.success strong {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.digest-cta small {
+  margin-top: 4px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.digest-signup form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 17px;
+}
+
+.digest-form-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.digest-form-heading p,
+.digest-signup.success p {
+  margin-top: 3px;
+  color: var(--ink-3);
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+.digest-signup fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.digest-signup legend,
+.digest-email-field > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.digest-region-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.digest-region-options label {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 10px;
+  border: 1px solid var(--rule-soft);
+  border-radius: 9px;
+  color: var(--ink-2);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.digest-region-options label:first-child {
+  grid-column: 1 / -1;
+}
+
+.digest-region-options label:has(input:checked) {
+  border-color: var(--ink-4);
+  background: var(--paper-sunk);
+  color: var(--ink);
+}
+
+.digest-region-options input {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+.digest-email-field input {
+  width: 100%;
+  height: 42px;
+  padding: 0 13px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.digest-email-field input:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.digest-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.digest-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.digest-submit {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 15px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.digest-submit:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.digest-submit svg {
+  width: 13px;
+  height: 13px;
+}
+
+.digest-cancel {
+  color: var(--ink-3);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.digest-consent,
+.digest-error {
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.digest-consent {
+  color: var(--ink-3);
+}
+
+.digest-error {
+  color: var(--accent);
+}
+
+.digest-signup.success {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 16px;
+}
+
+.digest-signup.success > svg {
+  width: 19px;
+  height: 19px;
+  flex: none;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  stroke-width: 2.5;
+}
+
+.digest-signup.success button {
+  margin-top: 8px;
+  color: var(--ink-3);
+  font-size: 0.76rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.digest-confirmed-banner {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  z-index: 1400;
+  width: min(560px, calc(100vw - 24px));
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px 11px 15px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--paper-raised);
+  box-shadow: var(--shadow-drawer);
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  transform: translateX(-50%);
+}
+
+.digest-confirmed-banner > svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  stroke-width: 2.5;
+}
+
+.digest-confirmed-banner span {
+  flex: 1;
+}
+
+.digest-confirmed-banner button {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 50%;
+  color: var(--ink-3);
+}
+
+.digest-confirmed-banner button:hover {
+  background: var(--paper-sunk);
+}
+
+.digest-confirmed-banner button svg {
+  width: 14px;
+  height: 14px;
+}
+
 /* --------------------------------------------------------------------------
    Insights
    -------------------------------------------------------------------------- */

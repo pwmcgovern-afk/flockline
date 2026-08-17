@@ -179,7 +179,9 @@ export default function Methodology() {
             and display preferences stay local to the device and are never sent with Ask questions.
             Questions submitted through Ask are sent to Flockline's server and to Anthropic to
             generate a response, so do not include personal or sensitive information in a birding
-            question.
+            question. If you subscribe to a weekly roundup, your email address and selected regional
+            editions are stored by Resend for delivery. Flockline sends a confirmation link before
+            adding the address, and every digest includes controls to change editions or unsubscribe.
           </p>
         </section>
 

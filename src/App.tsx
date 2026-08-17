@@ -36,6 +36,7 @@ import {
   X
 } from "lucide-react";
 import Tour, { type TourStep } from "./Tour";
+import DigestSignup from "./DigestSignup";
 import { buildAppUrl, parseAppState, type AppState, type AppView, type TimelineMode } from "./appState";
 import {
   DEFAULT_REGION_ID,
@@ -411,6 +412,20 @@ export default function App() {
   const [roundup, setRoundup] = useState<WeeklyRoundupResponse | null>(null);
   const [roundupLoading, setRoundupLoading] = useState(false);
   const [roundupError, setRoundupError] = useState("");
+  const [digestConfirmationNotice, setDigestConfirmationNotice] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("digest") !== "confirmed") {
+      return "";
+    }
+    const selected = (params.get("digestRegions") || "")
+      .split(",")
+      .map((id) => US_REGION_PRESETS.find((region) => region.id === id)?.name)
+      .filter((name): name is string => Boolean(name));
+    const editions = selected.length
+      ? new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(selected)
+      : "your selected regional editions";
+    return `You are subscribed to ${editions}. Your first digest arrives Monday.`;
+  });
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
@@ -2004,6 +2019,20 @@ export default function App() {
         Skip to controls
       </a>
 
+      {digestConfirmationNotice ? (
+        <div className="digest-confirmed-banner" role="status">
+          <Check aria-hidden="true" />
+          <span>{digestConfirmationNotice}</span>
+          <button
+            type="button"
+            onClick={() => setDigestConfirmationNotice("")}
+            aria-label="Dismiss subscription confirmation"
+          >
+            <X aria-hidden="true" />
+          </button>
+        </div>
+      ) : null}
+
       <div className="app-body">
         <header className="topbar">
           <div className="chrome-top">
@@ -2921,6 +2950,10 @@ export default function App() {
                         </button>
                       ))}
                     </div>
+                    <DigestSignup
+                      key={`digest-intro-${focusedRegionId}`}
+                      defaultRegionId={focusedRegionId}
+                    />
                   </div>
                 ) : (
                   <>
@@ -2974,6 +3007,11 @@ export default function App() {
                           <span className="script">The week in rare birds</span>
                           <p>{roundup.summary}</p>
                         </div>
+
+                        <DigestSignup
+                          key={`digest-edition-${roundup.scopeId}`}
+                          defaultRegionId={roundup.scopeId}
+                        />
 
                         {roundup.findings.length ? (
                           <div className="insights-list roundup-list">
@@ -3342,6 +3380,11 @@ export default function App() {
                     {effectiveInsightBack === 1 ? "day" : "days"}.
                   </p>
                 )}
+
+                <DigestSignup
+                  key={`digest-insights-${insightRegionPreset?.id ?? focusedRegionId}`}
+                  defaultRegionId={insightRegionPreset?.id ?? focusedRegionId}
+                />
               </div>
               {insights ? (
                 <footer className="drawer-foot">
