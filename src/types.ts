@@ -113,6 +113,7 @@ export type Insight = {
   subId?: string;
   lat?: number | null;
   lng?: number | null;
+  howMany?: number | null;
   generatedBy?: "llm" | "template";
 };
 
@@ -124,6 +125,24 @@ export type InsightsResponse = {
   back: number;
   regions: string[];
   scopeLabel: string;
+  coverage: {
+    requestedRegions: string[];
+    successfulRegions: string[];
+    failedRegions: string[];
+  };
+  findings: Insight[];
+};
+
+export type WeeklyRoundupResponse = {
+  scopeId: "nationwide" | "northeast" | "midwest" | "south" | "west";
+  scopeLabel: string;
+  generatedAt: string;
+  source: "ebird" | "demo";
+  generator: "llm" | "template";
+  cached?: boolean;
+  back: 7;
+  regions: string[];
+  summary: string;
   coverage: {
     requestedRegions: string[];
     successfulRegions: string[];

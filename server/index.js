@@ -6,6 +6,7 @@ import {
   getChecklistDetails,
   getConfig,
   getInsights,
+  getWeeklyRoundup,
   getSightings,
   getSpeciesSuggestions,
   chatWithBirds
@@ -73,6 +74,26 @@ app.get("/api/insights", async (request, response) => {
     response.json(payload);
   } catch (error) {
     response.status(502).json({ error: "Unable to build insights.", detail: error.message });
+  }
+});
+
+app.get("/api/roundup", async (request, response) => {
+  const fresh = parseBoolean(request.query.fresh, false);
+  if (fresh && !enforceRateLimit(request, response, {
+    name: "fresh-roundup",
+    limit: 40,
+    windowMs: 60 * 60 * 1000,
+    message: "Too many roundups in a row. Give it a minute and try again."
+  })) {
+    return;
+  }
+  try {
+    response.json(await getWeeklyRoundup(request.query));
+  } catch (error) {
+    response.status(error.statusCode || 502).json({
+      error: error.statusCode ? error.message : "Unable to build the weekly roundup.",
+      detail: error.statusCode ? undefined : error.message
+    });
   }
 });
 
