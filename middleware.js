@@ -26,8 +26,16 @@ function setMeta(html, attribute, name, value) {
 
 export default async function middleware(request) {
   const url = new URL(request.url);
+  // Protected preview deployments authenticate the outer page request before
+  // this middleware runs. Forward that proof to the internal shell request,
+  // otherwise Vercel returns its login page in place of index.html and the
+  // preview cannot render the branch. Drop host so fetch can target this
+  // deployment's origin normally.
+  const shellHeaders = new Headers(request.headers);
+  shellHeaders.delete("host");
+  shellHeaders.set("x-flockline-shell", "1");
   const shell = await fetch(new URL("/index.html", url.origin), {
-    headers: { "x-flockline-shell": "1" }
+    headers: shellHeaders
   });
   if (!shell.ok) {
     // Never let a metadata rewrite be the reason the app fails to load.
