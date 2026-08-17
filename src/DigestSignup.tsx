@@ -4,11 +4,12 @@ import { US_REGION_PRESETS } from "../shared/usGeography.js";
 
 type DigestSignupProps = {
   defaultRegionId: string;
+  variant?: "card" | "header";
 };
 
 type SignupState = "idle" | "sending" | "sent";
 
-export default function DigestSignup({ defaultRegionId }: DigestSignupProps) {
+export default function DigestSignup({ defaultRegionId, variant = "card" }: DigestSignupProps) {
   const validDefault = US_REGION_PRESETS.some((region) => region.id === defaultRegionId)
     ? defaultRegionId
     : "nationwide";
@@ -21,6 +22,7 @@ export default function DigestSignup({ defaultRegionId }: DigestSignupProps) {
   const selectedNames = US_REGION_PRESETS
     .filter((region) => selectedRegions.includes(region.id))
     .map((region) => region.name);
+  const variantClass = variant === "header" ? "digest-header" : "";
 
   const toggleRegion = (regionId: string) => {
     setError("");
@@ -64,31 +66,38 @@ export default function DigestSignup({ defaultRegionId }: DigestSignupProps) {
 
   if (state === "sent") {
     return (
-      <section className="digest-signup success" aria-live="polite">
-        <Check aria-hidden="true" />
-        <div>
-          <strong>Check your inbox</strong>
-          <p>
-            Confirm your address to receive {formatList(selectedNames)} every Monday at 10 AM ET.
-          </p>
-          <button type="button" onClick={() => setState("idle")}>Use a different email</button>
+      <section className={`digest-signup success ${variantClass}`} aria-live="polite">
+        <div className="digest-success-content">
+          <Check aria-hidden="true" />
+          <div>
+            <strong>Check your inbox</strong>
+            <p>
+              Confirm your address to receive {formatList(selectedNames)} every Monday at 10 AM ET.
+            </p>
+            <button type="button" onClick={() => setState("idle")}>Use a different email</button>
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className={`digest-signup ${open ? "open" : ""}`}>
+    <section className={`digest-signup ${variantClass} ${open ? "open" : ""}`}>
       {!open ? (
-        <button type="button" className="digest-cta" onClick={() => setOpen(true)}>
+        <button
+          type="button"
+          className="digest-cta"
+          onClick={() => setOpen(true)}
+          aria-expanded="false"
+        >
           <Mail aria-hidden="true" />
           <span>
-            <strong>Get weekly insights by email</strong>
-            <small>10 AM ET every Monday · choose any region</small>
+            <strong>{variant === "header" ? "Get weekly insights" : "Get weekly insights by email"}</strong>
+            {variant === "card" ? <small>10 AM ET every Monday · choose any region</small> : null}
           </span>
         </button>
       ) : (
-        <form onSubmit={(event) => void submit(event)}>
+        <form onSubmit={(event) => void submit(event)} aria-label="Weekly insights signup">
           <div className="digest-form-heading">
             <Mail aria-hidden="true" />
             <div>

@@ -695,6 +695,16 @@ button.pill:hover {
   color: var(--ink-3);
 }
 
+.masthead-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 9px;
+  pointer-events: auto;
+}
+
 /* --------------------------------------------------------------------------
    Scrubber — the timeline, reduced to a histogram, a rail, and a caption
    -------------------------------------------------------------------------- */
@@ -1946,6 +1956,66 @@ button.pill:hover {
   background: var(--paper-raised);
 }
 
+/* The header launcher shares the red reserved for Insights and fresh map
+   activity. A solid fill and lifted shadow make the subscription action easy
+   to find without adding another color or an attention-grabbing animation. */
+.digest-signup.digest-header {
+  position: relative;
+  z-index: 4;
+  width: max-content;
+  min-width: 156px;
+  min-height: 34px;
+  border: 0;
+  background: transparent;
+}
+
+.digest-header .digest-cta {
+  width: auto;
+  min-height: 34px;
+  padding: 0 15px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 7px 20px rgba(176, 84, 58, 0.28), var(--shadow-pill);
+  transition: transform 140ms var(--ease), box-shadow 140ms var(--ease), background 140ms var(--ease);
+}
+
+.digest-header .digest-cta:hover,
+.digest-header .digest-cta:focus-visible {
+  background: color-mix(in srgb, var(--accent) 88%, var(--ink));
+  box-shadow: 0 9px 24px rgba(176, 84, 58, 0.34), var(--shadow-pill);
+  transform: translateY(-1px);
+}
+
+.digest-header .digest-cta > svg {
+  width: 15px;
+  height: 15px;
+  color: currentColor;
+  stroke-width: 1.8;
+}
+
+.digest-header .digest-cta strong {
+  color: currentColor;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.digest-header.open form,
+.digest-header.success .digest-success-content {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  width: min(380px, calc(100vw - 24px));
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  background: var(--paper-raised);
+  box-shadow: var(--shadow-raised);
+  transform: translateX(-50%);
+}
+
 .digest-cta {
   width: 100%;
   min-height: 72px;
@@ -2150,14 +2220,14 @@ button.pill:hover {
   color: var(--accent);
 }
 
-.digest-signup.success {
+.digest-signup.success .digest-success-content {
   display: flex;
   align-items: flex-start;
   gap: 11px;
   padding: 16px;
 }
 
-.digest-signup.success > svg {
+.digest-success-content > svg {
   width: 19px;
   height: 19px;
   flex: none;
@@ -2168,7 +2238,7 @@ button.pill:hover {
   stroke-width: 2.5;
 }
 
-.digest-signup.success button {
+.digest-success-content button {
   margin-top: 8px;
   color: var(--ink-3);
   font-size: 0.76rem;
@@ -3284,7 +3354,7 @@ button.pill:hover {
 
   .roundup-pill-mobile {
     display: inline-flex;
-    margin-top: 9px;
+    margin-top: 0;
   }
 }
 
