@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "concurrently -k -n API,WEB -c cyan,green \"npm run dev:api\" \"vite --host 127.0.0.1\"",
     "dev:api": "PORT=8787 node --watch server/index.js",
