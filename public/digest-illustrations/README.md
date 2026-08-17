@@ -15,6 +15,7 @@ Each species prompt added its scientific name, diagnostic field marks, proportio
 - `stisan`: Stilt Sandpiper (`Calidris himantopus`) wading in shallow water in late-summer transitional plumage.
 - `woosto`: Wood Stork (`Mycteria americana`) standing in a shallow cypress wetland.
 - `libher`: Adult Little Blue Heron (`Egretta caerulea`) stalking in a freshwater marsh.
+- `sancra`: Sandhill Crane (`Antigone canadensis`) standing in an open marsh meadow.
 - `baisan`: Baird's Sandpiper (`Calidris bairdii`) walking along a shoreline in late-summer plumage.
 - `wispet`: Wilson's Storm-Petrel (`Oceanites oceanicus`) fluttering low over the open ocean.
 
