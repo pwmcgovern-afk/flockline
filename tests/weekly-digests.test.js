@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isWeeklyDigestDeliveryTime } from "./weekly-digests.js";
+import { isWeeklyDigestDeliveryTime } from "../api/cron/weekly-digests.js";
 
 describe("weekly digest delivery time", () => {
   it("sends at 10 a.m. Eastern during daylight-saving time", () => {
