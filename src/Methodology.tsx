@@ -120,11 +120,11 @@ export default function Methodology() {
         <section>
           <h2>Insights</h2>
           <p>
-            Insights summarize eBird's notable-observations feed. When an Anthropic API key is
-            configured, Claude writes the short summaries; otherwise Flockline falls back to plain
-            templated text. In both cases the species, places, dates, and checklist links come
-            straight from eBird. The model only phrases what the data already says, and it is given
-            the exact records so it cannot invent a sighting.
+            Insights summarize eBird's notable-observations feed. Flockline generates the short
+            summaries from those verified records and falls back to plain templated text if
+            generation is unavailable. In both cases the species, places, dates, and checklist
+            links come straight from eBird. The model only phrases what the data already says, and
+            it is given the exact records so it cannot invent a sighting.
           </p>
           <h3>Scope and shareable links</h3>
           <p>

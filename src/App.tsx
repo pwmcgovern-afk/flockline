@@ -57,7 +57,8 @@ import type {
   Region,
   SightingFeature,
   SightingsResponse,
-  Species
+  Species,
+  WeeklyRoundupResponse
 } from "./types";
 
 const defaultStates: Region[] = US_STATES;
@@ -196,16 +197,22 @@ function fitPadding(): L.FitBoundsOptions {
   };
 }
 
-// One drawer at a time, by construction: "menu" holds the region and filter
-// controls, the rest are the three feature panels.
-type DrawerId = Exclude<AppView, "map"> | "menu";
+// One drawer at a time, by construction. Weekly Roundup is intentionally not
+// an AppView: its scope is chosen inside the panel, while shared URLs continue
+// to describe the map or one of the three persistent feature panels.
+type DrawerId = Exclude<AppView, "map"> | "menu" | "roundup";
 
 const DRAWER_TITLES: Record<DrawerId, string> = {
   menu: "Map settings",
+  roundup: "Weekly roundup",
   insights: "Insights",
   ask: "Ask Flockline",
   birds: "My birds"
 };
+
+function appViewForDrawer(drawer: DrawerId | null): AppView {
+  return drawer === "insights" || drawer === "ask" || drawer === "birds" ? drawer : "map";
+}
 
 // A pool the chat panel samples from on each open, so the starter questions
 // feel fresh and hint at the range of things the assistant can answer.
@@ -344,6 +351,7 @@ export default function App() {
   // re-runs the effect, which schedules another request. Explicit retry still
   // works via the Re-run and Update buttons.
   const failedInsightScopeRef = useRef<string | null>(null);
+  const roundupRequestRef = useRef<AbortController | null>(null);
   // Focus target for the species search and the scroll container for the browse
   // grid, so clearing/selecting can bring the right thing into view.
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -399,6 +407,10 @@ export default function App() {
   const [insightRegions, setInsightRegions] = useState<string[] | null>(initialState.insightRegions ?? null);
   const [insightBack, setInsightBack] = useState<number | null>(initialState.insightBack ?? null);
   const [insightLinkStatus, setInsightLinkStatus] = useState("");
+  const [roundupRegionId, setRoundupRegionId] = useState<string | null>(null);
+  const [roundup, setRoundup] = useState<WeeklyRoundupResponse | null>(null);
+  const [roundupLoading, setRoundupLoading] = useState(false);
+  const [roundupError, setRoundupError] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
@@ -522,6 +534,56 @@ export default function App() {
     },
     [effectiveInsightBack, effectiveInsightRegions, insightScopeKey]
   );
+
+  const loadWeeklyRoundup = useCallback(
+    async (regionId: string, options?: { fresh?: boolean }) => {
+      if (!getRegionPreset(regionId)) {
+        return;
+      }
+
+      roundupRequestRef.current?.abort();
+      const controller = new AbortController();
+      roundupRequestRef.current = controller;
+      setRoundupRegionId(regionId);
+      setRoundup((current) => (current?.scopeId === regionId ? current : null));
+      setRoundupLoading(true);
+      setRoundupError("");
+
+      try {
+        const params = new URLSearchParams({ region: regionId });
+        if (options?.fresh) {
+          params.set("fresh", "1");
+          params.set("_t", String(Date.now()));
+        }
+        const response = await fetch(`/api/roundup?${params.toString()}`, {
+          signal: controller.signal
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new ApiError(data.error || "Weekly roundup request failed.");
+        }
+        setRoundup(data);
+      } catch (requestError) {
+        if (requestError instanceof DOMException && requestError.name === "AbortError") {
+          return;
+        }
+        setRoundupError(
+          readableError(
+            requestError,
+            "The weekly roundup could not be generated. Check your connection and try again."
+          )
+        );
+      } finally {
+        if (roundupRequestRef.current === controller) {
+          roundupRequestRef.current = null;
+          setRoundupLoading(false);
+        }
+      }
+    },
+    []
+  );
+
+  useEffect(() => () => roundupRequestRef.current?.abort(), []);
 
   const openDrawer = (id: DrawerId) => setDrawer((current) => (current === id ? null : id));
 
@@ -1234,23 +1296,7 @@ export default function App() {
       marker.addTo(layer);
     }
 
-    const pulseFeatures = visibleFeatures
-      .filter((feature) => feature.properties.obsDt.slice(0, 10) === selectedDateKey)
-      .slice(0, playing ? 28 : 16);
-    for (const feature of pulseFeatures) {
-      const [lng, lat] = feature.geometry.coordinates;
-      L.marker([lat, lng], {
-        interactive: false,
-        keyboard: false,
-        icon: L.divIcon({
-          className: `flock-pulse-icon ${playing ? "playing" : ""}`,
-          html: '<span class="flock-pulse-ring"></span><span class="flock-pulse-core"></span>',
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
-        })
-      }).addTo(layer);
-    }
-  }, [dateKeys, playing, selectSighting, selectedDateKey, visibleFeatures]);
+  }, [dateKeys, selectSighting, visibleFeatures]);
 
   useEffect(() => {
     if (!payload || !mapRef.current) {
@@ -1369,7 +1415,7 @@ export default function App() {
 
   // Load an insight's species and fly to the exact spot it names, rather than
   // doing a broad fit that's easy to miss behind the docked drawer.
-  const showFindingOnMap = (finding: Insight) => {
+  const showFindingOnMap = (finding: Insight, sourceBack = effectiveInsightBack) => {
     if (!finding.speciesCode) {
       return;
     }
@@ -1381,8 +1427,8 @@ export default function App() {
     // built from 30 days of reports, opened while the map is on 7, plotted
     // almost nothing and looked like the card was making things up. Widen the
     // map's window to cover the one the finding was written from.
-    if (effectiveInsightBack > lookbackDays) {
-      setLookbackDays(effectiveInsightBack);
+    if (sourceBack > lookbackDays) {
+      setLookbackDays(sourceBack);
     }
     const hasFocus = typeof finding.lat === "number" && typeof finding.lng === "number";
     const sameSpecies = selectedSpecies?.speciesCode === finding.speciesCode;
@@ -1405,6 +1451,11 @@ export default function App() {
     if (!isWide) {
       setDrawer(null);
     }
+  };
+
+  const showRoundupFindingOnMap = (finding: Insight) => {
+    showFindingOnMap(finding, 7);
+    setDrawer(null);
   };
 
   const toggleWatched = (speciesCode: string) => {
@@ -1538,6 +1589,21 @@ export default function App() {
       ? `${insights.findings.length} ${insights.findings.length === 1 ? "finding" : "findings"} in ${insightsScopeLabel}.`
       : `No notable sightings in ${insightsScopeLabel}.`;
   }, [insights, insightsError, insightsLoading, insightsScopeLabel]);
+
+  const roundupAnnouncement = useMemo(() => {
+    if (roundupLoading) {
+      return "Generating the weekly roundup";
+    }
+    if (roundupError) {
+      return roundupError;
+    }
+    if (!roundup) {
+      return "";
+    }
+    return roundup.findings.length
+      ? `${roundup.findings.length} weekly findings for ${roundup.scopeLabel}.`
+      : `No notable sightings in ${roundup.scopeLabel} this week.`;
+  }, [roundup, roundupError, roundupLoading]);
 
   // Apply a map action the chat requested: load the species and, if it named a
   // spot, zoom there (pendingFocusRef is consumed by the fit effect on reload).
@@ -1757,7 +1823,7 @@ export default function App() {
         window.location.href,
         {
           ...baseAppState,
-          view: drawer && drawer !== "menu" ? drawer : "map",
+          view: appViewForDrawer(drawer),
           insightRegions,
           insightBack
         },
@@ -1776,7 +1842,7 @@ export default function App() {
         window.location.href,
         {
           ...baseAppState,
-          view: drawer && drawer !== "menu" ? drawer : "map",
+          view: appViewForDrawer(drawer),
           insightRegions,
           insightBack
         },
@@ -1814,7 +1880,8 @@ export default function App() {
   // intermediate value of the day rail.
   const historyKeyRef = useRef<string | null>(null);
   useEffect(() => {
-    const key = `${baseAppState.speciesCode ?? "browse"}|${drawer && drawer !== "menu" ? drawer : "map"}`;
+    const historyView = drawer === "roundup" ? "roundup" : appViewForDrawer(drawer);
+    const key = `${baseAppState.speciesCode ?? "browse"}|${historyView}`;
     const first = historyKeyRef.current === null;
     const coarseChange = !first && historyKeyRef.current !== key;
     historyKeyRef.current = key;
@@ -2044,9 +2111,27 @@ export default function App() {
                   common species, so this map shows far fewer spots than where they really are.
                 </p>
               ) : null}
+              <button
+                type="button"
+                className={`pill roundup-pill-mobile ${drawer === "roundup" ? "active" : ""}`}
+                onClick={() => openDrawer("roundup")}
+                aria-expanded={drawer === "roundup"}
+              >
+                <BookOpen />
+                Weekly roundup
+              </button>
             </div>
 
             <div className="chrome-top-right">
+              <button
+                type="button"
+                className={`pill roundup-pill-desktop ${drawer === "roundup" ? "active" : ""}`}
+                onClick={() => openDrawer("roundup")}
+                aria-expanded={drawer === "roundup"}
+              >
+                <BookOpen />
+                Weekly roundup
+              </button>
             {/* Reset to the opening position: nationwide, no bird, default
                 window. Shown only when there is actually something to reset. */}
             {selectedSpecies || selectedRegionPreset?.id !== "nationwide" ? (
@@ -2744,13 +2829,15 @@ export default function App() {
           <header className="drawer-head">
             <div>
               <span className="drawer-kicker">
-                {drawer === "insights"
-                  ? insightsScopeLabel
-                  : drawer === "ask"
-                    ? "Live from eBird"
-                    : drawer === "birds"
-                      ? "Saved on this device"
-                      : "Coverage and filters"}
+                {drawer === "roundup"
+                  ? roundup?.scopeLabel ?? getRegionPreset(roundupRegionId || "")?.name ?? "Choose a region"
+                  : drawer === "insights"
+                    ? insightsScopeLabel
+                    : drawer === "ask"
+                      ? "Live from eBird"
+                      : drawer === "birds"
+                        ? "Saved on this device"
+                        : "Coverage and filters"}
               </span>
               <h2>{DRAWER_TITLES[drawer]}</h2>
             </div>
@@ -2778,6 +2865,18 @@ export default function App() {
                   </button>
                 </>
               ) : null}
+              {drawer === "roundup" && roundupRegionId ? (
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={() => void loadWeeklyRoundup(roundupRegionId, { fresh: true })}
+                  disabled={roundupLoading}
+                  title="Regenerate weekly roundup"
+                  aria-label="Regenerate weekly roundup"
+                >
+                  <RefreshCw className={roundupLoading ? "spin" : ""} />
+                </button>
+              ) : null}
               <button
                 type="button"
                 className="icon-btn"
@@ -2788,6 +2887,166 @@ export default function App() {
               </button>
             </div>
           </header>
+
+          {/* ---- Weekly roundup ---- */}
+          {drawer === "roundup" ? (
+            <>
+              <div className="drawer-body roundup-body">
+                <span className="sr-only" role="status" aria-live="polite">
+                  {roundupAnnouncement}
+                </span>
+
+                {!roundupRegionId ? (
+                  <div className="roundup-intro">
+                    <BookOpen aria-hidden="true" />
+                    <span className="script">Seven days in the field</span>
+                    <h3>Choose your edition</h3>
+                    <p>
+                      Flockline will read the latest eBird notable reports and prepare a fresh
+                      regional digest. Your map stays exactly where it is.
+                    </p>
+                    <div className="roundup-region-grid" aria-label="Weekly roundup region">
+                      {US_REGION_PRESETS.map((region) => (
+                        <button
+                          type="button"
+                          key={region.id}
+                          onClick={() => void loadWeeklyRoundup(region.id)}
+                        >
+                          <strong>{region.name}</strong>
+                          <small>
+                            {region.id === "nationwide"
+                              ? "All 50 states and D.C."
+                              : `${region.stateCodes.length} states`}
+                          </small>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="roundup-controls">
+                      <select
+                        className="scope-select"
+                        value={roundupRegionId}
+                        onChange={(event) => void loadWeeklyRoundup(event.target.value)}
+                        aria-label="Weekly roundup region"
+                      >
+                        {US_REGION_PRESETS.map((region) => (
+                          <option key={region.id} value={region.id}>{region.name}</option>
+                        ))}
+                      </select>
+                      <span>Past 7 days</span>
+                    </div>
+
+                    {roundup?.coverage.failedRegions.length ? (
+                      <p className="field-hint" role="status">
+                        Partial data. eBird did not respond for {roundup.coverage.failedRegions.length}{" "}
+                        {roundup.coverage.failedRegions.length === 1 ? "state" : "states"}.
+                      </p>
+                    ) : null}
+
+                    {roundupError && roundup ? (
+                      <p className="field-hint error" role="status">
+                        Regeneration failed. {roundupError} Showing the previous edition.
+                      </p>
+                    ) : null}
+
+                    {roundupLoading && !roundup ? (
+                      <div className="roundup-loading">
+                        <RefreshCw className="spin" aria-hidden="true" />
+                        <p>Reading the latest notable reports…</p>
+                      </div>
+                    ) : roundupError && !roundup ? (
+                      <div className="roundup-error">
+                        <p className="drawer-status error">{roundupError}</p>
+                        <button
+                          type="button"
+                          className="pill"
+                          onClick={() => void loadWeeklyRoundup(roundupRegionId, { fresh: true })}
+                        >
+                          <RefreshCw />
+                          Try again
+                        </button>
+                      </div>
+                    ) : roundup ? (
+                      <>
+                        <div className="roundup-deck">
+                          <span className="script">The week in rare birds</span>
+                          <p>{roundup.summary}</p>
+                        </div>
+
+                        {roundup.findings.length ? (
+                          <div className="insights-list roundup-list">
+                            {roundup.findings.map((finding, index) => (
+                              <article
+                                className={`insight-card ${finding.kind}`}
+                                key={`${finding.speciesCode ?? "finding"}-${index}`}
+                              >
+                                <span className="insight-kind">
+                                  {insightIcon(finding.kind)}
+                                  {finding.kind === "wide"
+                                    ? "Across the region"
+                                    : finding.kind === "surge"
+                                      ? "Notable run"
+                                      : "Rare report"}
+                                </span>
+                                <h3>{finding.title}</h3>
+                                <p>{finding.detail}</p>
+                                <div className="insight-meta roundup-facts">
+                                  {finding.locName ? (
+                                    <span title={finding.locName}>
+                                      <MapPin />
+                                      {finding.locName}
+                                    </span>
+                                  ) : null}
+                                  {finding.obsDt ? (
+                                    <span>{formatDateKey(finding.obsDt.slice(0, 10))}</span>
+                                  ) : null}
+                                  {finding.howMany ? (
+                                    <span>
+                                      <Bird />
+                                      {finding.howMany.toLocaleString()}
+                                    </span>
+                                  ) : null}
+                                  {finding.speciesCode ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => showRoundupFindingOnMap(finding)}
+                                    >
+                                      View on map
+                                    </button>
+                                  ) : null}
+                                  {finding.subId ? (
+                                    <a
+                                      href={`https://ebird.org/checklist/${finding.subId}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      Checklist
+                                      <ExternalLink />
+                                    </a>
+                                  ) : null}
+                                </div>
+                              </article>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="drawer-status">
+                            No rare or locally notable sightings were returned for this edition.
+                          </p>
+                        )}
+                      </>
+                    ) : null}
+                  </>
+                )}
+              </div>
+              {roundup ? (
+                <footer className="drawer-foot">
+                  Generated by Flockline · updated {formatShortDateTime(roundup.generatedAt)}
+                </footer>
+              ) : null}
+            </>
+          ) : null}
 
           {/* ---- Menu ---- */}
           {drawer === "menu" ? (
@@ -3086,8 +3345,7 @@ export default function App() {
               </div>
               {insights ? (
                 <footer className="drawer-foot">
-                  {insights.generator === "llm" ? "Written by Claude" : "From eBird notable sightings"} ·
-                  updated {formatShortDateTime(insights.generatedAt)}
+                  Generated by Flockline · updated {formatShortDateTime(insights.generatedAt)}
                 </footer>
               ) : null}
             </>

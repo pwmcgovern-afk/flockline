@@ -438,6 +438,20 @@ button.pill:hover {
   background: var(--ink-4);
 }
 
+.roundup-pill-mobile {
+  display: none;
+}
+
+.roundup-pill-desktop,
+.roundup-pill-mobile {
+  color: var(--ink);
+}
+
+.roundup-pill-desktop.active,
+.roundup-pill-mobile.active {
+  background: var(--paper-sunk);
+}
+
 /* The segmented track: a sunk pill with a raised thumb on the active segment.
    Used for the window presets, the timeline mode, and the tab bar. */
 .segmented {
@@ -1094,41 +1108,6 @@ button.pill:hover {
   margin-top: 6px;
 }
 
-/* Pulse marker for the freshest day */
-.flock-pulse-icon {
-  position: relative;
-}
-
-.flock-pulse-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid var(--ramp-new);
-  opacity: 0.5;
-  animation: pulse-out 2.4s var(--ease) infinite;
-}
-
-.flock-pulse-core {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 4px;
-  height: 4px;
-  margin: -2px 0 0 -2px;
-  border-radius: 50%;
-  background: var(--ramp-new);
-}
-
-.flock-pulse-icon.playing .flock-pulse-ring {
-  animation-duration: 1.2s;
-}
-
-@keyframes pulse-out {
-  0% { transform: scale(0.35); opacity: 0.6; }
-  70% { transform: scale(1); opacity: 0; }
-  100% { transform: scale(1); opacity: 0; }
-}
-
 /* --------------------------------------------------------------------------
    Sighting sheet — bottom-left card when a dot is clicked
    -------------------------------------------------------------------------- */
@@ -1447,7 +1426,7 @@ button.pill:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Drawer — one shell, four contents (menu / insights / ask / my birds)
+   Drawer: one shell, five contents (roundup / menu / insights / ask / my birds)
    -------------------------------------------------------------------------- */
 
 .drawer {
@@ -1772,6 +1751,167 @@ button.pill:hover {
 
 .toggle-row input:checked::after {
   transform: translateX(14px);
+}
+
+/* --------------------------------------------------------------------------
+   Weekly roundup
+   -------------------------------------------------------------------------- */
+
+.roundup-body {
+  gap: 18px;
+}
+
+.roundup-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 0 4px;
+}
+
+.roundup-intro > svg {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 12px;
+  color: var(--ink-3);
+  stroke-width: 1.25;
+}
+
+.roundup-intro .script,
+.roundup-deck .script {
+  display: block;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.94rem;
+  color: var(--ink-3);
+}
+
+.roundup-intro h3 {
+  margin: 2px 0 10px;
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.roundup-intro > p {
+  max-width: 34ch;
+  color: var(--ink-2);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.roundup-region-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  width: 100%;
+  margin-top: 22px;
+}
+
+.roundup-region-grid button {
+  min-height: 72px;
+  padding: 13px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--paper-raised);
+  text-align: left;
+  transition: border-color 140ms var(--ease), background 140ms var(--ease);
+}
+
+.roundup-region-grid button:first-child {
+  grid-column: 1 / -1;
+}
+
+.roundup-region-grid button:hover,
+.roundup-region-grid button:focus-visible {
+  border-color: var(--ink-4);
+  background: var(--paper-sunk);
+}
+
+.roundup-region-grid strong,
+.roundup-region-grid small {
+  display: block;
+}
+
+.roundup-region-grid strong {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.roundup-region-grid small {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.roundup-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.roundup-controls > span {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.roundup-deck {
+  padding: 2px 0 18px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.roundup-deck > p {
+  margin-top: 5px;
+  font-family: var(--serif);
+  font-size: 1.06rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.roundup-list .insight-card:first-child {
+  padding-top: 0;
+}
+
+.roundup-facts > span[title] {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roundup-loading,
+.roundup-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 180px;
+  text-align: center;
+}
+
+.roundup-loading svg {
+  width: 18px;
+  height: 18px;
+  color: var(--ink-3);
+  stroke-width: 1.4;
+}
+
+.roundup-loading p {
+  color: var(--ink-3);
+  font-style: italic;
 }
 
 /* --------------------------------------------------------------------------
@@ -2816,6 +2956,17 @@ button.pill:hover {
 @media (min-width: 861px) {
   .app.docked {
     --dock: var(--drawer-w);
+  }
+}
+
+@media (max-width: 1100px) {
+  .roundup-pill-desktop {
+    display: none;
+  }
+
+  .roundup-pill-mobile {
+    display: inline-flex;
+    margin-top: 9px;
   }
 }
 
