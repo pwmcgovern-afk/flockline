@@ -59,6 +59,8 @@ The app is deployed on Vercel. Production secrets belong in Vercel environment v
 
 Pull requests and pushes to `main` run the GitHub Actions quality gate in `.github/workflows/ci.yml`.
 
+`package.json` pins Node.js 22 for local tooling, CI, and Vercel functions. Keeping those environments aligned avoids runtime-only surprises.
+
 Flockline does not currently rely on Vercel Git auto-deployments. After merging to `main`, deploy the exact merged commit manually:
 
 ```bash
