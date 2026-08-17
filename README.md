@@ -43,3 +43,13 @@ This runs the state/share-link tests, TypeScript compilation, and the production
 ## Deployment
 
 The app is deployed on Vercel. Production secrets belong in Vercel environment variables; the public UI never accepts or mutates API credentials.
+
+Pull requests and pushes to `main` run the GitHub Actions quality gate in `.github/workflows/ci.yml`.
+
+Flockline does not currently rely on Vercel Git auto-deployments. After merging to `main`, deploy the exact merged commit manually:
+
+```bash
+npx vercel deploy --prod --yes
+```
+
+Confirm that `flockline.app` points to that deployment before treating the change as shipped.
