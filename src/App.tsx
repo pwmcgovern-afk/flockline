@@ -2140,15 +2140,22 @@ export default function App() {
                   common species, so this map shows far fewer spots than where they really are.
                 </p>
               ) : null}
-              <button
-                type="button"
-                className={`pill roundup-pill-mobile ${drawer === "roundup" ? "active" : ""}`}
-                onClick={() => openDrawer("roundup")}
-                aria-expanded={drawer === "roundup"}
-              >
-                <BookOpen />
-                Weekly roundup
-              </button>
+              <div className="masthead-actions">
+                <DigestSignup
+                  key={`digest-header-${focusedRegionId}`}
+                  defaultRegionId={focusedRegionId}
+                  variant="header"
+                />
+                <button
+                  type="button"
+                  className={`pill roundup-pill-mobile ${drawer === "roundup" ? "active" : ""}`}
+                  onClick={() => openDrawer("roundup")}
+                  aria-expanded={drawer === "roundup"}
+                >
+                  <BookOpen />
+                  Weekly roundup
+                </button>
+              </div>
             </div>
 
             <div className="chrome-top-right">
