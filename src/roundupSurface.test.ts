@@ -33,16 +33,23 @@ describe("Weekly Roundup surface", () => {
     expect(publicCopy).not.toContain("Claude writes");
   });
 
-  it("publishes a versioned X card with explicit image metadata", () => {
+  it("publishes a cache-busted X card with explicit image metadata", () => {
     const html = read("index.html");
     const card = statSync(resolve(process.cwd(), "public", "flockline-social-v2.jpg"));
 
-    expect(html).toContain("https://flockline.app/flockline-social-v2.jpg");
+    expect(html).toContain("https://flockline.app/flockline-social-v2.jpg?v=20260818");
     expect(html).toContain('property="og:image:type" content="image/jpeg"');
     expect(html).toContain('property="og:image:width" content="1200"');
     expect(html).toContain('property="og:image:height" content="630"');
     expect(html).toContain('name="twitter:image:alt"');
     expect(card.isFile()).toBe(true);
     expect(card.size).toBeGreaterThan(50_000);
+  });
+
+  it("serves an explicit crawler policy for social previews", () => {
+    const robots = read("public/robots.txt");
+
+    expect(robots).toContain("User-agent: Twitterbot\nAllow: /");
+    expect(robots).toContain("User-agent: *\nAllow: /");
   });
 });
