@@ -3338,6 +3338,122 @@ button.pill:hover {
 }
 
 /* --------------------------------------------------------------------------
+   Newsletter landing page (/newsletter) and roundup archive (/roundup/...)
+   share the methodology page chrome; these rules cover what they add.
+   -------------------------------------------------------------------------- */
+
+.newsletter-lede {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  margin: 0 0 26px;
+}
+
+.newsletter-page .digest-signup,
+.archive-page .digest-signup {
+  margin: 0 0 34px;
+}
+
+.archive-status {
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: var(--paper-sunk);
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.archive-issue-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.archive-issue-list li {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.archive-issue-list a {
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.archive-issue-list a:hover {
+  color: var(--accent);
+}
+
+.archive-finding {
+  padding: 26px 0;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.archive-kind {
+  display: block;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 7px;
+}
+
+.archive-finding h2 {
+  margin: 0 0 8px;
+}
+
+.archive-meta {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin: 10px 0 0;
+}
+
+.archive-links {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+
+.archive-links a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.archive-links a:hover {
+  text-decoration: underline;
+}
+
+.archive-illustration {
+  margin: 0 0 16px;
+  border: 1px solid var(--rule-soft);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--paper-sunk);
+}
+
+.archive-illustration img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.archive-illustration figcaption {
+  padding: 7px 11px;
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+.archive-signup {
+  margin-top: 34px;
+  padding-top: 26px;
+  border-top: 1px solid var(--rule-soft);
+}
+
+/* --------------------------------------------------------------------------
    Docked drawers on wide screens: push the map instead of covering it
    -------------------------------------------------------------------------- */
 

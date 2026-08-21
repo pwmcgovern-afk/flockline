@@ -3,6 +3,7 @@ import {
   getDigestConfiguration,
   verifyDigestConfirmationToken
 } from "../lib/digestSubscriptions.js";
+import { recordSignupEvent } from "../lib/signupEvents.js";
 
 export default async function handler(request, response) {
   if (request.method !== "GET") {
@@ -37,6 +38,20 @@ export default async function handler(request, response) {
 
   try {
     await confirmDigestContact(subscription, configuration);
+    try {
+      await recordSignupEvent({
+        type: "confirmed",
+        src: subscription.src,
+        regionIds: subscription.regionIds,
+        email: subscription.email
+      });
+    } catch (eventError) {
+      // Attribution is best-effort; the subscription itself already succeeded.
+      console.error(JSON.stringify({
+        event: "digest_signup_event_failed",
+        message: eventError?.message
+      }));
+    }
     const destination = new URL(configuration.publicAppUrl);
     destination.searchParams.set("digest", "confirmed");
     destination.searchParams.set("digestRegions", subscription.regionIds.join(","));

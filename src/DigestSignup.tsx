@@ -5,15 +5,25 @@ import { US_REGION_PRESETS } from "../shared/usGeography.js";
 type DigestSignupProps = {
   defaultRegionId: string;
   variant?: "card" | "header";
+  // Channel attribution slug forwarded to the signup API (e.g. "newsletter",
+  // "roundup"); the in-app surfaces default to "app".
+  src?: string;
+  // Landing pages want the form visible immediately instead of behind the CTA.
+  startOpen?: boolean;
 };
 
 type SignupState = "idle" | "sending" | "sent";
 
-export default function DigestSignup({ defaultRegionId, variant = "card" }: DigestSignupProps) {
+export default function DigestSignup({
+  defaultRegionId,
+  variant = "card",
+  src = "app",
+  startOpen = false
+}: DigestSignupProps) {
   const validDefault = US_REGION_PRESETS.some((region) => region.id === defaultRegionId)
     ? defaultRegionId
     : "nationwide";
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const [email, setEmail] = useState("");
   const [selectedRegions, setSelectedRegions] = useState([validDefault]);
   const [state, setState] = useState<SignupState>("idle");
@@ -48,6 +58,7 @@ export default function DigestSignup({ defaultRegionId, variant = "card" }: Dige
         body: JSON.stringify({
           email,
           regions: selectedRegions,
+          src,
           website: form.get("website")
         })
       });

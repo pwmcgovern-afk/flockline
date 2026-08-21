@@ -5,6 +5,7 @@ import {
   sendDigestConfirmation
 } from "../lib/digestSubscriptions.js";
 import { normalizeDigestRegionIds } from "../shared/digestRegions.js";
+import { DEFAULT_SIGNUP_SOURCE, normalizeSignupSource } from "../lib/signupEvents.js";
 
 export default async function handler(request, response) {
   if (request.method !== "POST") {
@@ -32,6 +33,7 @@ export default async function handler(request, response) {
 
   const email = normalizeDigestEmail(body.email);
   const regionIds = normalizeDigestRegionIds(body.regions);
+  const src = normalizeSignupSource(body.src) || DEFAULT_SIGNUP_SOURCE;
   if (!email) {
     response.status(400).json({ error: "Enter a valid email address." });
     return;
@@ -52,7 +54,12 @@ export default async function handler(request, response) {
   }
 
   try {
-    await sendDigestConfirmation({ email, regionIds }, configuration);
+    console.log(JSON.stringify({
+      event: "digest_signup_requested",
+      src,
+      regions: regionIds
+    }));
+    await sendDigestConfirmation({ email, regionIds, src }, configuration);
     response.status(202).json({
       ok: true,
       message: "Check your inbox to confirm your regional digest."
