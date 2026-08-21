@@ -31,6 +31,25 @@ describe("buildMeta", () => {
     expect(meta("?states=ZZ,QQ").title).toBe("Flockline · Live U.S. Bird Sightings");
   });
 
+  it("titles the standalone newsletter and roundup pages by path", () => {
+    expect(buildMeta(new URL("https://flockline.app/newsletter?src=ctbirds")).title).toBe(
+      "Weekly bird insights by email · Flockline"
+    );
+    expect(buildMeta(new URL("https://flockline.app/roundup")).title).toBe(
+      "Weekly birding roundups · Flockline"
+    );
+    expect(buildMeta(new URL("https://flockline.app/roundup/northeast/2026-08-24")).title).toBe(
+      "Northeast birding roundup · week ending 2026-08-24 · Flockline"
+    );
+    expect(buildMeta(new URL("https://flockline.app/roundup/nationwide/2026-08-24")).title).toBe(
+      "U.S. birding roundup · week ending 2026-08-24 · Flockline"
+    );
+    // An unknown path still gets the default treatment.
+    expect(buildMeta(new URL("https://flockline.app/nonsense")).title).toBe(
+      "Flockline · Live U.S. Bird Sightings"
+    );
+  });
+
   it("escapes nothing dangerous into the head", () => {
     const out = meta('?states=US-CT&bird="><script>alert(1)</script>');
     expect(out.title).not.toContain("<script");

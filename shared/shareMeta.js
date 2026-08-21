@@ -24,6 +24,39 @@ export function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
+function buildPageMeta(pathname) {
+  const path = String(pathname || "").replace(/\/+$/, "") || "/";
+
+  if (path === "/newsletter") {
+    return {
+      title: `Weekly bird insights by email · ${SITE}`,
+      description:
+        "Six verified notable birds in your region, from live eBird reports, every Monday at 10 AM ET. Free from Flockline."
+    };
+  }
+
+  if (path === "/roundup") {
+    return {
+      title: `Weekly birding roundups · ${SITE}`,
+      description:
+        "Flockline's archive of weekly notable-bird roundups across the United States, built from verified eBird reports."
+    };
+  }
+
+  const issue = path.match(/^\/roundup\/([a-z-]+)(?:\/(\d{4}-\d{2}-\d{2}))?$/);
+  if (issue) {
+    const regionName = REGION_NAMES.get(issue[1]);
+    const scopeLabel = !regionName || issue[1] === "nationwide" ? "U.S." : regionName;
+    const dated = issue[2] ? ` · week ending ${issue[2]}` : "";
+    return {
+      title: `${scopeLabel} birding roundup${dated} · ${SITE}`,
+      description: `The most notable verified bird sightings across the ${scopeLabel === "U.S." ? "United States" : scopeLabel} this week, from live eBird reports.`
+    };
+  }
+
+  return null;
+}
+
 function describeScope(params) {
   const preset = params.get("region");
   if (preset && REGION_NAMES.has(preset)) {
@@ -51,6 +84,12 @@ function describeScope(params) {
 }
 
 export function buildMeta(url) {
+  // Standalone pages carry their identity in the path, not the query.
+  const pageMeta = buildPageMeta(url.pathname);
+  if (pageMeta) {
+    return pageMeta;
+  }
+
   const params = url.searchParams;
   const bird = params.get("bird");
   const species = bird && bird !== "browse" ? SPECIES_NAMES.get(bird) : null;

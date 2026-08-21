@@ -1,7 +1,9 @@
 import { Resend } from "resend";
 import { getWeeklyRoundup } from "../../lib/ebirdCore.js";
+import { addBirdIllustrations } from "../../lib/birdIllustrations.js";
 import { sendWeeklyDigestBroadcast } from "../../lib/digestEmail.js";
 import { getDigestConfiguration } from "../../lib/digestSubscriptions.js";
+import { archiveConfigured, saveRoundup } from "../../lib/roundupArchive.js";
 
 export const config = { maxDuration: 300 };
 
@@ -40,7 +42,11 @@ export default async function handler(request, response) {
     return;
   }
 
-  if (!isWeeklyDigestDeliveryTime()) {
+  // mode=persist-only generates and archives every edition without emailing
+  // anyone. It exists to seed the public archive (for example right after a
+  // deploy) and is invoked manually, so it skips the Monday-morning gate.
+  const persistOnly = String(request.query?.mode || "") === "persist-only";
+  if (!persistOnly && !isWeeklyDigestDeliveryTime()) {
     response.status(200).json({
       ok: true,
       skipped: true,
@@ -69,8 +75,32 @@ export default async function handler(request, response) {
       if (roundup.source !== "ebird") {
         throw new Error("Live eBird data was unavailable.");
       }
-      const sent = await sendWeeklyDigestBroadcast(roundup, configuration, resend);
-      results.push({ region: region.id, ok: true, broadcastId: sent?.id || null });
+
+      // Archive first: the issue is unrecoverable later (eBird only serves a
+      // rolling window), and a saved issue gives the email a stable web URL.
+      // A failed save is logged but never blocks delivery.
+      const illustrated = await addBirdIllustrations(roundup, configuration.publicAppUrl);
+      let archiveUrl = "";
+      if (archiveConfigured()) {
+        try {
+          const saved = await saveRoundup(illustrated);
+          archiveUrl = `${configuration.publicAppUrl}/roundup/${saved.scopeId}/${saved.date}?src=email`;
+        } catch (archiveError) {
+          console.error(JSON.stringify({
+            event: "weekly_digest_archive_failed",
+            region: region.id,
+            message: archiveError?.message
+          }));
+        }
+      }
+
+      if (persistOnly) {
+        results.push({ region: region.id, ok: true, archived: Boolean(archiveUrl), sent: false });
+        continue;
+      }
+
+      const sent = await sendWeeklyDigestBroadcast(illustrated, configuration, resend, { archiveUrl });
+      results.push({ region: region.id, ok: true, broadcastId: sent?.id || null, archived: Boolean(archiveUrl) });
     } catch (error) {
       console.error(JSON.stringify({
         event: "weekly_digest_failed",
