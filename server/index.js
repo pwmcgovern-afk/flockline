@@ -16,6 +16,7 @@ import { US_STATES, getCensusRegion } from "../shared/usGeography.js";
 import digestSubscriptionHandler from "../api/digest-subscription.js";
 import digestConfirmHandler from "../api/digest-confirm.js";
 import roundupArchiveHandler from "../api/roundup-archive.js";
+import illustrationPrewarmHandler from "../api/cron/illustration-prewarm.js";
 
 const PORT = Number(process.env.PORT || 8787);
 const ebirdApiKey = process.env.EBIRD_API_KEY || "";
@@ -103,6 +104,7 @@ app.get("/api/roundup", async (request, response) => {
 app.post("/api/digest-subscription", digestSubscriptionHandler);
 app.get("/api/digest-confirm", digestConfirmHandler);
 app.get("/api/roundup-archive", roundupArchiveHandler);
+app.get("/api/cron/illustration-prewarm", illustrationPrewarmHandler);
 
 app.get("/api/checklist", async (request, response) => {
   try {

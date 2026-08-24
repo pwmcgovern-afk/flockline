@@ -79,7 +79,12 @@ export default async function handler(request, response) {
       // Archive first: the issue is unrecoverable later (eBird only serves a
       // rolling window), and a saved issue gives the email a stable web URL.
       // A failed save is logged but never blocks delivery.
-      const illustrated = await addBirdIllustrations(roundup, configuration.publicAppUrl);
+      // The prewarm cron has usually cached every plate by now; the small
+      // budget here only covers species that shifted between the two runs.
+      const illustrated = await addBirdIllustrations(roundup, configuration.publicAppUrl, {
+        generateMissing: true,
+        generationBudget: 4
+      });
       let archiveUrl = "";
       if (archiveConfigured()) {
         try {

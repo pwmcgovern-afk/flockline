@@ -12,3 +12,4 @@ dist
 .r2-*.mjs
 .verify*.mjs
 .shots.mjs
+.env*
