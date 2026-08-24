@@ -21,6 +21,10 @@
   ],
   "crons": [
     {
+      "path": "/api/cron/illustration-prewarm",
+      "schedule": "30 13 * * 1"
+    },
+    {
       "path": "/api/cron/weekly-digests",
       "schedule": "0 14,15 * * 1"
     }

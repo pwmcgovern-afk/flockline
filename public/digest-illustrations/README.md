@@ -19,4 +19,8 @@ Each species prompt added its scientific name, diagnostic field marks, proportio
 - `baisan`: Baird's Sandpiper (`Calidris bairdii`) walking along a shoreline in late-summer plumage.
 - `wispet`: Wilson's Storm-Petrel (`Oceanites oceanicus`) fluttering low over the open ocean.
 
-The email template adds the visible caption `Flockline species illustration · Not the reported individual.` under every image. Species without a curated asset remain text-only. Do not add a photographic fallback.
+The email template adds the visible caption `Flockline species illustration · Not the reported individual.` under every image. Do not add a photographic fallback.
+
+## On-demand generation (since 2026-08-24)
+
+Species without a curated asset no longer stay text-only: `lib/illustrationGeneration.js` generates a plate on first appearance using the same shared direction above (a model writes the species-specific field-mark sentence), rendered by `openai/gpt-image-1` through the Vercel AI Gateway and cached forever in the Blob store at `illustrations/{speciesCode}-v1.jpg`. The Monday `illustration-prewarm` cron (13:30 UTC) fills the cache before the send; the send path carries a small catch-up budget. The eight curated V1 assets above stay canonical for their species. A species that still cannot be resolved falls back to text-only, never to a photo.
