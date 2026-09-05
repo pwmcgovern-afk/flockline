@@ -62,9 +62,35 @@ describe("parseAppState", () => {
   it("ignores an unknown view", () => {
     expect(parseAppState("?view=nonsense", regions, US_REGION_PRESETS)).not.toHaveProperty("view");
   });
+
+  it("restores a weekly edition and an intentionally empty state selection", () => {
+    expect(parseAppState("?view=roundup&edition=west&states=none", regions, US_REGION_PRESETS)).toMatchObject({
+      view: "roundup", roundupRegionId: "west", regions: []
+    });
+    expect(parseAppState("?edition=atlantis&states=CT,MA", regions, US_REGION_PRESETS)).not.toHaveProperty("regions");
+    expect(parseAppState("?edition=atlantis", regions, US_REGION_PRESETS)).not.toHaveProperty("roundupRegionId");
+  });
 });
 
 describe("buildAppUrl", () => {
+  it("round trips every filter and preserves a scope pinned to the map's current region", () => {
+    const state: AppState = {
+      speciesCode: "osprey", lookbackDays: 7, regions: northeast,
+      timelineMode: "cumulative", includeProvisional: true, hotspotsOnly: false,
+      view: "insights", insightRegions: northeast, insightBack: 7
+    };
+    const url = buildAppUrl("https://flockline.app", state, regions, US_REGION_PRESETS, { explicit: true });
+    expect(parseAppState(new URL(url).search, regions, US_REGION_PRESETS)).toEqual(state);
+  });
+
+  it("shares an empty map and a selected roundup edition without changing their meaning", () => {
+    const state: AppState = {
+      speciesCode: null, lookbackDays: 7, regions: [], timelineMode: "cumulative",
+      includeProvisional: true, hotspotsOnly: false, view: "roundup", roundupRegionId: "west"
+    };
+    const url = buildAppUrl("https://flockline.app", state, regions, US_REGION_PRESETS, { explicit: true });
+    expect(parseAppState(new URL(url).search, regions, US_REGION_PRESETS)).toEqual(state);
+  });
   it("produces a compact, durable URL", () => {
     const state: AppState = {
       speciesCode: "osprey",

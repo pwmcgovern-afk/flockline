@@ -32,3 +32,9 @@ jobs:
 
       - name: Test, typecheck, and build
         run: npm run check
+
+      - name: Install browser for UI regression tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify UI flows with isolated API fixtures
+        run: npm run test:ui

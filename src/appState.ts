@@ -1,7 +1,7 @@
 export type TimelineMode = "daily" | "cumulative";
 
 // Which drawer the URL opens into. "map" is the bare map with no drawer.
-export type AppView = "map" | "insights" | "ask" | "birds";
+export type AppView = "map" | "insights" | "ask" | "birds" | "menu" | "roundup";
 
 export type AppState = {
   speciesCode: string | null;
@@ -16,11 +16,12 @@ export type AppState = {
   view?: AppView;
   insightRegions?: string[] | null;
   insightBack?: number | null;
+  roundupRegionId?: string | null;
 };
 
 const DEFAULT_DAYS = 7;
 const DEFAULT_REGION_ID = "northeast";
-const VIEWS: AppView[] = ["map", "insights", "ask", "birds"];
+const VIEWS: AppView[] = ["map", "insights", "ask", "birds", "menu", "roundup"];
 
 type RegionPreset = {
   id: string;
@@ -46,6 +47,7 @@ export function parseAppState(
 
   const view = params.get("view")?.trim().toLowerCase();
   const insightBack = Number.parseInt(params.get("iback") ?? "", 10);
+  const roundupRegionId = params.get("edition");
   const insightPresetRegions = regionPresets
     .find((preset) => preset.id === params.get("iregion")?.trim().toLowerCase())
     ?.stateCodes.filter((code) => validRegions.includes(code));
@@ -61,7 +63,9 @@ export function parseAppState(
     // ?states=CT,MA instead of US-CT,US-MA drops every code, and committing the
     // empty result made "no states selected" the reader's saved preference, so
     // every later visit to the bare domain opened on an empty map.
-    ...(presetRegions
+    ...(params.get("states") === "none"
+      ? { regions: [] }
+      : presetRegions
       ? { regions: presetRegions }
       : requestedRegions.length
         ? { regions: requestedRegions }
@@ -71,6 +75,7 @@ export function parseAppState(
     ...(params.has("provisional") ? { includeProvisional: params.get("provisional") !== "0" } : {}),
     ...(params.has("hotspots") ? { hotspotsOnly: params.get("hotspots") === "1" } : {}),
     ...(VIEWS.includes(view as AppView) ? { view: view as AppView } : {}),
+    ...(regionPresets.some((preset) => preset.id === roundupRegionId) ? { roundupRegionId } : {}),
     ...(Number.isFinite(insightBack) ? { insightBack: clamp(insightBack, 1, 30) } : {}),
     ...(insightPresetRegions
       ? { insightRegions: insightPresetRegions }
@@ -107,7 +112,7 @@ export function buildAppUrl(
   if (matchingPreset && (explicit || matchingPreset.id !== DEFAULT_REGION_ID)) {
     params.set("region", matchingPreset.id);
   } else if (!matchingPreset && (explicit || !sameRegions(state.regions, allRegions))) {
-    params.set("states", state.regions.join(","));
+    params.set("states", state.regions.length ? state.regions.join(",") : "none");
   }
   if (explicit) {
     params.set("mode", state.timelineMode === "daily" ? "new" : "trail");
@@ -127,12 +132,15 @@ export function buildAppUrl(
   if (state.view && state.view !== "map") {
     params.set("view", state.view);
   }
+  if (state.view === "roundup" && state.roundupRegionId) {
+    params.set("edition", state.roundupRegionId);
+  }
   // Only serialize an insights scope that actually differs from the map's, so
   // ordinary map links stay short and a shared insights link stays explicit.
-  if (state.insightBack && state.insightBack !== state.lookbackDays) {
+  if (state.insightBack && (explicit || state.insightBack !== state.lookbackDays)) {
     params.set("iback", String(state.insightBack));
   }
-  if (state.insightRegions && !sameRegions(state.insightRegions, state.regions)) {
+  if (state.insightRegions && (explicit || !sameRegions(state.insightRegions, state.regions))) {
     const insightPreset = regionPresets.find((preset) => sameRegions(state.insightRegions as string[], preset.stateCodes));
     if (insightPreset) {
       params.set("iregion", insightPreset.id);

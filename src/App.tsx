@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import L from "leaflet";
+import { requestJson } from "./request";
 import {
   Bird,
   Bell,
@@ -49,6 +50,7 @@ import {
 import type {
   ChatMapAction,
   ChatMessage,
+  ChatResponse,
   ChatSpeciesRef,
   ChecklistDetailsResponse,
   ConfigResponse,
@@ -198,10 +200,8 @@ function fitPadding(): L.FitBoundsOptions {
   };
 }
 
-// One drawer at a time, by construction. Weekly Roundup is intentionally not
-// an AppView: its scope is chosen inside the panel, while shared URLs continue
-// to describe the map or one of the three persistent feature panels.
-type DrawerId = Exclude<AppView, "map"> | "menu" | "roundup";
+// Every drawer can be restored by browser history and shared links.
+type DrawerId = Exclude<AppView, "map">;
 
 const DRAWER_TITLES: Record<DrawerId, string> = {
   menu: "Map settings",
@@ -212,7 +212,7 @@ const DRAWER_TITLES: Record<DrawerId, string> = {
 };
 
 function appViewForDrawer(drawer: DrawerId | null): AppView {
-  return drawer === "insights" || drawer === "ask" || drawer === "birds" ? drawer : "map";
+  return drawer ?? "map";
 }
 
 // A pool the chat panel samples from on each open, so the starter questions
@@ -335,6 +335,9 @@ export default function App() {
   const baseLayerRef = useRef<L.TileLayer | null>(null);
   const sightingLayerRef = useRef<L.LayerGroup | null>(null);
   const sightingsRequestRef = useRef<AbortController | null>(null);
+  const insightsRequestRef = useRef<AbortController | null>(null);
+  const drawerElementRef = useRef<HTMLDivElement | null>(null);
+  const sightingElementRef = useRef<HTMLElement | null>(null);
   const lastFitKeyRef = useRef("");
   // When the chat asks to zoom to a spot, the next data load flies here
   // instead of fitting to all sightings.
@@ -361,6 +364,8 @@ export default function App() {
   const pickerRef = useRef<HTMLDivElement | null>(null);
 
   const [config, setConfig] = useState<ConfigResponse | null>(null);
+  const [configFailed, setConfigFailed] = useState(false);
+  const [basemapError, setBasemapError] = useState(false);
   const [states, setStates] = useState(defaultStates);
   const [presets, setPresets] = useState(defaultPresets);
   const [selectedRegions, setSelectedRegions] = useState(
@@ -373,6 +378,7 @@ export default function App() {
   const [speciesQuery, setSpeciesQuery] = useState(initialSpecies?.comName ?? "");
   const [suggestions, setSuggestions] = useState<Species[]>(defaultPresets);
   const [searchFailed, setSearchFailed] = useState(false);
+  const [resolvedSearch, setResolvedSearch] = useState("");
   const [searchTotal, setSearchTotal] = useState(0);
   const [unknownCode, setUnknownCode] = useState<string | null>(null);
   const [emptyCardHidden, setEmptyCardHidden] = useState(false);
@@ -390,7 +396,12 @@ export default function App() {
   const [sightingDetails, setSightingDetails] = useState<ChecklistDetailsResponse | null>(null);
   const [sightingDetailsLoading, setSightingDetailsLoading] = useState(false);
   const [sightingDetailsError, setSightingDetailsError] = useState("");
-  const [payload, setPayload] = useState<SightingsResponse | null>(null);
+  const [loadedPayload, setPayload] = useState<SightingsResponse | null>(null);
+  const [loadedSightingsScope, setLoadedSightingsScope] = useState("");
+  const sightingsScope = `${selectedSpecies?.speciesCode}|${lookbackDays}|${[...selectedRegions].sort().join(",")}|${includeProvisional}|${hotspotsOnly}`;
+  // Hide outgoing results immediately, including during the request debounce
+  // and after failures. Old dots must never appear under new filters.
+  const payload = loadedSightingsScope === sightingsScope ? loadedPayload : null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   // Exactly one drawer can be open, so opening one closes the others without
@@ -408,7 +419,7 @@ export default function App() {
   const [insightRegions, setInsightRegions] = useState<string[] | null>(initialState.insightRegions ?? null);
   const [insightBack, setInsightBack] = useState<number | null>(initialState.insightBack ?? null);
   const [insightLinkStatus, setInsightLinkStatus] = useState("");
-  const [roundupRegionId, setRoundupRegionId] = useState<string | null>(null);
+  const [roundupRegionId, setRoundupRegionId] = useState<string | null>(initialState.roundupRegionId ?? null);
   const [roundup, setRoundup] = useState<WeeklyRoundupResponse | null>(null);
   const [roundupLoading, setRoundupLoading] = useState(false);
   const [roundupError, setRoundupError] = useState("");
@@ -439,6 +450,7 @@ export default function App() {
   const [pendingMapAction, setPendingMapAction] = useState<ChatMapAction | null>(null);
   // Read inside the awaited chat request, where the captured state is stale.
   const selectedSpeciesRef = useRef<Species | null>(null);
+  const selectedRegionsRef = useRef(selectedRegions);
   const drawerRef = useRef<DrawerId | null>(null);
   // Wide screens dock the drawers (push the map over); narrow screens overlay.
   const [isWide, setIsWide] = useState(
@@ -462,12 +474,12 @@ export default function App() {
 
     void (async () => {
       try {
-        const response = await fetch(`/api/checklist?${params.toString()}`, { signal: controller.signal });
+        const { response, body } = await requestJson<ChecklistDetailsResponse & { error?: string }>(`/api/checklist?${params.toString()}`, { signal: controller.signal });
+        if (controller.signal.aborted) return;
         if (!response.ok) {
-          const body = await response.json().catch(() => null);
           throw new Error(body?.error || "Extra eBird details are unavailable.");
         }
-        setSightingDetails(await response.json());
+        setSightingDetails(body);
       } catch (detailError) {
         if (detailError instanceof DOMException && detailError.name === "AbortError") {
           return;
@@ -502,6 +514,9 @@ export default function App() {
         setInsightsError("Select at least one state for Insights.");
         return;
       }
+      insightsRequestRef.current?.abort();
+      const controller = new AbortController();
+      insightsRequestRef.current = controller;
       setInsightsLoading(true);
       setInsightsError("");
       const scopeAtStart = insightScopeKey;
@@ -521,30 +536,34 @@ export default function App() {
         // reader gets something to read almost immediately either way.
         const fastParams = new URLSearchParams(params);
         fastParams.set("phrasing", "fast");
-        void fetch(`/api/insights?${fastParams.toString()}`)
-          .then((response) => (response.ok ? response.json() : null))
+        void requestJson<InsightsResponse>(`/api/insights?${fastParams.toString()}`, { signal: controller.signal })
+          .then(({ response, body }) => response.ok ? body : null)
           .then((fast) => {
             // Only fill an empty panel, and only if the reader has not moved on.
-            if (!fast?.findings?.length || insightScopeKeyRef.current !== scopeAtStart) {
+            if (controller.signal.aborted || !fast?.findings?.length || insightScopeKeyRef.current !== scopeAtStart) {
               return;
             }
             setInsights((current) => (current ? current : { ...fast, provisionalPhrasing: true }));
           })
           .catch(() => undefined);
 
-        const response = await fetch(`/api/insights?${params.toString()}`);
-        const data = await response.json();
+        const { response, body: data } = await requestJson<InsightsResponse & { error?: string }>(`/api/insights?${params.toString()}`, { signal: controller.signal });
+        if (controller.signal.aborted || insightScopeKeyRef.current !== scopeAtStart) return;
         if (!response.ok) {
           throw new ApiError(data.error || "Insights request failed.");
         }
         failedInsightScopeRef.current = null;
         setInsights(data);
       } catch (requestError) {
+        if (controller.signal.aborted || insightScopeKeyRef.current !== scopeAtStart) return;
         // Remember which scope failed so the auto-load effect stops retrying it.
         failedInsightScopeRef.current = insightScopeKey;
         setInsightsError(readableError(requestError, "Insights could not be loaded. Check your connection and try again."));
       } finally {
-        setInsightsLoading(false);
+        if (insightsRequestRef.current === controller) {
+          insightsRequestRef.current = null;
+          setInsightsLoading(false);
+        }
       }
     },
     [effectiveInsightBack, effectiveInsightRegions, insightScopeKey]
@@ -570,10 +589,8 @@ export default function App() {
           params.set("fresh", "1");
           params.set("_t", String(Date.now()));
         }
-        const response = await fetch(`/api/roundup?${params.toString()}`, {
-          signal: controller.signal
-        });
-        const data = await response.json();
+        const { response, body: data } = await requestJson<WeeklyRoundupResponse & { error?: string }>(`/api/roundup?${params.toString()}`, { signal: controller.signal });
+        if (controller.signal.aborted) return;
         if (!response.ok) {
           throw new ApiError(data.error || "Weekly roundup request failed.");
         }
@@ -599,6 +616,41 @@ export default function App() {
   );
 
   useEffect(() => () => roundupRequestRef.current?.abort(), []);
+
+  useEffect(() => {
+    if (drawer === "roundup" && roundupRegionId && !roundup && !roundupLoading && !roundupError) {
+      void loadWeeklyRoundup(roundupRegionId);
+    }
+  }, [drawer, roundupRegionId, roundup, roundupLoading, roundupError, loadWeeklyRoundup]);
+
+  useEffect(() => {
+    insightsRequestRef.current?.abort();
+    insightsRequestRef.current = null;
+    setInsightsLoading(false);
+    setInsights(null);
+    setInsightsError("");
+    return () => insightsRequestRef.current?.abort();
+  }, [insightScopeKey]);
+
+  // Drawers are nonmodal because the panel tabs stay available. Move keyboard
+  // focus into each opened panel and restore it when that panel closes.
+  useEffect(() => {
+    if (!drawer) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    drawerElementRef.current?.focus({ preventScroll: true });
+    return () => {
+      if (previous?.isConnected) previous.focus({ preventScroll: true });
+    };
+  }, [drawer]);
+
+  useEffect(() => {
+    if (!selectedSighting) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    sightingElementRef.current?.focus({ preventScroll: true });
+    return () => {
+      if (previous?.isConnected) previous.focus({ preventScroll: true });
+    };
+  }, [selectedSighting]);
 
   const openDrawer = (id: DrawerId) => setDrawer((current) => (current === id ? null : id));
 
@@ -878,6 +930,7 @@ export default function App() {
   // grid responsive against a catalog of several thousand species.
   const pickerResults = useMemo(() => {
     if (speciesQuery.trim()) {
+      if (resolvedSearch !== speciesQuery.trim()) return [];
       return suggestions.slice(0, CATALOG_PREVIEW_LIMIT);
     }
     const preview = filteredCatalog.slice(0, CATALOG_PREVIEW_LIMIT);
@@ -889,7 +942,7 @@ export default function App() {
       return [...preview.slice(0, -1), selectedSpecies];
     }
     return preview;
-  }, [filteredCatalog, selectedSpecies, speciesQuery, suggestions]);
+  }, [filteredCatalog, selectedSpecies, speciesQuery, suggestions, resolvedSearch]);
   const featuredSpecies = useMemo(
     () =>
       featuredSpeciesCodes
@@ -909,8 +962,9 @@ export default function App() {
   // show, so saved birds looked lost with no way to remove them.
   useEffect(() => {
     selectedSpeciesRef.current = selectedSpecies;
+    selectedRegionsRef.current = selectedRegions;
     drawerRef.current = drawer;
-  }, [drawer, selectedSpecies]);
+  }, [drawer, selectedSpecies, selectedRegions]);
 
   const watchlistSpecies = useMemo(
     () =>
@@ -927,14 +981,21 @@ export default function App() {
   );
 
   useEffect(() => {
-    fetch("/api/config")
-      .then((response) => response.json())
-      .then((nextConfig: ConfigResponse) => {
+    const controller = new AbortController();
+    requestJson<ConfigResponse>("/api/config", { signal: controller.signal })
+      .then(({ response, body }) => {
+        if (!response.ok || !Array.isArray(body.states) || !body.states.length || !Array.isArray(body.presets) || !body.presets.length) {
+          throw new Error("Configuration unavailable");
+        }
+        return body;
+      })
+      .then((nextConfig) => {
+        if (controller.signal.aborted) return;
+        setConfigFailed(false);
         setConfig(nextConfig);
         setStates(nextConfig.states);
         const browsable = browseOrder(nextConfig.presets, defaultPresets);
         setPresets(browsable);
-        setSuggestions(browsable);
         setSelectedRegions((current) => {
           const validCodes = nextConfig.states.map((state) => state.code);
           return current.filter((code) => validCodes.includes(code));
@@ -950,8 +1011,11 @@ export default function App() {
         });
       })
       .catch(() => {
+        if (controller.signal.aborted) return;
+        setConfigFailed(true);
         setConfig({ hasApiKey: false, states: defaultStates, presets: defaultPresets, maxBackDays: 30 });
       });
+    return () => controller.abort();
   }, []);
 
   // A shared ?bird= link can name a code this build has never heard of: a typo,
@@ -971,8 +1035,8 @@ export default function App() {
     resolvedCodesRef.current.add(code);
 
     let cancelled = false;
-    fetch(`/api/species?q=${encodeURIComponent(code)}`)
-      .then((response) => (response.ok ? response.json() : Promise.reject(new Error("lookup failed"))))
+    requestJson<{ items?: Species[] }>(`/api/species?q=${encodeURIComponent(code)}`)
+      .then(({ response, body }) => (response.ok ? body : Promise.reject(new Error("lookup failed"))))
       .then((data: { items?: Species[] }) => {
         if (cancelled) {
           return;
@@ -1004,7 +1068,6 @@ export default function App() {
   // browsing the map alone still pays nothing.
   const insightsWanted =
     drawer === "insights"
-    || Boolean(insights)
     || (drawer === "birds" && alerts.length > 0);
 
   // Keep insights in step with whatever scope they're pinned to, debounced so
@@ -1065,27 +1128,30 @@ export default function App() {
     if (!speciesQuery.trim()) {
       setSuggestions(presets);
       setSearchFailed(false);
+      setResolvedSearch("");
       return;
     }
 
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
       setSearchFailed(false);
-      fetch(`/api/species?q=${encodeURIComponent(speciesQuery)}`, { signal: controller.signal })
-        .then((response) => {
+      requestJson<{ items?: Species[]; total?: number }>(`/api/species?q=${encodeURIComponent(speciesQuery)}`, { signal: controller.signal })
+        .then(({ response, body }) => {
           // An error body has no items. Parsing it anyway and handing the
           // undefined straight to state crashed the render to a blank page.
           if (!response.ok) {
             throw new Error(String(response.status));
           }
-          return response.json();
+          return body;
         })
         // An empty result must stay empty. Falling back to the full catalog
         // made a search that matched nothing render 48 unrelated birds, and
         // made Enter commit whichever one happened to sort first.
         .then((data: { items?: Species[]; total?: number }) => {
+          if (controller.signal.aborted) return;
           const items = Array.isArray(data?.items) ? data.items : [];
           setSuggestions(items);
+          setResolvedSearch(speciesQuery.trim());
           setSearchTotal(typeof data?.total === "number" ? data.total : items.length);
         })
         .catch((error: unknown) => {
@@ -1096,6 +1162,7 @@ export default function App() {
           // Reporting a dead search as "No birds match that search" told the
           // reader their bird does not exist. Say the search broke instead.
           setSearchFailed(true);
+          setResolvedSearch(speciesQuery.trim());
           setSuggestions([]);
         });
     }, 180);
@@ -1120,6 +1187,7 @@ export default function App() {
       sightingsRequestRef.current?.abort();
       setPayload(null);
       setError("Select at least one state.");
+      setLoading(false);
       return;
     }
 
@@ -1142,11 +1210,12 @@ export default function App() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`/api/sightings?${params.toString()}`, { signal: controller.signal });
-      const data = await response.json();
+      const { response, body: data } = await requestJson<SightingsResponse & { error?: string }>(`/api/sightings?${params.toString()}`, { signal: controller.signal });
+      if (controller.signal.aborted) return;
       if (!response.ok) {
         throw new Error(data.error || "Sightings request failed.");
       }
+      setLoadedSightingsScope(sightingsScope);
       setPayload(data);
       setSelectedDayIndex(lookbackDays - 1);
       setPlaying(false);
@@ -1161,11 +1230,18 @@ export default function App() {
         setLoading(false);
       }
     }
-  }, [hotspotsOnly, includeProvisional, lookbackDays, selectedRegions, selectedSpecies?.speciesCode]);
+  }, [hotspotsOnly, includeProvisional, lookbackDays, selectedRegions, selectedSpecies?.speciesCode, sightingsScope]);
 
   useEffect(() => {
+    sightingsRequestRef.current?.abort();
+    setLoading(Boolean(selectedSpecies && selectedRegions.length));
+    setSelectedSighting(null);
+    setPlaying(false);
     const timeout = window.setTimeout(loadSightings, 360);
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearTimeout(timeout);
+      sightingsRequestRef.current?.abort();
+    };
   }, [loadSightings]);
 
   useEffect(() => () => sightingsRequestRef.current?.abort(), []);
@@ -1203,24 +1279,14 @@ export default function App() {
       preferCanvas: true
     }).setView([39.5, -98.35], 4);
 
-    // Positron split into base + labels so the place names can sit at reduced
-    // opacity: quiet enough not to compete with the masthead, present enough
-    // that a cluster of dots is identifiable without clicking one. Both layers
-    // live in the tile pane, so the paper tint in CSS applies to each.
-    const baseLayer = L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
-      {
-        className: "map-base",
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap &copy; CARTO"
-      }
-    ).addTo(map);
-    // Separate class so the two layers can be filtered independently: the paper
-    // tint that suits the base terrain would wash the labels out entirely.
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png", {
-      className: "map-labels",
-      maxZoom: 19
+    // OSM's standard tiles need no client key. Browser caching and visible,
+    // linked attribution follow the tile service's normal interactive policy.
+    const baseLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      className: "map-base",
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>'
     }).addTo(map);
+    baseLayer.on("tileerror", () => setBasemapError(true));
     L.control.zoom({ position: "bottomright" }).addTo(map);
     L.control.attribution({ position: "bottomright", prefix: false }).addTo(map);
 
@@ -1510,10 +1576,11 @@ export default function App() {
       // with the reply that caused it out of sight.
       const askedUnder = {
         species: selectedSpecies?.speciesCode ?? null,
+        regions: selectedRegions,
         drawer
       };
       try {
-        const response = await fetch("/api/chat", {
+        const { response, body: data } = await requestJson<ChatResponse & { error?: string }>("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -1521,7 +1588,6 @@ export default function App() {
             regions: selectedRegions
           })
         });
-        const data = await response.json();
         if (!response.ok) {
           throw new ApiError(data.error || "Chat request failed.");
         }
@@ -1533,6 +1599,7 @@ export default function App() {
         // The reply itself always lands in the transcript.
         const stillThere =
           (selectedSpeciesRef.current?.speciesCode ?? null) === askedUnder.species
+          && sameCodeSet(selectedRegionsRef.current, askedUnder.regions)
           && drawerRef.current === askedUnder.drawer;
         if (data.mapAction && stillThere) {
           setPendingMapAction(data.mapAction);
@@ -1552,7 +1619,7 @@ export default function App() {
         setChatLoading(false);
       }
     },
-    [chatMessages, chatLoading, selectedRegions]
+    [chatMessages, chatLoading, selectedRegions, selectedSpecies?.speciesCode, drawer]
   );
 
   const viewSpeciesFromChat = (ref: ChatSpeciesRef) => {
@@ -1756,6 +1823,7 @@ export default function App() {
 
   const closeTour = () => {
     setTourOpen(false);
+    mastheadRef.current?.focus({ preventScroll: true });
     try {
       localStorage.setItem(TOUR_SEEN_KEY, "1");
     } catch {
@@ -1766,7 +1834,7 @@ export default function App() {
   // Returns whether it committed, so the caller only closes the picker when a
   // bird was actually chosen.
   const commitSearch = () => {
-    if (!speciesQuery.trim()) {
+    if (!speciesQuery.trim() || resolvedSearch !== speciesQuery.trim() || searchFailed) {
       return false;
     }
     const exact =
@@ -1840,33 +1908,19 @@ export default function App() {
           ...baseAppState,
           view: appViewForDrawer(drawer),
           insightRegions,
-          insightBack
-        },
-        allRegionCodes,
-        US_REGION_PRESETS
-      ),
-    [allRegionCodes, baseAppState, drawer, insightBack, insightRegions]
-  );
-
-  // What the share button copies. Explicit on every field, unlike the address
-  // bar: a link that omits a default gets filled in from the RECIPIENT's saved
-  // preferences, so the view they open is not the view that was shared.
-  const shareableUrl = useMemo(
-    () =>
-      buildAppUrl(
-        window.location.href,
-        {
-          ...baseAppState,
-          view: appViewForDrawer(drawer),
-          insightRegions,
-          insightBack
+          insightBack,
+          roundupRegionId
         },
         allRegionCodes,
         US_REGION_PRESETS,
         { explicit: true }
       ),
-    [allRegionCodes, baseAppState, drawer, insightBack, insightRegions]
+    [allRegionCodes, baseAppState, drawer, insightBack, insightRegions, roundupRegionId]
   );
+
+  // Copying the address bar and using Share now reproduce the same view,
+  // independent of the recipient's saved filters.
+  const shareableUrl = currentAppUrl;
 
   // A link that always lands on Insights at the scope currently on screen,
   // whether or not the reader pinned it. This is the one people share.
@@ -1922,7 +1976,24 @@ export default function App() {
   // the address bar would move but the screen would not follow it.
   useEffect(() => {
     const onPopState = () => {
-      const next = parseAppState(window.location.search, allRegionCodes, US_REGION_PRESETS);
+      const next: AppState = {
+        speciesCode: null,
+        lookbackDays: 7,
+        regions: defaultRegionCodes,
+        timelineMode: "cumulative",
+        includeProvisional: true,
+        hotspotsOnly: false,
+        insightRegions: null,
+        insightBack: null,
+        roundupRegionId: null,
+        ...parseAppState(window.location.search, allRegionCodes, US_REGION_PRESETS)
+      };
+      setSelectedSighting(null);
+      setPickerOpen(false);
+      setUnknownCode(null);
+      setEmptyCardHidden(false);
+      setPlaying(false);
+      pendingFocusRef.current = null;
 
       const nextCode = next.speciesCode;
       if (nextCode === null || typeof nextCode === "string") {
@@ -1939,9 +2010,8 @@ export default function App() {
           );
         });
       }
-      if (next.regions?.length) {
-        setSelectedRegions(next.regions);
-      }
+      setSelectedRegions(next.regions);
+      setFocusedRegionId(matchingRegionPreset(next.regions)?.id ?? "nationwide");
       if (typeof next.lookbackDays === "number") {
         setLookbackDays(next.lookbackDays);
       }
@@ -1961,6 +2031,13 @@ export default function App() {
         setInsightBack(next.insightBack);
       }
       const view = next.view ?? "map";
+      if (next.roundupRegionId !== roundupRegionId) {
+        roundupRequestRef.current?.abort();
+        setRoundup(null);
+        setRoundupError("");
+        setRoundupLoading(false);
+        setRoundupRegionId(next.roundupRegionId ?? null);
+      }
       setDrawer(view === "map" ? null : view);
       // Keep the key in step, otherwise the sync effect reads this as a fresh
       // coarse change and pushes a duplicate entry on top of the one we just
@@ -1970,7 +2047,7 @@ export default function App() {
 
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, [allRegionCodes, presets]);
+  }, [allRegionCodes, presets, roundupRegionId]);
 
   const shareView = async () => {
     try {
@@ -2011,11 +2088,15 @@ export default function App() {
   const isLiveSource = payload ? payload.source === "ebird" : hasApiKey;
   // Blank until config lands: defaulting hasApiKey to false made the line read
   // "Demo stream" for the first moment of every visit.
-  const sourceLabel = config === null ? "" : isLiveSource ? "Live eBird" : "Demo stream";
+  const sourceLabel = config === null ? "" : configFailed && !payload ? "Data status unavailable" : isLiveSource ? "Live eBird" : "Demo stream";
 
   return (
     <main className={`app ${docked ? "docked" : ""} ${drawer ? "drawer-open" : ""}`}>
-      <a className="skip-link" href="#drawer-panel" onClick={() => openDrawer("menu")}>
+      <a className="skip-link" href="#map-controls" onClick={(event) => {
+        event.preventDefault();
+        setDrawer("menu");
+        drawerElementRef.current?.focus({ preventScroll: true });
+      }}>
         Skip to controls
       </a>
 
@@ -2142,7 +2223,6 @@ export default function App() {
               ) : null}
               <div className="masthead-actions">
                 <DigestSignup
-                  key={`digest-header-${focusedRegionId}`}
                   defaultRegionId={focusedRegionId}
                   variant="header"
                 />
@@ -2233,6 +2313,7 @@ export default function App() {
               </button>
               <button
                 type="button"
+                id="map-controls"
                 className={`pill lower tip menu-pill ${drawer === "menu" ? "active" : ""}`}
               data-tip="States and filters"
                 onClick={() => openDrawer("menu")}
@@ -2276,6 +2357,16 @@ export default function App() {
                 </li>
               ))}
             </ul>
+          </div>
+        ) : null}
+
+        {basemapError ? (
+          <div className="map-note alert basemap-error" role="status">
+            <span>Some map tiles could not load. Bird reports are still available.</span>
+            <button type="button" onClick={() => {
+              setBasemapError(false);
+              baseLayerRef.current?.redraw();
+            }}>Reload map</button>
           </div>
         ) : null}
 
@@ -2394,7 +2485,7 @@ export default function App() {
         ) : null}
 
         {selectedSighting ? (
-          <aside className="sighting-sheet" aria-label="Sighting details">
+          <aside className="sighting-sheet" ref={sightingElementRef} tabIndex={-1} aria-label="Sighting details">
             <header>
               <span className="sighting-kicker">Field record</span>
               <button
@@ -2801,7 +2892,9 @@ export default function App() {
             )}
 
             <div className="picker-results" ref={speciesGridRef}>
-              {pickerResults.length ? (
+              {speciesQuery.trim() && resolvedSearch !== speciesQuery.trim() ? (
+                <p className="picker-empty" role="status">Searching species…</p>
+              ) : pickerResults.length ? (
                 pickerResults.map((species) => {
                   const isActive = selectedSpecies?.speciesCode === species.speciesCode;
                   return (
@@ -2861,7 +2954,7 @@ export default function App() {
 
       {/* ---- Drawer ----------------------------------------------------- */}
       {drawer ? (
-        <aside className="drawer" id="drawer-panel" role="dialog" aria-label={DRAWER_TITLES[drawer]}>
+        <div className="drawer" id="drawer-panel" ref={drawerElementRef} tabIndex={-1} role="dialog" aria-label={DRAWER_TITLES[drawer]}>
           <header className="drawer-head">
             <div>
               <span className="drawer-kicker">
@@ -3088,6 +3181,7 @@ export default function App() {
               {roundup ? (
                 <footer className="drawer-foot">
                   Generated by Flockline · updated {formatShortDateTime(roundup.generatedAt)}
+                  <br /><a href="/roundup">Browse past weekly issues</a>
                 </footer>
               ) : null}
             </>
@@ -3338,7 +3432,9 @@ export default function App() {
                     read. Once the fast pass has landed, show those findings and
                     let the written phrasing replace them in place, rather than
                     sitting on five seconds of "Reading recent checklists". */}
-                {(insightsLoading && !insights?.findings.length) || (!insights && !insightsError) ? (
+                {!effectiveInsightRegions.length ? (
+                  <p className="drawer-status">Choose a region above or select states in Menu to load Insights.</p>
+                ) : (insightsLoading && !insights?.findings.length) || (!insights && !insightsError) ? (
                   <p className="drawer-status">Reading recent checklists…</p>
                 ) : insightsError && !insights?.findings.length ? (
                   <p className="drawer-status error">{insightsError}</p>
@@ -3479,6 +3575,8 @@ export default function App() {
                   onChange={(event) => setChatInput(event.target.value)}
                   placeholder="Ask about birds nearby…"
                   aria-label="Ask the Flockline assistant"
+                  maxLength={2000}
+                  disabled={chatLoading}
                 />
                 <button
                   type="submit"
@@ -3607,7 +3705,7 @@ export default function App() {
               </footer>
             </>
           ) : null}
-        </aside>
+        </div>
       ) : null}
 
       <Tour open={tourOpen} steps={tourSteps} onClose={closeTour} />
@@ -3644,6 +3742,16 @@ function formatDateKey(dateKey: string) {
 function formatShortDateTime(value: string | null) {
   if (!value) {
     return "No records";
+  }
+  // Generated timestamps are UTC instants; eBird observation strings are
+  // already local to the sighting and must keep their recorded clock time.
+  if (/T.*(?:Z|[+-]\d{2}:?\d{2})$/.test(value)) {
+    const instant = new Date(value);
+    if (!Number.isNaN(instant.getTime())) {
+      return new Intl.DateTimeFormat("en", {
+        month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short"
+      }).format(instant);
+    }
   }
   const dateKey = value.slice(0, 10);
   const time = value.slice(11, 16);

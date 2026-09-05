@@ -1,6 +1,9 @@
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import DigestSignup from "./DigestSignup";
+import NotFound from "./NotFound";
+import { parseArchivePath } from "./archivePath";
+import { requestJson } from "./request";
 import { US_REGION_PRESETS } from "../shared/usGeography.js";
 
 // Public web archive of the weekly digest, served at /roundup (index),
@@ -36,15 +39,6 @@ const REGION_NAMES = new Map<string, string>(
   US_REGION_PRESETS.map((region) => [region.id, region.name])
 );
 
-function parseArchivePath(pathname: string) {
-  const segments = pathname.replace(/\/+$/, "").split("/").filter(Boolean);
-  // ["roundup"] | ["roundup", scope] | ["roundup", scope, date]
-  return {
-    scopeId: segments[1] && REGION_NAMES.has(segments[1]) ? segments[1] : null,
-    date: segments[2] && /^\d{4}-\d{2}-\d{2}$/.test(segments[2]) ? segments[2] : null
-  };
-}
-
 function formatIssueDate(value: string) {
   const parsed = new Date(`${value.slice(0, 10)}T12:00:00Z`);
   if (Number.isNaN(parsed.getTime())) {
@@ -65,22 +59,29 @@ function kindLabel(kind?: string) {
 }
 
 export default function RoundupArchive() {
-  const { scopeId, date } = parseArchivePath(window.location.pathname);
+  const { valid, scopeId, date } = parseArchivePath(window.location.pathname);
+  if (!valid) return <NotFound />;
   return scopeId ? <IssueView scopeId={scopeId} date={date} /> : <IndexView />;
 }
 
 function IndexView() {
   const [index, setIndex] = useState<ArchiveIndex | null>(null);
   const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    fetch("/api/roundup-archive?list=1")
-      .then(async (response) => {
-        if (!response.ok) throw new Error();
-        setIndex((await response.json()) as ArchiveIndex);
+    const controller = new AbortController();
+    setError("");
+    requestJson<ArchiveIndex>("/api/roundup-archive?list=1", { signal: controller.signal })
+      .then(({ response, body }) => {
+        if (!response.ok || !Array.isArray(body.issues)) throw new Error();
+        if (!controller.signal.aborted) setIndex(body);
       })
-      .catch(() => setError("The archive could not be loaded right now."));
-  }, []);
+      .catch(() => {
+        if (!controller.signal.aborted) setError("The archive could not be loaded right now.");
+      });
+    return () => controller.abort();
+  }, [attempt]);
 
   const byRegion = US_REGION_PRESETS
     .map((region) => ({
@@ -109,7 +110,7 @@ function IndexView() {
 
         <DigestSignup defaultRegionId="nationwide" src="roundup" />
 
-        {error ? <p className="archive-status">{error}</p> : null}
+        {error ? <p className="archive-status" role="alert">{error} <button type="button" className="pill" onClick={() => setAttempt((current) => current + 1)}>Try again</button></p> : null}
         {!error && index && byRegion.length === 0 ? (
           <p className="archive-status">
             The archive starts with the next Monday issue. Subscribe above and it will land in your
@@ -147,22 +148,30 @@ function IndexView() {
 function IssueView({ scopeId, date }: { scopeId: string; date: string | null }) {
   const [roundup, setRoundup] = useState<ArchiveRoundup | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    const controller = new AbortController();
+    setStatus("loading");
+    setRoundup(null);
     const query = new URLSearchParams({ scope: scopeId });
     if (date) query.set("date", date);
-    fetch(`/api/roundup-archive?${query.toString()}`)
-      .then(async (response) => {
+    requestJson<ArchiveRoundup>(`/api/roundup-archive?${query.toString()}`, { signal: controller.signal })
+      .then(({ response, body }) => {
+        if (controller.signal.aborted) return;
         if (response.status === 404) {
           setStatus("missing");
           return;
         }
-        if (!response.ok) throw new Error();
-        setRoundup((await response.json()) as ArchiveRoundup);
+        if (!response.ok || !Array.isArray(body.findings)) throw new Error();
+        setRoundup(body);
         setStatus("ready");
       })
-      .catch(() => setStatus("error"));
-  }, [scopeId, date]);
+      .catch(() => {
+        if (!controller.signal.aborted) setStatus("error");
+      });
+    return () => controller.abort();
+  }, [scopeId, date, attempt]);
 
   const regionName = REGION_NAMES.get(scopeId) || scopeId;
 
@@ -188,7 +197,7 @@ function IssueView({ scopeId, date }: { scopeId: string; date: string | null }) 
           </p>
         ) : null}
         {status === "error" ? (
-          <p className="archive-status">The issue could not be loaded right now.</p>
+          <p className="archive-status" role="alert">The issue could not be loaded right now. <button type="button" className="pill" onClick={() => setAttempt((current) => current + 1)}>Try again</button></p>
         ) : null}
 
         {roundup ? (
@@ -211,7 +220,7 @@ function IssueView({ scopeId, date }: { scopeId: string; date: string | null }) 
                 </p>
                 <p className="archive-links">
                   {finding.speciesCode ? (
-                    <a href={`/?bird=${encodeURIComponent(finding.speciesCode)}&days=7&region=${encodeURIComponent(scopeId)}`}>
+                    <a href={`/?bird=${encodeURIComponent(finding.speciesCode)}&days=7&region=${encodeURIComponent(scopeId)}&mode=trail&provisional=1&hotspots=0`}>
                       View on the live map
                     </a>
                   ) : null}
