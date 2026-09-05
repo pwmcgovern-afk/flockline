@@ -34,7 +34,20 @@ Without an eBird token, Flockline uses deterministic demo sightings so the map a
 
 ### Weekly email digest
 
-The email flow uses Resend Contacts, one subscriber Segment, and five opt-in Topics. An encrypted confirmation link prevents an address from being subscribed without its owner's approval. A secured Vercel Cron sends each regional edition at 10:00 a.m. Eastern every Monday, with a daylight-saving guard around its two possible UTC invocations.
+The email flow uses Resend Contacts, one subscriber Segment, and five opt-in Topics. An encrypted confirmation link prevents an address from being subscribed without its owner's approval. Each edition has its own secured Vercel Cron beginning at 10 a.m. Eastern on Monday, staggered over five minutes. Three further attempts at 15-minute intervals resume incomplete work. A daylight-saving guard rejects the alternate UTC hour.
+
+Delivery saves the issue and a Resend draft ID in Blob before sending. A retry resumes that same broadcast, including after an uncertain network result. Conditional Blob writes prevent overlapping workers, and completed receipts survive function-log expiration. Empty regional audiences are archived without creating or sending a broadcast. Image generation runs separately before delivery; the send path uses cached illustrations and a text fallback.
+
+Each region also has a protected `mode=check` cron. Its dashboard **Run** button checks the actual sender, subscriber routing, live eBird data, rendering, and Blob writes without creating a broadcast, sending mail, or publishing a new archive issue. These checks run before Monday delivery and can be run manually on any day. All cron paths require `CRON_SECRET`; a region is mandatory. The old all-region `persist-only` shortcut has been removed.
+
+To read durable evidence using a locally loaded Flockline Blob token:
+
+```bash
+node --env-file=.env.local scripts/digest-status.mjs --date 2026-09-07 --check
+node --env-file=.env.local scripts/digest-status.mjs --date 2026-09-07
+```
+
+The command is read-only and exits nonzero for missing, failed, or still-pending work. A `sent` receipt means Resend reports the broadcast sent. Verify recipient delivery in Resend and the destination inbox separately. See [the delivery runbook](docs/DIGEST_DELIVERY.md).
 
 After connecting Resend and verifying `flockline.app`, pull the Vercel environment and run the one-time mailing-list setup:
 

@@ -1,9 +1,6 @@
-import { Resend } from "resend";
-import { getWeeklyRoundup } from "../../lib/ebirdCore.js";
-import { addBirdIllustrations } from "../../lib/birdIllustrations.js";
-import { sendWeeklyDigestBroadcast } from "../../lib/digestEmail.js";
 import { getDigestConfiguration } from "../../lib/digestSubscriptions.js";
-import { archiveConfigured, saveRoundup } from "../../lib/roundupArchive.js";
+import { archiveConfigured } from "../../lib/roundupArchive.js";
+import { runDigestEdition } from "../../lib/digestDelivery.js";
 
 export const config = { maxDuration: 300 };
 
@@ -24,108 +21,57 @@ export function isWeeklyDigestDeliveryTime(now = new Date()) {
   );
   // The guard distinguishes the two UTC schedules, not individual minutes.
   // A delayed invocation at 10:01 must not silently discard the entire week.
-  // Resend's existing region/date idempotency key protects repeated sends.
+  // Durable leases and a saved broadcast ID protect repeated attempts.
   return parts.weekday === "Mon" && parts.hour === "10";
 }
 
 export default async function handler(request, response) {
+  response.setHeader("Cache-Control", "no-store");
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
     response.status(405).json({ error: "Method not allowed." });
     return;
   }
-
-  response.setHeader("Cache-Control", "no-store");
-  const cronSecret = String(process.env.CRON_SECRET || "");
-  const authorization = Array.isArray(request.headers.authorization)
-    ? request.headers.authorization[0]
-    : request.headers.authorization;
-  if (!cronSecret || authorization !== `Bearer ${cronSecret}`) {
+  const secret = String(process.env.CRON_SECRET || "");
+  if (!secret || request.headers.authorization !== `Bearer ${secret}`) {
     response.status(401).json({ error: "Unauthorized." });
     return;
   }
-
-  // mode=persist-only generates and archives every edition without emailing
-  // anyone. It exists to seed the public archive (for example right after a
-  // deploy) and is invoked manually, so it skips the Monday-morning gate.
-  const persistOnly = String(request.query?.mode || "") === "persist-only";
-  if (!persistOnly && !isWeeklyDigestDeliveryTime()) {
-    console.info(JSON.stringify({ event: "weekly_digest_skipped", at: new Date().toISOString(), reason: "Outside the Monday 10 a.m. Eastern delivery hour." }));
-    response.status(200).json({
-      ok: true,
-      skipped: true,
-      reason: "Outside the Monday 10 a.m. Eastern delivery hour."
-    });
+  const mode = String(request.query?.mode || "send");
+  if (!["send", "check"].includes(mode)) {
+    response.status(400).json({ error: "Choose send or check mode." });
     return;
   }
-
   const configuration = getDigestConfiguration();
-  if (!configuration.ready) {
-    response.status(503).json({
-      error: "Digest delivery is not configured.",
-      missing: configuration.missing
-    });
+  const region = configuration.regions.find((item) => item.id === request.query?.region);
+  if (!region) {
+    response.status(400).json({ error: "Choose one digest region." });
     return;
   }
-
-  const resend = new Resend(configuration.apiKey);
-  console.info(JSON.stringify({ event: "weekly_digest_started", at: new Date().toISOString(), persistOnly }));
-  const results = [];
-  // Run editions one at a time. Each regional eBird pull already has bounded
-  // concurrency, so parallelizing all five here would create an unnecessary
-  // burst of upstream requests.
-  for (const region of configuration.regions) {
-    try {
-      const roundup = await getWeeklyRoundup({ region: region.id, fresh: "1" });
-      if (roundup.source !== "ebird") {
-        throw new Error("Live eBird data was unavailable.");
-      }
-
-      // Archive first: the issue is unrecoverable later (eBird only serves a
-      // rolling window), and a saved issue gives the email a stable web URL.
-      // A failed save is logged but never blocks delivery.
-      // The prewarm cron has usually cached every plate by now; the small
-      // budget here only covers species that shifted between the two runs.
-      const illustrated = await addBirdIllustrations(roundup, configuration.publicAppUrl, {
-        generateMissing: true,
-        generationBudget: 4
-      });
-      let archiveUrl = "";
-      if (archiveConfigured()) {
-        try {
-          const saved = await saveRoundup(illustrated);
-          archiveUrl = `${configuration.publicAppUrl}/roundup/${saved.scopeId}/${saved.date}?src=email`;
-        } catch (archiveError) {
-          console.error(JSON.stringify({
-            event: "weekly_digest_archive_failed",
-            region: region.id,
-            message: archiveError?.message
-          }));
-        }
-      }
-
-      if (persistOnly) {
-        results.push({ region: region.id, ok: true, archived: Boolean(archiveUrl), sent: false });
-        continue;
-      }
-
-      const sent = await sendWeeklyDigestBroadcast(illustrated, configuration, resend, { archiveUrl });
-      results.push({ region: region.id, ok: true, broadcastId: sent?.id || null, archived: Boolean(archiveUrl) });
-    } catch (error) {
-      console.error(JSON.stringify({
-        event: "weekly_digest_failed",
-        region: region.id,
-        message: error?.message
-      }));
-      results.push({ region: region.id, ok: false, error: error?.message || "Unknown error" });
-    }
+  if (mode === "send" && !isWeeklyDigestDeliveryTime()) {
+    console.info(JSON.stringify({ event: "weekly_digest_skipped", region: region.id, reason: "Outside delivery hour." }));
+    response.status(200).json({ ok: true, skipped: true, reason: "Outside the Monday 10 a.m. Eastern delivery hour." });
+    return;
   }
-
-  const failed = results.filter((result) => !result.ok);
-  console.info(JSON.stringify({ event: "weekly_digest_completed", at: new Date().toISOString(), persistOnly, results }));
-  response.status(failed.length ? 500 : 200).json({
-    ok: failed.length === 0,
-    generatedAt: new Date().toISOString(),
-    results
-  });
+  if (!configuration.ready || !archiveConfigured()) {
+    console.error(JSON.stringify({ event: "weekly_digest_configuration_failed", region: region.id }));
+    response.status(503).json({ error: "Digest delivery is not configured.", missing: [
+      ...configuration.missing, ...(!archiveConfigured() ? ["BLOB_READ_WRITE_TOKEN"] : [])
+    ] });
+    return;
+  }
+  const startedAt = Date.now();
+  console.info(JSON.stringify({ event: "weekly_digest_started", region: region.id, mode }));
+  try {
+    const result = await runDigestEdition({
+      configuration, region, date: new Date().toISOString().slice(0, 10), checkOnly: mode === "check"
+    });
+    // Return the operational receipt, not the full saved edition.
+    const { roundup: _roundup, ...receipt } = result;
+    console.info(JSON.stringify({ event: "weekly_digest_completed", mode, durationMs: Date.now() - startedAt, ...receipt }));
+    response.status(200).json({ ok: true, ...receipt });
+  } catch (error) {
+    console.error(JSON.stringify({ event: "weekly_digest_failed", region: region.id, mode, message: error?.message }));
+    response.status(500).json({ ok: false, region: region.id, error: "Digest processing failed. The next scheduled attempt can resume." });
+  }
 }

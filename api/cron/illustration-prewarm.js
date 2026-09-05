@@ -5,11 +5,9 @@ import { DIGEST_REGIONS } from "../../shared/digestRegions.js";
 
 export const config = { maxDuration: 300 };
 
-// Runs Monday 13:30 UTC (before the 14:00/15:00 UTC digest send in both DST
-// and standard time). Pulls the same fresh roundups the send will use, unions
-// their species, and generates any missing illustration into the Blob cache so
-// the 10 a.m. email finds art for every finding. The send path keeps a small
-// generation budget of its own for species that shift between the two runs.
+// Each regional job warms at 13:00 and 13:20 UTC, staggered by one minute.
+// A single image batch fits the function lifetime; the second pass fills any
+// remaining gaps. Email delivery never waits for image generation.
 export default async function handler(request, response) {
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
@@ -27,6 +25,12 @@ export default async function handler(request, response) {
     return;
   }
 
+  const selected = DIGEST_REGIONS.find((region) => region.id === request.query?.region);
+  if (!selected) {
+    response.status(400).json({ error: "Choose one digest region." });
+    return;
+  }
+
   if (!generationConfigured()) {
     response.status(200).json({
       ok: true,
@@ -39,7 +43,7 @@ export default async function handler(request, response) {
   const appUrl = String(process.env.PUBLIC_APP_URL || "https://flockline.app").replace(/\/$/, "");
   const findings = [];
   const regions = [];
-  for (const region of DIGEST_REGIONS) {
+  for (const region of [selected]) {
     try {
       const roundup = await getWeeklyRoundup({ region: region.id, fresh: "1" });
       if (roundup.source === "ebird") {
@@ -53,11 +57,11 @@ export default async function handler(request, response) {
     }
   }
 
-  // One combined pass so a species shared by several regions generates once.
+  // One bounded batch; later invocations reuse every completed cached plate.
   const combined = await addBirdIllustrations({ findings }, appUrl, {
     generateMissing: true,
-    generationBudget: 16,
-    generationConcurrency: 4
+    generationBudget: 3,
+    generationConcurrency: 3
   });
   const unresolved = [...new Set(
     (combined.findings || [])
@@ -66,8 +70,10 @@ export default async function handler(request, response) {
       .filter(Boolean)
   )];
 
-  response.status(200).json({
-    ok: true,
+  const ok = regions.every((region) => region.ok);
+  console.info(JSON.stringify({ event: "illustration_prewarm_completed", region: selected.id, ok, unresolved }));
+  response.status(ok ? 200 : 500).json({
+    ok,
     generatedAt: new Date().toISOString(),
     regions,
     species: [...new Set(findings.map((finding) => finding.speciesCode).filter(Boolean))].length,

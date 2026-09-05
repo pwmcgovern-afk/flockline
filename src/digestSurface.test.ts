@@ -24,15 +24,17 @@ describe("weekly email digest surface", () => {
     expect(styles).toContain("background: var(--accent)");
   });
 
-  it("secures weekly delivery and schedules it for Monday morning", () => {
-    const cron = read("api/cron/weekly-digests.js");
+  it("gives every edition independent preflight and four Monday delivery attempts", () => {
     const vercel = JSON.parse(read("vercel.json"));
-
-    expect(cron).toContain("Bearer ${cronSecret}");
-    expect(cron).toContain("getWeeklyRoundup");
-    expect(vercel.crons).toContainEqual({
-      path: "/api/cron/weekly-digests",
-      schedule: "0 14,15 * * 1"
-    });
+    for (const region of ["nationwide", "northeast", "midwest", "south", "west"]) {
+      const sends = vercel.crons.filter((job: { path: string }) => job.path === `/api/cron/weekly-digests?region=${region}`);
+      expect(sends).toHaveLength(1);
+      const [minutes, hours, day, month, weekday] = sends[0].schedule.split(" ");
+      const attempts = minutes.split(",").map(Number);
+      expect(attempts).toHaveLength(4);
+      expect(attempts.every((minute: number, index: number) => minute >= 0 && minute < 60 && (!index || minute - attempts[index - 1] >= 15))).toBe(true);
+      expect([hours, day, month, weekday]).toEqual(["14,15", "*", "*", "1"]);
+      expect(vercel.crons.some((job: { path: string }) => job.path === `/api/cron/weekly-digests?region=${region}&mode=check`)).toBe(true);
+    }
   });
 });
