@@ -2,13 +2,23 @@
   "redirects": [
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "www.flockline.app" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.flockline.app"
+        }
+      ],
       "destination": "https://flockline.app/",
       "permanent": true
     },
     {
       "source": "/:path+",
-      "has": [{ "type": "host", "value": "www.flockline.app" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.flockline.app"
+        }
+      ],
       "destination": "https://flockline.app/:path+",
       "permanent": true
     }
@@ -21,12 +31,64 @@
   ],
   "crons": [
     {
-      "path": "/api/cron/illustration-prewarm",
-      "schedule": "30 13 * * 1"
+      "path": "/api/cron/illustration-prewarm?region=nationwide",
+      "schedule": "0,20 13 * * 1"
     },
     {
-      "path": "/api/cron/weekly-digests",
-      "schedule": "0 14,15 * * 1"
+      "path": "/api/cron/weekly-digests?region=nationwide&mode=check",
+      "schedule": "45 13 * * 1"
+    },
+    {
+      "path": "/api/cron/weekly-digests?region=nationwide",
+      "schedule": "0,15,30,45 14,15 * * 1"
+    },
+    {
+      "path": "/api/cron/illustration-prewarm?region=northeast",
+      "schedule": "1,21 13 * * 1"
+    },
+    {
+      "path": "/api/cron/weekly-digests?region=northeast&mode=check",
+      "schedule": "46 13 * * 1"
+    },
+    {
+      "path": "/api/cron/weekly-digests?region=northeast",
+      "schedule": "1,16,31,46 14,15 * * 1"
+    },
+    {
+      "path": "/api/cron/illustration-prewarm?region=midwest",
+      "schedule": "2,22 13 * * 1"
+    },
+    {
+      "path": "/api/cron/weekly-digests?region=midwest&mode=check",
+      "schedule": "47 13 * * 1"
+    },
+    {
+      "path": "/api/cron/weekly-digests?region=midwest",
+      "schedule": "2,17,32,47 14,15 * * 1"
+    },
+    {
+      "path": "/api/cron/illustration-prewarm?region=south",
+      "schedule": "3,23 13 * * 1"
+    },
+    {
+      "path": "/api/cron/weekly-digests?region=south&mode=check",
+      "schedule": "48 13 * * 1"
+    },
+    {
+      "path": "/api/cron/weekly-digests?region=south",
+      "schedule": "3,18,33,48 14,15 * * 1"
+    },
+    {
+      "path": "/api/cron/illustration-prewarm?region=west",
+      "schedule": "4,24 13 * * 1"
+    },
+    {
+      "path": "/api/cron/weekly-digests?region=west&mode=check",
+      "schedule": "49 13 * * 1"
+    },
+    {
+      "path": "/api/cron/weekly-digests?region=west",
+      "schedule": "4,19,34,49 14,15 * * 1"
     }
   ]
 }
