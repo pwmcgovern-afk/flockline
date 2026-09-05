@@ -8,6 +8,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import Methodology from "./Methodology";
 import NewsletterPage from "./NewsletterPage";
 import RoundupArchive from "./RoundupArchive";
+import NotFound from "./NotFound";
 
 inject();
 
@@ -36,6 +37,7 @@ function Root() {
   if (path === "/roundup" || path.startsWith("/roundup/")) {
     return <RoundupArchive />;
   }
+  if (path !== "/") return <NotFound />;
 
   return hash === "#methodology" ? <Methodology /> : <App />;
 }

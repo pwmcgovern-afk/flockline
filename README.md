@@ -1,6 +1,6 @@
 # Flockline
 
-Flockline is a live, eBird-backed map for following recent bird movement across the United States. It combines a 1,400+ species national catalog, a Nationwide view plus four U.S. Census region presets with state-level refinement, resilient multi-state data loading, a daily timeline, region-aware notable-sighting insights, weekly regional email digests, a grounded birding assistant, original field-guide artwork, Field/Dusk themes, and a persistent My Birds watchlist with in-app field alerts.
+Flockline is a live, eBird-backed map for following recent bird movement across the United States. It combines a 1,400+ species national catalog, a Nationwide view plus four U.S. Census region presets with state-level refinement, resilient multi-state data loading, a daily timeline, region-aware notable-sighting insights, weekly regional email digests, a grounded birding assistant, original field-guide artwork, responsive map controls, and a persistent My Birds watchlist with in-app field alerts.
 
 Production: [flockline.app](https://flockline.app)
 
@@ -52,6 +52,12 @@ npm run check
 ```
 
 This runs the state/share-link tests, TypeScript compilation, and the production Vite build.
+
+`npm run test:ui` runs Chrome regressions for mobile signup, history, search,
+map and Insights request races, keyboard navigation, and archive recovery. It
+starts Vite if needed and intercepts every API and external resource, so tests
+never send email or consume live eBird/AI requests. Local runs use installed
+Google Chrome; CI installs Playwright Chromium.
 
 ## Deployment
 

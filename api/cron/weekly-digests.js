@@ -22,7 +22,10 @@ export function isWeeklyDigestDeliveryTime(now = new Date()) {
       hourCycle: "h23"
     }).formatToParts(now).map((part) => [part.type, part.value])
   );
-  return parts.weekday === "Mon" && parts.hour === "10" && parts.minute === "00";
+  // The guard distinguishes the two UTC schedules, not individual minutes.
+  // A delayed invocation at 10:01 must not silently discard the entire week.
+  // Resend's existing region/date idempotency key protects repeated sends.
+  return parts.weekday === "Mon" && parts.hour === "10";
 }
 
 export default async function handler(request, response) {
@@ -47,10 +50,11 @@ export default async function handler(request, response) {
   // deploy) and is invoked manually, so it skips the Monday-morning gate.
   const persistOnly = String(request.query?.mode || "") === "persist-only";
   if (!persistOnly && !isWeeklyDigestDeliveryTime()) {
+    console.info(JSON.stringify({ event: "weekly_digest_skipped", at: new Date().toISOString(), reason: "Outside the Monday 10 a.m. Eastern delivery hour." }));
     response.status(200).json({
       ok: true,
       skipped: true,
-      reason: "Not 10:00 a.m. Eastern."
+      reason: "Outside the Monday 10 a.m. Eastern delivery hour."
     });
     return;
   }
@@ -65,6 +69,7 @@ export default async function handler(request, response) {
   }
 
   const resend = new Resend(configuration.apiKey);
+  console.info(JSON.stringify({ event: "weekly_digest_started", at: new Date().toISOString(), persistOnly }));
   const results = [];
   // Run editions one at a time. Each regional eBird pull already has bounded
   // concurrency, so parallelizing all five here would create an unnecessary
@@ -117,6 +122,7 @@ export default async function handler(request, response) {
   }
 
   const failed = results.filter((result) => !result.ok);
+  console.info(JSON.stringify({ event: "weekly_digest_completed", at: new Date().toISOString(), persistOnly, results }));
   response.status(failed.length ? 500 : 200).json({
     ok: failed.length === 0,
     generatedAt: new Date().toISOString(),

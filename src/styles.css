@@ -45,8 +45,8 @@
   --drawer-w: 400px;
   --dock: 0px;
 
-  /* Map tint: pushes CARTO's cool grey basemap toward the paper. */
-  --map-filter: grayscale(0.3) sepia(0.22) saturate(0.72) brightness(1.05) contrast(0.9);
+  /* Mute the terrain while preserving legible place names. */
+  --map-filter: grayscale(0.8) sepia(0.12) saturate(0.55);
 
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 
@@ -232,16 +232,11 @@ p {
 
 /* Filter the tiles, not the markers: the marker pane sits outside
    .leaflet-tile-pane, so the data keeps its full color on muted paper.
-   Base and labels are filtered separately — a filter on the shared pane would
-   apply the base's brightening to the label text and erase it. */
+   Place names remain in the same tile layer as the terrain. */
 .map-base {
   filter: var(--map-filter);
 }
 
-.map-labels {
-  filter: grayscale(1) brightness(0.72) contrast(1.25);
-  opacity: 0.75;
-}
 
 .leaflet-container {
   background: var(--paper) !important;
@@ -2003,17 +1998,55 @@ button.pill:hover {
   text-transform: uppercase;
 }
 
-.digest-header.open form,
-.digest-header.success .digest-success-content {
-  position: absolute;
-  top: calc(100% + 10px);
-  left: 50%;
-  width: min(380px, calc(100vw - 24px));
+/* A viewport-level dialog keeps the form clear of the masthead and timeline,
+   including on short phones and when the on-screen keyboard is open. */
+.digest-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1600;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: rgba(28, 27, 24, 0.35);
+}
+
+.digest-modal {
+  position: relative;
+  width: min(420px, 100%);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--rule);
   border-radius: 16px;
   background: var(--paper-raised);
   box-shadow: var(--shadow-raised);
-  transform: translateX(-50%);
+}
+
+.digest-modal.digest-signup form {
+  padding: 36px 18px 18px;
+}
+
+.digest-modal-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+}
+
+.digest-modal .digest-signup.success {
+  padding-top: 30px;
+  border: 0;
+}
+
+.digest-success-content p {
+  overflow-wrap: anywhere;
+}
+
+.map-note.basemap-error {
+  top: auto;
+  bottom: 190px;
 }
 
 .digest-cta {
@@ -3418,7 +3451,7 @@ button.pill:hover {
 }
 
 .archive-links a {
-  color: var(--accent);
+  color: #9d452d;
   font-weight: 600;
   text-decoration: none;
 }
@@ -3444,7 +3477,7 @@ button.pill:hover {
 .archive-illustration figcaption {
   padding: 7px 11px;
   font-size: 10px;
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
 
 .archive-signup {
@@ -3461,6 +3494,22 @@ button.pill:hover {
   .app.docked {
     --dock: var(--drawer-w);
   }
+}
+
+/* Docking removes 400px of usable map width. Reflow the header based on that
+   space instead of forcing the title between two full rows of controls. */
+@media (min-width: 861px) and (max-width: 1500px) {
+  .app.docked .chrome-top {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "left right" "mast mast";
+    row-gap: 10px;
+  }
+  .app.docked .chrome-top-left { grid-area: left; }
+  .app.docked .chrome-top-right { grid-area: right; }
+  .app.docked .masthead { grid-area: mast; max-width: 100%; }
+  .app.docked .masthead-title { font-size: clamp(1.5rem, 2.8vw, 2.25rem); }
+  .app.docked .roundup-pill-desktop { display: none; }
+  .app.docked .roundup-pill-mobile { display: inline-flex; }
 }
 
 @media (max-width: 1100px) {
