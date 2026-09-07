@@ -3297,7 +3297,7 @@ export default function App() {
                       <Compass />
                       Take the tour
                     </button>
-                    <a className="pill" href="#methodology">
+                    <a className="pill" href="/methodology">
                       <BookOpen />
                       How to read this
                     </a>

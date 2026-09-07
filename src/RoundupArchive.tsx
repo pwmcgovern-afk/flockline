@@ -25,7 +25,7 @@ type ArchiveFinding = {
   image?: { url?: string; alt?: string; kind?: string } | null;
 };
 
-type ArchiveRoundup = {
+export type ArchiveRoundup = {
   scopeId: string;
   scopeLabel: string;
   generatedAt: string;
@@ -33,7 +33,7 @@ type ArchiveRoundup = {
   findings: ArchiveFinding[];
 };
 
-type ArchiveIndex = { issues: { scopeId: string; date: string }[] };
+export type ArchiveIndex = { issues: { scopeId: string; date: string }[] };
 
 const REGION_NAMES = new Map<string, string>(
   US_REGION_PRESETS.map((region) => [region.id, region.name])
@@ -58,18 +58,21 @@ function kindLabel(kind?: string) {
   return "Rare report";
 }
 
-export default function RoundupArchive() {
-  const { valid, scopeId, date } = parseArchivePath(window.location.pathname);
+export type ArchiveInitial = { index?: ArchiveIndex; roundup?: ArchiveRoundup };
+
+export default function RoundupArchive({ pathname = window.location.pathname, initial = {} }: { pathname?: string; initial?: ArchiveInitial }) {
+  const { valid, scopeId, date } = parseArchivePath(pathname);
   if (!valid) return <NotFound />;
-  return scopeId ? <IssueView scopeId={scopeId} date={date} /> : <IndexView />;
+  return scopeId ? <IssueView scopeId={scopeId} date={date} initial={initial.roundup} /> : <IndexView initial={initial.index} />;
 }
 
-function IndexView() {
-  const [index, setIndex] = useState<ArchiveIndex | null>(null);
+function IndexView({ initial }: { initial?: ArchiveIndex }) {
+  const [index, setIndex] = useState<ArchiveIndex | null>(initial ?? null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    if (initial && attempt === 0) return;
     const controller = new AbortController();
     setError("");
     requestJson<ArchiveIndex>("/api/roundup-archive?list=1", { signal: controller.signal })
@@ -81,7 +84,7 @@ function IndexView() {
         if (!controller.signal.aborted) setError("The archive could not be loaded right now.");
       });
     return () => controller.abort();
-  }, [attempt]);
+  }, [attempt, initial]);
 
   const byRegion = US_REGION_PRESETS
     .map((region) => ({
@@ -145,12 +148,13 @@ function IndexView() {
   );
 }
 
-function IssueView({ scopeId, date }: { scopeId: string; date: string | null }) {
-  const [roundup, setRoundup] = useState<ArchiveRoundup | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
+function IssueView({ scopeId, date, initial }: { scopeId: string; date: string | null; initial?: ArchiveRoundup }) {
+  const [roundup, setRoundup] = useState<ArchiveRoundup | null>(initial ?? null);
+  const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">(initial ? "ready" : "loading");
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    if (initial && attempt === 0) return;
     const controller = new AbortController();
     setStatus("loading");
     setRoundup(null);
@@ -171,7 +175,7 @@ function IssueView({ scopeId, date }: { scopeId: string; date: string | null }) 
         if (!controller.signal.aborted) setStatus("error");
       });
     return () => controller.abort();
-  }, [scopeId, date, attempt]);
+  }, [scopeId, date, attempt, initial]);
 
   const regionName = REGION_NAMES.get(scopeId) || scopeId;
 
