@@ -1,34 +1,4 @@
 {
-  "redirects": [
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.flockline.app"
-        }
-      ],
-      "destination": "https://flockline.app/",
-      "permanent": true
-    },
-    {
-      "source": "/:path+",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.flockline.app"
-        }
-      ],
-      "destination": "https://flockline.app/:path+",
-      "permanent": true
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/((?!api/.*).*)",
-      "destination": "/index.html"
-    }
-  ],
   "crons": [
     {
       "path": "/api/cron/illustration-prewarm?region=nationwide",
@@ -89,6 +59,59 @@
     {
       "path": "/api/cron/weekly-digests?region=west",
       "schedule": "4,19,34,49 14,15 * * 1"
+    }
+  ],
+  "functions": {
+    "api/page.js": {
+      "includeFiles": "{dist/index.html,server-render/**}",
+      "maxDuration": 30
+    },
+    "api/sitemap.js": {
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.flockline.app"
+        }
+      ],
+      "status": 308,
+      "headers": {
+        "Location": "https://flockline.app/$1"
+      }
+    },
+    {
+      "src": "/index.html",
+      "status": 308,
+      "headers": {
+        "Location": "https://flockline.app/"
+      }
+    },
+    {
+      "src": "/",
+      "dest": "/api/page"
+    },
+    {
+      "src": "/sitemap.xml",
+      "dest": "/api/sitemap"
+    },
+    {
+      "src": "/api/(.*)",
+      "headers": {
+        "X-Robots-Tag": "noindex"
+      },
+      "continue": true
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/page"
     }
   ]
 }

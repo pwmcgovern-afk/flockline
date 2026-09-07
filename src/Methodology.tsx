@@ -1,19 +1,19 @@
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
-// A standalone content page reached at /#methodology. It consolidates how
+// A standalone content page reached at /methodology. It consolidates how
 // Flockline works and, more importantly, how to read the data honestly.
 export default function Methodology() {
   return (
     <main className="methodology">
       <div className="methodology-inner">
-        <a className="back" href="#">
+        <a className="back" href="/">
           <ArrowLeft />
           Back to the map
         </a>
 
         <header className="methodology-head">
           <span className="script">how to read</span>
-          <h1>Flockline</h1>
+          <h1>How Flockline uses eBird sightings</h1>
         </header>
 
         <section>
@@ -200,7 +200,7 @@ export default function Methodology() {
         </section>
 
         <footer className="methodology-foot">
-          <a className="back" href="#">
+          <a className="back" href="/">
             <ArrowLeft />
             Back to the map
           </a>

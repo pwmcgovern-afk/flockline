@@ -4,16 +4,13 @@ import { US_REGION_PRESETS } from "../shared/usGeography.js";
 
 // The linkable front door for the weekly digest, served at /newsletter. Every
 // promotion channel points here with a ?src= slug so signups can be attributed.
-// Read the URL once at module evaluation: this page never mounts <App/>, so
-// nothing rewrites the address bar, but a single read keeps it simple.
-const params = new URLSearchParams(window.location.search);
-const SIGNUP_SRC = (params.get("src") || "newsletter").trim().toLowerCase();
-const REGION_PARAM = (params.get("region") || "").trim().toLowerCase();
-const DEFAULT_REGION = US_REGION_PRESETS.some((region) => region.id === REGION_PARAM)
-  ? REGION_PARAM
-  : "nationwide";
-
-export default function NewsletterPage() {
+// Accept the URL from the server renderer, or use the browser location after
+// startup. Neither path changes signup attribution or the selected edition.
+export default function NewsletterPage({ search = typeof window === "undefined" ? "" : window.location.search }: { search?: string }) {
+  const params = new URLSearchParams(search);
+  const signupSrc = (params.get("src") || "newsletter").trim().toLowerCase();
+  const regionParam = (params.get("region") || "").trim().toLowerCase();
+  const defaultRegion = US_REGION_PRESETS.some((region) => region.id === regionParam) ? regionParam : "nationwide";
   return (
     <main className="methodology newsletter-page">
       <div className="methodology-inner">
@@ -33,7 +30,7 @@ export default function NewsletterPage() {
           and a live map for each. Free, no account, one email every Monday at 10 AM Eastern.
         </p>
 
-        <DigestSignup defaultRegionId={DEFAULT_REGION} src={SIGNUP_SRC} startOpen />
+        <DigestSignup defaultRegionId={defaultRegion} src={signupSrc} startOpen />
 
         <section>
           <h2>What's inside</h2>
@@ -74,7 +71,7 @@ export default function NewsletterPage() {
             Sightings come from eBird, the Cornell Lab of Ornithology's citizen-science database,
             and reflect what birders reported, not a population survey. Flockline only phrases what
             the verified records already say; it never invents a sighting. The{" "}
-            <a href="/#methodology">methodology page</a> spells out how to read the data. Signup is
+            <a href="/methodology">methodology page</a> spells out how to read the data. Signup is
             double opt-in, every email has a one-click unsubscribe, and your address is used for
             nothing else.
           </p>

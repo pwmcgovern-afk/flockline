@@ -1,10 +1,8 @@
-// No import attribute: Vercel bundles middleware with esbuild, which reads
-// JSON imports natively and rejects the `with { type: "json" }` syntax.
+// Vite bundles this catalog into both the browser and server-rendered metadata.
 import speciesCatalog from "./speciesCatalog.json";
 import { US_REGION_PRESETS, US_STATES } from "./usGeography.js";
 
-// Pure metadata derivation, kept out of middleware.js so it can be unit tested
-// without standing up a request.
+// Pure metadata derivation shared by the page renderer and its tests.
 const SPECIES_NAMES = new Map(
   speciesCatalog.map((species) => [species.speciesCode, species.comName])
 );

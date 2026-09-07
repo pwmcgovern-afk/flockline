@@ -13,3 +13,5 @@ dist
 .verify*.mjs
 .shots.mjs
 .env*
+
+server-render

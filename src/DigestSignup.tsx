@@ -35,6 +35,8 @@ export default function DigestSignup({
     ? defaultRegionId
     : "nationwide";
   const [open, setOpen] = useState(startOpen);
+  const [clientReady, setClientReady] = useState(false);
+  useEffect(() => setClientReady(true), []);
   const [email, setEmail] = useState("");
   const [selectedRegions, setSelectedRegions] = useState([validDefault]);
   const [state, setState] = useState<SignupState>("idle");
@@ -145,9 +147,12 @@ export default function DigestSignup({
   );
   const form = (
     <form
+      method="post"
+      action="/api/digest-subscription"
       onSubmit={(event) => void submit(event)}
       aria-label="Weekly insights signup"
     >
+      <noscript>Enable JavaScript to subscribe securely.</noscript>
       <div className="digest-form-heading">
         <Mail aria-hidden="true" />
         <div>
@@ -156,7 +161,7 @@ export default function DigestSignup({
         </div>
       </div>
 
-      <fieldset disabled={state === "sending"}>
+      <fieldset disabled={!clientReady || state === "sending"}>
         <legend>Choose regional editions</legend>
         <div className="digest-region-options">
           {US_REGION_PRESETS.map((region) => (
@@ -183,7 +188,7 @@ export default function DigestSignup({
           autoComplete="email"
           required
           maxLength={254}
-          disabled={state === "sending"}
+          disabled={!clientReady || state === "sending"}
         />
       </label>
       <label className="digest-honeypot" aria-hidden="true">
@@ -201,7 +206,7 @@ export default function DigestSignup({
         <button
           type="submit"
           className="digest-submit"
-          disabled={state === "sending" || !selectedRegions.length}
+          disabled={!clientReady || state === "sending" || !selectedRegions.length}
         >
           {state === "sending" ? (
             <LoaderCircle className="spin" aria-hidden="true" />

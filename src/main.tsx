@@ -1,24 +1,24 @@
-import { StrictMode, useEffect, useState } from "react";
+import { StrictMode, Suspense, lazy, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { inject } from "@vercel/analytics";
 import "leaflet/dist/leaflet.css";
 import "./styles.css";
-import App from "./App";
 import ErrorBoundary from "./ErrorBoundary";
 import Methodology from "./Methodology";
 import NewsletterPage from "./NewsletterPage";
-import RoundupArchive from "./RoundupArchive";
+import RoundupArchive, { type ArchiveInitial } from "./RoundupArchive";
 import NotFound from "./NotFound";
+
+const App = lazy(() => import("./App"));
 
 inject();
 
-// Tiny router. Two standalone marketing surfaces get real paths (/newsletter,
-// /roundup/...) because promotion links need clean, shareable URLs; the SPA
-// rewrite in vercel.json already serves the shell for any path. These pages
-// must be matched HERE, before <App/> mounts: App's URL-sync effect rewrites
-// the address bar to "/" on its first render and would erase both the path
-// and any ?src= attribution. Everything else keeps the original hash routing
-// (/#methodology), which needs no server rewrite.
+const initialElement = document.getElementById("flockline-page-data");
+const initial: ArchiveInitial & { status?: number } = initialElement ? JSON.parse(initialElement.textContent || "{}") : {};
+
+// Match editorial pages before App mounts: its map-state URL sync would
+// otherwise erase their paths and signup attribution. Keep old methodology
+// bookmarks working alongside the new crawlable /methodology page.
 function Root() {
   const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
@@ -31,11 +31,13 @@ function Root() {
   }, []);
 
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  if (initial.status === 404) return <NotFound />;
+  if (path === "/methodology") return <Methodology />;
   if (path === "/newsletter") {
     return <NewsletterPage />;
   }
   if (path === "/roundup" || path.startsWith("/roundup/")) {
-    return <RoundupArchive />;
+    return <RoundupArchive initial={initial} />;
   }
   if (path !== "/") return <NotFound />;
 
@@ -45,7 +47,9 @@ function Root() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <Root />
+      <Suspense fallback={<p role="status">Loading the bird map…</p>}>
+        <Root />
+      </Suspense>
     </ErrorBoundary>
   </StrictMode>
 );
