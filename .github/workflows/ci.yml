@@ -34,7 +34,10 @@ jobs:
         run: npm run check
 
       - name: Install browser for UI regression tests
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Verify UI flows with isolated API fixtures
         run: npm run test:ui
+
+      - name: Verify phone flows in WebKit
+        run: npm run test:ui:webkit

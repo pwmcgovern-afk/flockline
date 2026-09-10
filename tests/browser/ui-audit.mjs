@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
-import { chromium } from "playwright";
+import { chromium, webkit } from "playwright";
 import { createServer } from "vite";
 import { US_STATES, US_REGION_PRESETS } from "../../shared/usGeography.js";
 
@@ -117,9 +117,11 @@ function roundup(scope) {
     summary: "Six notable birds from the past week.",
   };
 }
-async function session({ width = 1280, height = 900, handlers = {} } = {}) {
+async function session({ width = 1280, height = 900, touch = false, handlers = {} } = {}) {
   const context = await browser.newContext({
     viewport: { width, height },
+    isMobile: touch,
+    hasTouch: touch,
     reducedMotion: "reduce",
   });
   await context.addInitScript(() =>
@@ -191,8 +193,9 @@ before(async () => {
     });
     await server.listen();
   }
-  browser = await chromium.launch({
-    channel: process.env.CI ? undefined : "chrome",
+  const engine = process.env.UI_TEST_ENGINE === "webkit" ? webkit : chromium;
+  browser = await engine.launch({
+    channel: engine === chromium && !process.env.CI ? "chrome" : undefined,
     headless: true,
   });
 });
@@ -251,6 +254,125 @@ test("signup fits mobile and short landscape screens, traps focus, and closes wi
     );
     await finish(s);
   }
+});
+
+test("touch layouts preserve usable map space and reachable navigation through every panel", async () => {
+  for (const [width, height] of [[320, 568], [390, 844], [932, 430]]) {
+    const s = await session({ width, height, touch: true });
+    const { page } = s;
+    await openMap(page);
+    const header = await page.locator(".topbar").boundingBox();
+    const timeline = await page.locator(".timeline-toggle").boundingBox();
+    assert.ok(timeline.y - (header.y + header.height) >= 180, "At least 180px of unobstructed map, even on small phones");
+    assert.equal(await page.locator(".day-rail").isVisible(), false);
+    assert.equal(await page.locator(".tab-bar button:visible").count(), 5);
+
+    await page.getByRole("combobox", { name: "Lookback window", exact: true }).selectOption("14");
+    await page.waitForURL(/days=14/);
+    await page.locator(".timeline-toggle").tap();
+    assert.equal(await page.locator(".day-rail").isVisible(), true);
+    await page.getByRole("button", { name: "New", exact: true }).tap();
+    await page.waitForURL(/mode=new/);
+    await page.locator(".timeline-toggle").tap();
+    assert.equal(await page.locator(".day-rail").isVisible(), false);
+
+    for (const [tab, title] of [["Weekly roundup", "Weekly roundup"], ["Insights", "Insights"], ["Ask", "Ask Flockline"], ["My birds", "My birds"]]) {
+      await page.getByRole("navigation", { name: "Panels" }).getByRole("button", { name: tab, exact: true }).tap();
+      const panel = page.getByRole("dialog", { name: title, exact: true });
+      // WebKit can resolve animation.finished before painting its final frame.
+      await panel.evaluate(async (el) => {
+        await Promise.all(el.getAnimations().map((animation) => animation.finished));
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      });
+      const box = await panel.boundingBox();
+      const nav = await page.locator(".tab-bar").boundingBox();
+      assert.ok(box.y >= 0 && box.y + box.height <= nav.y + 1, `Panel stays above navigation at ${width}x${height}, ${tab}: ${JSON.stringify({ box, nav })}`);
+      assert.ok(nav.y + nav.height <= height + 1, "Navigation stays inside viewport");
+      assert.equal(await page.locator(".app-body").evaluate((el) => el.inert), true);
+    }
+    await page.getByRole("button", { name: "Map", exact: true }).tap();
+    await page.getByRole("button", { name: "States and filters", exact: true }).tap();
+    await page.getByRole("button", { name: "Close Map settings", exact: true }).tap();
+    await page.getByRole("combobox", { name: "Map region", exact: true }).selectOption("west");
+    await page.waitForURL(/region=west/);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await finish(s);
+  }
+});
+
+test("touch users can select a bird, open its map record, save it and return to the map", async () => {
+  const s = await session({ width: 390, height: 844, touch: true });
+  const { page } = s;
+  await openMap(page);
+  await page.locator(".masthead-title").tap();
+  await page.getByRole("textbox", { name: "Species name or eBird species code" }).fill("Bald Eagle");
+  await page.locator(".picker-results button").filter({ hasText: "Bald Eagle" }).tap();
+  await page.waitForURL(/bird=baleag/);
+  await page.waitForFunction(() => document.querySelector(".masthead-meta")?.textContent.includes("1 location"));
+  const point = await page.evaluate(() => {
+    const map = window.__flocklineMap;
+    const marker = map.latLngToContainerPoint([41.3, -72.95]);
+    const bounds = map.getContainer().getBoundingClientRect();
+    return { x: bounds.x + marker.x, y: bounds.y + marker.y };
+  });
+  await page.touchscreen.tap(point.x, point.y);
+  await page.getByRole("complementary", { name: "Sighting details" }).waitFor();
+  const record = await page.locator(".sighting-sheet").boundingBox();
+  const nav = await page.locator(".tab-bar").boundingBox();
+  assert.ok(record.y + record.height < nav.y, "Sighting never covers navigation");
+  await page.locator(".sighting-sheet").getByRole("button", { name: "Watch", exact: true }).tap();
+  await page.getByRole("button", { name: /^My birds/ }).tap();
+  assert.ok((await page.getByRole("dialog", { name: "My birds" }).innerText()).includes("Bald Eagle"));
+  await page.getByRole("button", { name: "Map", exact: true }).tap();
+  assert.equal(await page.locator(".sighting-sheet").count(), 0);
+  await finish(s);
+});
+
+test("phone panels and search stay usable when the visible viewport shrinks or rotates", async () => {
+  const s = await session({ width: 390, height: 844, touch: true });
+  const { page } = s;
+  await openMap(page);
+  await page.getByRole("button", { name: "Ask", exact: true }).tap();
+  await page.getByRole("textbox", { name: "Ask the Flockline assistant" }).tap();
+  // The browser reports the visible area above the keyboard through this same
+  // viewport resize path. This verifies layout, not an actual OS keyboard.
+  await page.setViewportSize({ width: 390, height: 400 });
+  await page.getByRole("textbox", { name: "Ask the Flockline assistant" }).fill("Where are birds nearby?");
+  const composer = await page.locator(".chat-composer").boundingBox();
+  const nav = await page.locator(".tab-bar").boundingBox();
+  assert.ok(composer.y >= 0 && composer.y + composer.height <= nav.y + 1);
+  await page.getByRole("button", { name: "Map", exact: true }).tap();
+  await page.locator(".masthead-title").tap();
+  await page.getByRole("textbox", { name: "Species name or eBird species code" }).fill("eagle");
+  await page.locator(".picker-results button").filter({ hasText: "Bald Eagle" }).tap();
+  await page.setViewportSize({ width: 932, height: 430 });
+  await page.getByRole("button", { name: "Insights", exact: true }).tap();
+  assert.equal(await page.locator(".app").evaluate((el) => el.classList.contains("docked")), false);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Map", exact: true }).tap();
+  assert.equal(await page.locator(".mobile-header").isVisible(), true);
+  await finish(s);
+});
+
+test("phone search and signup follow an offset visual viewport above the keyboard", async () => {
+  const s = await session({ width: 390, height: 844, touch: true });
+  const { page } = s;
+  await openMap(page);
+  await page.evaluate(() => {
+    Object.defineProperty(window.visualViewport, "height", { configurable: true, get: () => 380 });
+    Object.defineProperty(window.visualViewport, "offsetTop", { configurable: true, get: () => 100 });
+    window.visualViewport.dispatchEvent(new Event("resize"));
+  });
+  await page.locator(".masthead-title").tap();
+  const picker = await page.locator(".picker").boundingBox();
+  const close = await page.locator(".picker-close").boundingBox();
+  assert.ok(picker.y >= 100 && picker.y + picker.height <= 480);
+  assert.ok(close.y >= 100 && close.y + close.height <= 480);
+  await page.locator(".picker-close").tap();
+  await page.locator(".digest-header .digest-cta").tap();
+  const signup = await page.getByRole("dialog", { name: "Weekly insights signup", exact: true }).boundingBox();
+  assert.ok(signup.y >= 100 && signup.y + signup.height <= 480);
+  await finish(s);
 });
 
 test("signup validates editions, freezes submitted values, and recovers from API failure", async () => {
