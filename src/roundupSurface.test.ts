@@ -7,13 +7,12 @@ function read(path: string) {
 }
 
 describe("Weekly Roundup surface", () => {
-  it("keeps the roundup separate from the bottom Insights navigation", () => {
+  it("provides the weekly roundup independently from species Insights", () => {
     const app = read("src/App.tsx");
 
     expect(app).toContain("Weekly roundup");
     expect(app).toContain('openDrawer("roundup")');
     expect(app).toContain('/api/roundup?');
-    expect(app).not.toContain("tab-roundup");
   });
 
   it("removes the non-interactive pulse markers while retaining sighting clicks", () => {

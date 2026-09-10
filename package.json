@@ -16,7 +16,8 @@
     "setup:digest": "node scripts/setup-digest-mailing-list.mjs",
     "check": "npm run test && npm run build",
     "preview": "vite preview --host 127.0.0.1",
-    "test:ui": "node --test tests/browser/ui-audit.mjs"
+    "test:ui": "node --test tests/browser/ui-audit.mjs",
+    "test:ui:webkit": "UI_TEST_ENGINE=webkit node --test --test-name-pattern=\"touch|phone \" tests/browser/ui-audit.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",

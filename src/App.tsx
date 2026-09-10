@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import L from "leaflet";
 import { requestJson } from "./request";
+import "./mobile.css";
 import {
   Bird,
   Bell,
@@ -38,6 +39,7 @@ import {
 } from "lucide-react";
 import Tour, { type TourStep } from "./Tour";
 import DigestSignup from "./DigestSignup";
+import MobileMapHeader from "./MobileMapHeader";
 import { buildAppUrl, parseAppState, type AppState, type AppView, type TimelineMode } from "./appState";
 import {
   DEFAULT_REGION_ID,
@@ -123,6 +125,8 @@ function readableError(error: unknown, fallback: string) {
 }
 
 const WINDOW_PRESETS = [1, 3, 7, 14, 30];
+// Keep landscape phones in the same navigation mode when they rotate.
+const MOBILE_QUERY = "(max-width: 860px), (pointer: coarse) and (max-height: 540px)";
 
 // Far enough from the lower 48 that letting them set the frame costs every
 // other state its legibility. Used only for framing, never to filter data.
@@ -174,9 +178,9 @@ function browseOrder(all: Species[], featured: Species[]): Species[] {
 function fitPadding(): L.FitBoundsOptions {
   const stage = document.querySelector(".stage");
   const box = stage?.getBoundingClientRect() ?? null;
-  const overlays = [".scrubber", ".tab-bar"]
+  const overlays = [".scrubber", ".timeline-toggle", ".tab-bar"]
     .map((selector) => document.querySelector(selector))
-    .filter((element): element is Element => Boolean(element));
+    .filter((element): element is Element => Boolean(element?.getClientRects().length));
 
   let bottom = 132;
   if (box && overlays.length) {
@@ -388,6 +392,7 @@ export default function App() {
   const [selectedDayIndex, setSelectedDayIndex] = useState((initialState.lookbackDays ?? 7) - 1);
   const [timelineMode, setTimelineMode] = useState<TimelineMode>(initialState.timelineMode ?? "cumulative");
   const [playing, setPlaying] = useState(false);
+  const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [includeProvisional, setIncludeProvisional] = useState(initialState.includeProvisional ?? true);
   const [hotspotsOnly, setHotspotsOnly] = useState(initialState.hotspotsOnly ?? false);
   const [shareStatus, setShareStatus] = useState("");
@@ -454,7 +459,7 @@ export default function App() {
   const drawerRef = useRef<DrawerId | null>(null);
   // Wide screens dock the drawers (push the map over); narrow screens overlay.
   const [isWide, setIsWide] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(min-width: 861px)").matches
+    () => typeof window !== "undefined" && !window.matchMedia(MOBILE_QUERY).matches
   );
 
   useEffect(() => {
@@ -1725,11 +1730,31 @@ export default function App() {
 
   // Track whether we're wide enough to dock the drawers (vs. overlay).
   useEffect(() => {
-    const query = window.matchMedia("(min-width: 861px)");
-    const handler = (event: MediaQueryListEvent) => setIsWide(event.matches);
+    const query = window.matchMedia(MOBILE_QUERY);
+    const handler = (event: MediaQueryListEvent) => setIsWide(!event.matches);
     query.addEventListener("change", handler);
     return () => query.removeEventListener("change", handler);
   }, []);
+
+  useEffect(() => {
+    if (isWide || !window.visualViewport) return;
+    const viewport = window.visualViewport;
+    const root = document.documentElement;
+    const updateViewport = () => {
+      if (viewport.scale !== 1) return;
+      root.style.setProperty("--app-viewport-height", `${viewport.height}px`);
+      root.style.setProperty("--app-viewport-top", `${viewport.offsetTop}px`);
+    };
+    updateViewport();
+    viewport.addEventListener("resize", updateViewport);
+    viewport.addEventListener("scroll", updateViewport);
+    return () => {
+      viewport.removeEventListener("resize", updateViewport);
+      viewport.removeEventListener("scroll", updateViewport);
+      root.style.removeProperty("--app-viewport-height");
+      root.style.removeProperty("--app-viewport-top");
+    };
+  }, [isWide]);
 
   // Docking resizes the map container; the ResizeObserver set up with the map
   // re-measures Leaflet throughout the slide, so nothing extra is needed here.
@@ -1760,7 +1785,7 @@ export default function App() {
   const tourSteps = useMemo(() => {
     const timelineStep: TourStep = selectedSpecies
       ? {
-          target: ".scrubber",
+          target: isWide ? ".scrubber" : ".timeline-toggle",
           side: "top",
           title: "Scrub through the days",
           body: "Drag the rail or press play to watch movement unfold. Bars count locations by their latest report date, and dot color runs blue for older to red for freshest."
@@ -1770,14 +1795,17 @@ export default function App() {
           title: "Then watch it move",
           body: "Once a bird is loaded, a timeline appears along the bottom. Drag it or press play to watch reports accumulate day by day, blue for older through red for freshest."
         };
-    return [...TOUR_STEPS.slice(0, 3), timelineStep, ...TOUR_STEPS.slice(3)];
-  }, [selectedSpecies]);
+    return [...TOUR_STEPS.slice(0, 3), timelineStep, ...TOUR_STEPS.slice(3)].map((step) =>
+      step.target === ".window-pills" && !isWide ? { ...step, target: ".mobile-lookback" } : step
+    );
+  }, [selectedSpecies, isWide]);
 
   // Close the menu first: below 860px the drawer is the only route to the tour,
   // and every step targeting the scrubber or tabs would spotlight a blank patch
   // of the drawer sheet.
   const openTour = () => {
     setDrawer(null);
+    setTimelineExpanded(true);
     setTourOpen(true);
   };
 
@@ -1790,7 +1818,9 @@ export default function App() {
     } catch {
       // Storage blocked: skip the tour rather than showing it on every load.
     }
-    if (seen) {
+    // The phone's compact start screen is the introduction. Keep the full
+    // tour opt-in from Menu so it cannot cover a new visitor's map.
+    if (seen || window.matchMedia(MOBILE_QUERY).matches) {
       return;
     }
     // Someone arriving on a shared ?view= link came through a door, not the
@@ -2090,6 +2120,64 @@ export default function App() {
   // "Demo stream" for the first moment of every visit.
   const sourceLabel = config === null ? "" : configFailed && !payload ? "Data status unavailable" : isLiveSource ? "Live eBird" : "Demo stream";
 
+  const mobileMapStatus = !selectedSpecies
+    ? "Recent bird sightings"
+    : loading
+      ? "Counting reports…"
+      : `${windowStats.locations.toLocaleString()} ${pluralize("location", windowStats.locations)}${windowStats.birds > windowStats.locations ? ` · ${windowStats.birds.toLocaleString()} birds` : ""}`;
+
+  const panelNavigation = (
+    <nav className="tab-bar" aria-label="Panels">
+      <button
+        type="button"
+        className={`tab-map ${drawer === null ? "active" : ""}`}
+        onClick={() => { setDrawer(null); if (!isWide) setSelectedSighting(null); }}
+        aria-pressed={drawer === null}
+      >
+        <MapIcon />
+        <span className="label">Map</span>
+      </button>
+      <button
+        type="button"
+        className={`mobile-only tab-roundup ${drawer === "roundup" ? "active" : ""}`}
+        onClick={() => openDrawer("roundup")}
+        aria-label="Weekly roundup"
+        aria-expanded={drawer === "roundup"}
+      >
+        <BookOpen />
+        <span className="label">Roundup</span>
+      </button>
+      <button
+        type="button"
+        className={`tab-insights ${drawer === "insights" ? "active" : ""}`}
+        onClick={() => openDrawer("insights")}
+        aria-expanded={drawer === "insights"}
+      >
+        <Sparkles />
+        <span className="label">Insights</span>
+      </button>
+      <button
+        type="button"
+        className={`tab-ask ${drawer === "ask" ? "active" : ""}`}
+        onClick={() => openDrawer("ask")}
+        aria-expanded={drawer === "ask"}
+      >
+        <MessageCircle />
+        <span className="label">Ask</span>
+      </button>
+      <button
+        type="button"
+        className={`tab-birds ${drawer === "birds" ? "active" : ""}`}
+        onClick={() => openDrawer("birds")}
+        aria-expanded={drawer === "birds"}
+      >
+        {activeAlertFindings.length ? <BellRing /> : <Star />}
+        <span className="label">My birds</span>
+        {watchlistSpecies.length ? <span className="badge">{watchlistSpecies.length}</span> : null}
+      </button>
+    </nav>
+  );
+
   return (
     <main className={`app ${docked ? "docked" : ""} ${drawer ? "drawer-open" : ""}`}>
       <a className="skip-link" href="#map-controls" onClick={(event) => {
@@ -2114,8 +2202,9 @@ export default function App() {
         </div>
       ) : null}
 
-      <div className="app-body">
+      <div className="app-body" inert={!isWide && Boolean(drawer)}>
         <header className="topbar">
+          {isWide ? (
           <div className="chrome-top">
             <div className="chrome-top-left">
               <div className="segmented window-pills on-paper" role="group" aria-label="Lookback window">
@@ -2323,6 +2412,29 @@ export default function App() {
               </button>
             </div>
           </div>
+          ) : (
+            <MobileMapHeader
+              species={selectedSpecies}
+              speciesButtonRef={mastheadRef}
+              regionId={selectedRegionPreset?.id ?? null}
+              regionLabel={selectedRegionSummary}
+              digestRegionId={focusedRegionId}
+              days={lookbackDays}
+              windows={WINDOW_PRESETS}
+              status={mobileMapStatus}
+              source={sourceLabel}
+              saved={Boolean(selectedSpecies && watchlist.includes(selectedSpecies.speciesCode))}
+              filtered={narrowingFilters.length > 0}
+              filtersOpen={drawer === "menu"}
+              underreported={Boolean(selectedSpecies && underreportedCommon.has(selectedSpecies.speciesCode))}
+              onChooseBird={openPicker}
+              onRegion={selectRegionPreset}
+              onDays={setLookbackDays}
+              onFilters={() => openDrawer("menu")}
+              onSave={() => { if (selectedSpecies) toggleWatched(selectedSpecies.speciesCode); }}
+              onHome={startOver}
+            />
+          )}
         </header>
 
         <div className="stage">
@@ -2643,7 +2755,23 @@ export default function App() {
           <div className="chrome">
             <div className={`chrome-bottom ${selectedSighting ? "beside-record" : ""}`}>
               {selectedSpecies && dateKeys.length ? (
-                <div className="scrubber" aria-label="Timeline">
+                <div className={`scrubber ${timelineExpanded ? "expanded" : ""}`} aria-label="Timeline">
+                  <button
+                    type="button"
+                    className="mobile-only timeline-toggle"
+                    aria-expanded={timelineExpanded}
+                    aria-controls="timeline-controls"
+                    onClick={() => {
+                      setTimelineExpanded((expanded) => !expanded);
+                      setPlaying(false);
+                    }}
+                  >
+                    <span><strong>Timeline · {lookbackDays} days</strong><small>
+                      {timelineMode === "daily" ? formatDateKey(selectedDateKey) : `${formatDateKey(earliestDateKey)} – ${formatDateKey(selectedDateKey)}`}
+                    </small></span>
+                    <ChevronDown aria-hidden="true" />
+                  </button>
+                  <div className="timeline-controls" id="timeline-controls">
                   <div className="scrubber-head">
                     <button
                       type="button"
@@ -2757,52 +2885,17 @@ export default function App() {
                       older → fresh
                     </span>
                   </div>
+                  </div>
                 </div>
               ) : null}
 
-              <nav className="tab-bar" aria-label="Panels">
-                <button
-                  type="button"
-                  className={`tab-map ${drawer === null ? "active" : ""}`}
-                  onClick={() => setDrawer(null)}
-                  aria-pressed={drawer === null}
-                >
-                  <MapIcon />
-                  <span className="label">Map</span>
-                </button>
-                <button
-                  type="button"
-                  className={`tab-insights ${drawer === "insights" ? "active" : ""}`}
-                  onClick={() => openDrawer("insights")}
-                  aria-expanded={drawer === "insights"}
-                >
-                  <Sparkles />
-                  <span className="label">Insights</span>
-                </button>
-                <button
-                  type="button"
-                  className={`tab-ask ${drawer === "ask" ? "active" : ""}`}
-                  onClick={() => openDrawer("ask")}
-                  aria-expanded={drawer === "ask"}
-                >
-                  <MessageCircle />
-                  <span className="label">Ask</span>
-                </button>
-                <button
-                  type="button"
-                  className={`tab-birds ${drawer === "birds" ? "active" : ""}`}
-                  onClick={() => openDrawer("birds")}
-                  aria-expanded={drawer === "birds"}
-                >
-                  {activeAlertFindings.length ? <BellRing /> : <Star />}
-                  <span className="label">My birds</span>
-                  {watchlistSpecies.length ? <span className="badge">{watchlistSpecies.length}</span> : null}
-                </button>
-              </nav>
+              {isWide ? panelNavigation : null}
           </div>
           </div>
         </div>
       </div>
+
+      {!isWide ? panelNavigation : null}
 
       {/* ---- Species picker -------------------------------------------- */}
       {pickerOpen ? (
@@ -3289,6 +3382,14 @@ export default function App() {
                 <div className="field">
                   <span className="field-label">This view</span>
                   <div className="menu-actions">
+                    <button type="button" className="pill mobile-only" disabled={loading || !selectedSpecies} onClick={() => loadSightings({ force: true })}>
+                      <RefreshCw className={loading ? "spin" : ""} />
+                      Refresh from eBird
+                    </button>
+                    <button type="button" className="pill mobile-only" onClick={startOver}>
+                      <RotateCcw />
+                      Start over
+                    </button>
                     <button type="button" className="pill" onClick={() => void shareView()}>
                       {shareStatus === "Link copied" ? <Check /> : <Share2 />}
                       {shareStatus || "Copy link"}
