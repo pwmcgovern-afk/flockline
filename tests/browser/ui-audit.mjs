@@ -338,6 +338,12 @@ test("phone panels and search stay usable when the visible viewport shrinks or r
   // viewport resize path. This verifies layout, not an actual OS keyboard.
   await page.setViewportSize({ width: 390, height: 400 });
   await page.getByRole("textbox", { name: "Ask the Flockline assistant" }).fill("Where are birds nearby?");
+  // Measure the painted layout after the sheet animation and viewport update,
+  // just as the other phone panel geometry check does above.
+  await page.locator(".drawer").evaluate(async (el) => {
+    await Promise.all(el.getAnimations().map((animation) => animation.finished));
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  });
   const composer = await page.locator(".chat-composer").boundingBox();
   const nav = await page.locator(".tab-bar").boundingBox();
   assert.ok(composer.y >= 0 && composer.y + composer.height <= nav.y + 1);
@@ -399,13 +405,13 @@ test("signup validates editions, freezes submitted values, and recovers from API
   await page.getByRole("checkbox", { name: "West", exact: true }).uncheck();
   assert.equal(
     await page
-      .getByRole("button", { name: "Send confirmation", exact: true })
+      .getByRole("button", { name: "Get the free digest", exact: true })
       .isDisabled(),
     true,
   );
   await page.getByRole("checkbox", { name: "Northeast", exact: true }).check();
   await page
-    .getByRole("button", { name: "Send confirmation", exact: true })
+    .getByRole("button", { name: "Get the free digest", exact: true })
     .click();
   assert.equal(
     await page
@@ -422,7 +428,7 @@ test("signup validates editions, freezes submitted values, and recovers from API
   );
   fail = false;
   await page
-    .getByRole("button", { name: "Send confirmation", exact: true })
+    .getByRole("button", { name: "Get the free digest", exact: true })
     .click();
   await page.getByText("Check your inbox", { exact: true }).waitFor();
   assert.deepEqual(sent.regions, ["northeast"]);
@@ -431,6 +437,62 @@ test("signup validates editions, freezes submitted values, and recovers from API
     await page.locator(".digest-success-content").innerText(),
     /audit@example.com/,
   );
+  await finish(s);
+});
+
+test("phone discovery opens Insights and carries the regional edition into newsletter signup", async () => {
+  const s = await session({ width: 390, height: 844, touch: true });
+  const { page } = s;
+  await page.goto(base + "/?bird=browse&region=northeast");
+  await page.getByRole("button", { name: "Explore notable sightings", exact: true }).tap();
+  await page.locator(".insight-card").first().waitFor();
+  assert.equal(await page.locator(".map-empty").count(), 0, "Welcome card leaves the map when a panel opens");
+  await page.locator(".insight-digest-invitation").tap();
+  await page.waitForURL("**/newsletter?**");
+  assert.equal(new URL(page.url()).searchParams.get("region"), "northeast");
+  assert.equal(new URL(page.url()).searchParams.get("src"), "insights");
+  await page.getByRole("link", { name: "Get the free digest", exact: true }).tap();
+  assert.equal(await page.getByRole("checkbox", { name: "Northeast", exact: true }).isChecked(), true);
+  const form = await page.locator("#subscribe").boundingBox();
+  assert.ok(form.y >= 0 && form.y < 60, "Phone signup shortcut brings the form into view");
+  await finish(s);
+});
+
+test("newsletter previews stay dated, handle region races and failures, and preserve edited signup preferences", async () => {
+  let generationRequests = 0;
+  const s = await session({ width: 320, height: 700, handlers: {
+    "/api/roundup": (route) => { generationRequests++; return json(route, {}); },
+    "/api/roundup-archive": async (route, url) => {
+      const scope = url.searchParams.get("scope");
+      if (scope === "west") await delay(300);
+      if (scope === "midwest") return json(route, { error: "Temporarily unavailable" }, 503);
+      return json(route, { ...roundup(scope), generatedAt: "2026-09-07T14:00:00Z", findings: [{
+        title: `Saved ${scope} bird`, comName: "Baird's Sandpiper", locName: "Published location",
+        image: { url: "/digest-illustrations/baisan-v1.jpg", kind: "species-illustration", alt: "Baird's Sandpiper illustration" },
+      }] });
+    },
+  } });
+  const { page } = s;
+  await page.goto(base + "/newsletter?region=northeast");
+  await page.getByRole("heading", { name: "Saved northeast bird", exact: true }).waitFor();
+  assert.equal(await page.locator(".issue-preview time").getAttribute("datetime"), "2026-09-07");
+  assert.equal(await page.locator(".issue-preview-link").getAttribute("href"), "/roundup/northeast/2026-09-07");
+  assert.match(await page.locator(".issue-preview figcaption").innerText(), /not the reported individual/);
+  assert.equal(await page.evaluate(() => document.querySelector(".methodology").scrollWidth <= window.innerWidth), true);
+  const selector = page.getByRole("combobox", { name: "Preview an edition", exact: true });
+  await selector.selectOption("west");
+  await selector.selectOption("south");
+  await page.getByRole("heading", { name: "Saved south bird", exact: true }).waitFor();
+  await delay(350);
+  assert.equal(await page.getByRole("heading", { name: "Saved west bird", exact: true }).count(), 0);
+  assert.equal(await page.getByRole("checkbox", { name: "South", exact: true }).isChecked(), true);
+  await page.getByRole("checkbox", { name: "Northeast", exact: true }).check();
+  await selector.selectOption("midwest");
+  await page.locator(".issue-preview").getByText("Browse published issues to see what lands in your inbox.").waitFor();
+  assert.equal(await page.locator(".issue-preview-title").count(), 0, "An unavailable edition does not show another region's bird");
+  assert.equal(await page.getByRole("checkbox", { name: "South", exact: true }).isChecked(), true);
+  assert.equal(await page.getByRole("checkbox", { name: "Northeast", exact: true }).isChecked(), true);
+  assert.equal(generationRequests, 0, "Looking at a sample never generates a new digest");
   await finish(s);
 });
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import L from "leaflet";
 import { requestJson } from "./request";
 import "./mobile.css";
@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import Tour, { type TourStep } from "./Tour";
 import DigestSignup from "./DigestSignup";
+import LatestIssuePreview from "./LatestIssuePreview";
 import MobileMapHeader from "./MobileMapHeader";
 import { buildAppUrl, parseAppState, type AppState, type AppView, type TimelineMode } from "./appState";
 import {
@@ -2509,7 +2510,7 @@ export default function App() {
           </div>
         ) : null}
 
-        {!selectedSpecies && !emptyCardHidden ? (
+        {!selectedSpecies && !emptyCardHidden && !drawer ? (
           <div className="map-empty" role="status">
             {/* Sits over the middle of the map, which is exactly where you want
                 to look once Insights is open. Let it be dismissed; it comes
@@ -2523,7 +2524,7 @@ export default function App() {
               <X size={14} />
             </button>
             <Feather size={22} />
-            <h2>{unknownCode ? "We don't know that bird" : "Choose a bird"}</h2>
+            <h2>{unknownCode ? "We don't know that bird" : "What's worth seeing?"}</h2>
             <p>
               {unknownCode ? (
                 <>
@@ -2532,8 +2533,8 @@ export default function App() {
                 </>
               ) : selectedRegions.length ? (
                 <>
-                  Pick any of {presets.length.toLocaleString()} species and Flockline charts where it has
-                  been reported across {selectedRegionSummary}.
+                  Discover notable sightings across {selectedRegionSummary}, or follow a bird
+                  you already have in mind.
                 </>
               ) : (
                 // Interpolating the summary here read "reported across No
@@ -2541,9 +2542,18 @@ export default function App() {
                 <>No states are selected. Choose some from Menu, then pick a bird.</>
               )}
             </p>
-            <button type="button" className="pill" onClick={openPicker}>
-              <Search size={13} />
-              Browse species
+            <div className="map-discovery-actions">
+              {!unknownCode && selectedRegions.length ? (
+                <button type="button" className="pill discovery-primary" onClick={() => setDrawer("insights")}>
+                  <Compass size={14} /> Explore notable sightings
+                </button>
+              ) : null}
+              <button type="button" className="pill" onClick={openPicker}>
+                <Search size={13} /> Browse species
+              </button>
+            </div>
+            <button className="map-digest-preview" type="button" onClick={() => setDrawer("roundup")}>
+              <BookOpen size={14} /> Preview the weekly digest
             </button>
           </div>
         ) : null}
@@ -3120,13 +3130,18 @@ export default function App() {
 
                 {!roundupRegionId ? (
                   <div className="roundup-intro">
-                    <BookOpen aria-hidden="true" />
                     <span className="script">Seven days in the field</span>
-                    <h3>Choose your edition</h3>
+                    <h3>Six birds worth a closer look</h3>
                     <p>
-                      Flockline will read the latest eBird notable reports and prepare a fresh
-                      regional digest. Your map stays exactly where it is.
+                      Remarkable reports, the places behind them, and a map for every bird.
+                      Read a published issue or explore fresh sightings below.
                     </p>
+                    <LatestIssuePreview regionId={focusedRegionId} compact />
+                    <DigestSignup
+                      key={`digest-intro-${focusedRegionId}`}
+                      defaultRegionId={focusedRegionId}
+                    />
+                    <h4 className="roundup-region-label">Explore the past seven days</h4>
                     <div className="roundup-region-grid" aria-label="Weekly roundup region">
                       {US_REGION_PRESETS.map((region) => (
                         <button
@@ -3143,10 +3158,6 @@ export default function App() {
                         </button>
                       ))}
                     </div>
-                    <DigestSignup
-                      key={`digest-intro-${focusedRegionId}`}
-                      defaultRegionId={focusedRegionId}
-                    />
                   </div>
                 ) : (
                   <>
@@ -3418,6 +3429,7 @@ export default function App() {
             <>
               <div className="drawer-body">
                 <div className="insights-scope">
+                  <p className="insights-intro">A few sightings worth a closer look. Open any finding on the map to explore where it was reported.</p>
                   <div className="scope-row">
                     <select
                       className="scope-select"
@@ -3542,40 +3554,47 @@ export default function App() {
                 ) : insights && insights.findings.length ? (
                   <div className="insights-list">
                     {insights.findings.map((finding: Insight, index) => (
-                      <article
-                        className={`insight-card ${finding.kind}`}
-                        key={`${finding.speciesCode ?? "x"}-${index}`}
-                      >
-                        <span className="insight-kind">
-                          {insightIcon(finding.kind)}
-                          {finding.kind === "wide" ? "Widespread" : finding.kind === "surge" ? "Cluster" : "Rarity"}
-                        </span>
-                        <h3>{finding.title}</h3>
-                        <p>{finding.detail}</p>
-                        <div className="insight-meta">
-                          {finding.region ? (
-                            <span>
-                              <MapPin size={11} />
-                              {finding.region}
-                            </span>
-                          ) : null}
-                          {finding.speciesCode ? (
-                            <button type="button" onClick={() => showFindingOnMap(finding)}>
-                              View on map
-                            </button>
-                          ) : null}
-                          {finding.subId ? (
-                            <a
-                              href={`https://ebird.org/checklist/${finding.subId}`}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              Checklist
-                              <ExternalLink size={11} />
-                            </a>
-                          ) : null}
-                        </div>
-                      </article>
+                      <Fragment key={`${finding.speciesCode ?? "x"}-${index}`}>
+                        <article
+                          className={`insight-card ${finding.kind}`}
+                        >
+                          <span className="insight-kind">
+                            {insightIcon(finding.kind)}
+                            {finding.kind === "wide" ? "Widespread" : finding.kind === "surge" ? "Cluster" : "Rarity"}
+                          </span>
+                          <h3>{finding.title}</h3>
+                          <p>{finding.detail}</p>
+                          <div className="insight-meta">
+                            {finding.region ? (
+                              <span>
+                                <MapPin size={11} />
+                                {finding.region}
+                              </span>
+                            ) : null}
+                            {finding.speciesCode ? (
+                              <button type="button" onClick={() => showFindingOnMap(finding)}>
+                                View on map
+                              </button>
+                            ) : null}
+                            {finding.subId ? (
+                              <a
+                                href={`https://ebird.org/checklist/${finding.subId}`}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                Checklist
+                                <ExternalLink size={11} />
+                              </a>
+                            ) : null}
+                          </div>
+                        </article>
+                        {index === 0 ? (
+                          <a className="insight-digest-invitation" href={`/newsletter?region=${insightRegionPreset?.id ?? focusedRegionId}&src=insights`}>
+                            <BookOpen size={18} aria-hidden="true" />
+                            <span><strong>Good birds, delivered weekly.</strong><small>Get the free Monday digest →</small></span>
+                          </a>
+                        ) : null}
+                      </Fragment>
                     ))}
                   </div>
                 ) : (

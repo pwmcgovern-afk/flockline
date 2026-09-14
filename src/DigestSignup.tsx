@@ -136,11 +136,11 @@ export default function DigestSignup({
       <span>
         <strong>
           {variant === "header"
-            ? "Get weekly insights"
-            : "Get weekly insights by email"}
+            ? "Free weekly digest"
+            : "Make this your Monday read"}
         </strong>
         {variant === "card" ? (
-          <small>10 AM ET every Monday · choose any region</small>
+          <small>Free · notable birds + map links · every Monday</small>
         ) : null}
       </span>
     </button>
@@ -156,8 +156,8 @@ export default function DigestSignup({
       <div className="digest-form-heading">
         <Mail aria-hidden="true" />
         <div>
-          <strong>Your Monday field note</strong>
-          <p>Each selected edition arrives at 10 AM ET as a separate email.</p>
+          <strong>The week's birds. In your inbox.</strong>
+          <p>Free, at 10 AM ET every Monday. Each selected region arrives as a separate email.</p>
         </div>
       </div>
 
@@ -213,15 +213,15 @@ export default function DigestSignup({
           ) : (
             <Mail aria-hidden="true" />
           )}
-          {state === "sending" ? "Sending…" : "Send confirmation"}
+          {state === "sending" ? "Sending…" : "Get the free digest"}
         </button>
-        <button type="button" className="digest-cancel" onClick={close}>
+        {!startOpen ? <button type="button" className="digest-cancel" onClick={close}>
           Not now
-        </button>
+        </button> : null}
       </div>
       <p className="digest-consent">
-        Confirming subscribes you to the editions selected above. Every digest
-        includes a preference and unsubscribe link.
+        We'll email you a confirmation link first. Confirm to subscribe to your
+        selected editions. Unsubscribe anytime.
       </p>
     </form>
   );

@@ -1,5 +1,7 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import DigestSignup from "./DigestSignup";
+import LatestIssuePreview from "./LatestIssuePreview";
+import { useState } from "react";
 import { US_REGION_PRESETS } from "../shared/usGeography.js";
 
 // The linkable front door for the weekly digest, served at /newsletter. Every
@@ -11,6 +13,7 @@ export default function NewsletterPage({ search = typeof window === "undefined" 
   const signupSrc = (params.get("src") || "newsletter").trim().toLowerCase();
   const regionParam = (params.get("region") || "").trim().toLowerCase();
   const defaultRegion = US_REGION_PRESETS.some((region) => region.id === regionParam) ? regionParam : "nationwide";
+  const [previewRegion, setPreviewRegion] = useState(defaultRegion);
   return (
     <main className="methodology newsletter-page">
       <div className="methodology-inner">
@@ -20,17 +23,33 @@ export default function NewsletterPage({ search = typeof window === "undefined" 
         </a>
 
         <header className="methodology-head">
-          <span className="script">every monday</span>
-          <h1>The week in rare birds, by email</h1>
+          <span className="script">the Flockline weekly digest</span>
+          <h1>Six remarkable birds.<br />One Monday email.</h1>
         </header>
 
         <p className="newsletter-lede">
-          Flockline reads every verified notable sighting reported to eBird over the past seven
-          days and sends you the six most interesting ones for your region: what showed up, where,
-          and a live map for each. Free, no account, one email every Monday at 10 AM Eastern.
+          Find out what showed up, where it was seen, and why it caught our attention.
+          Six notable species from verified eBird reports in your region, with illustrations,
+          original checklists, and links to explore the map.
         </p>
 
-        <DigestSignup defaultRegionId={defaultRegion} src={signupSrc} startOpen />
+        <p className="newsletter-promise">Free · Every Monday at 10 AM ET · Unsubscribe anytime</p>
+        <a className="newsletter-jump" href="#subscribe">Get the free digest <ArrowRight size={15} aria-hidden="true" /></a>
+
+        <div className="newsletter-showcase">
+          <div className="newsletter-sample">
+            <label className="newsletter-edition">
+              <span>Take a look inside</span>
+              <select aria-label="Preview an edition" value={previewRegion} onChange={(event) => setPreviewRegion(event.target.value)}>
+                {US_REGION_PRESETS.map((region) => <option key={region.id} value={region.id}>{region.name}</option>)}
+              </select>
+            </label>
+            <LatestIssuePreview regionId={previewRegion} />
+          </div>
+          <div id="subscribe" className="newsletter-form" tabIndex={-1}>
+            <DigestSignup defaultRegionId={previewRegion} src={signupSrc} startOpen />
+          </div>
+        </div>
 
         <section>
           <h2>What's inside</h2>

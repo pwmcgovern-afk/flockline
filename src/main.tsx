@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { inject } from "@vercel/analytics";
 import "leaflet/dist/leaflet.css";
 import "./styles.css";
+import "./discovery.css";
 import ErrorBoundary from "./ErrorBoundary";
 import Methodology from "./Methodology";
 import NewsletterPage from "./NewsletterPage";
