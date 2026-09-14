@@ -1,0 +1,160 @@
+/* Discovery uses the existing paper, ink, field-guide art, and finch-red accent. */
+.map-discovery-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  width: 100%;
+  max-width: 280px;
+}
+.map-empty .discovery-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.map-empty .discovery-primary:hover { background: color-mix(in srgb, var(--accent) 85%, var(--ink)); }
+.map-digest-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin-top: 3px;
+  color: var(--ink-2);
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.map-digest-preview:hover { color: var(--accent); }
+
+.issue-preview {
+  width: 100%;
+  padding: 20px;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  border-radius: 14px;
+  background: var(--paper-raised);
+  text-align: left;
+}
+.issue-preview-label, .roundup-region-label, .newsletter-edition > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: .08em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+.issue-preview-label svg { flex-shrink: 0; color: var(--accent); }
+.issue-preview figure { margin: 16px 0; }
+.issue-preview img {
+  display: block;
+  width: 100%;
+  height: 190px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--paper);
+}
+.issue-preview figcaption { margin-top: 6px; font: 10px/1.5 var(--mono); color: var(--ink-3); }
+.issue-preview .issue-preview-date { margin: 12px 0 8px; font: 10px/1.5 var(--mono); color: var(--ink-2); }
+.issue-preview .issue-preview-title { margin: 0 0 8px; font: 400 26px/1.15 var(--serif); letter-spacing: 0; text-transform: none; padding: 0; border: 0; color: var(--ink); }
+.issue-preview .issue-preview-location { margin: 0 0 10px; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
+.issue-preview .issue-preview-more { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+.issue-preview .issue-preview-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule);
+  color: var(--accent);
+  font: 500 13px/1.5 var(--mono);
+  text-decoration: none;
+}
+.issue-preview .issue-preview-link:hover { color: var(--ink); }
+.issue-preview-link svg { flex-shrink: 0; }
+.issue-preview > p { margin: 16px 0; color: var(--ink-2); }
+.issue-preview-compact { padding: 15px; }
+.issue-preview-compact .issue-preview-body { display: flex; align-items: center; gap: 14px; margin: 12px 0; }
+.issue-preview-compact figure { width: 100px; flex-shrink: 0; margin: 0; }
+.issue-preview-compact img { height: 100px; }
+.issue-preview-compact figcaption { font-size: 9px; }
+.issue-preview-compact .issue-preview-title { font-size: 21px; }
+.issue-preview-compact .issue-preview-date { margin-top: 0; }
+.issue-preview-compact .issue-preview-location { font-size: 13px; margin-bottom: 0; }
+.roundup-intro { padding-top: 8px; }
+.roundup-intro > h3 { line-height: 1.2; }
+.roundup-intro > .issue-preview { margin-top: 16px; }
+.roundup-intro > .digest-signup { margin-top: 16px; }
+.roundup-region-label { margin-top: 22px; text-align: left; }
+.roundup-region-grid { margin-top: 10px; }
+
+.insights-intro { font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.insights-list > .insight-card:first-child {
+  margin-top: 0;
+  padding: 18px;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  border-radius: 12px;
+  background: var(--paper-raised);
+}
+.insights-list > .insight-card:first-child h3 { font-size: 25px; line-height: 1.15; }
+.insight-digest-invitation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  margin: 4px 0 12px;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: var(--accent);
+}
+.insight-digest-invitation svg { flex-shrink: 0; }
+.insight-digest-invitation strong { display: block; color: var(--ink); font: 500 17px/1.3 var(--serif); }
+.insight-digest-invitation small { display: block; margin-top: 5px; color: var(--accent); font: 11px/1.5 var(--mono); }
+.insight-digest-invitation:hover small { text-decoration: underline; text-underline-offset: 3px; }
+.archive-page .insight-digest-invitation { text-decoration: none; }
+.digest-signup:not(.digest-header) { border-color: color-mix(in srgb, var(--accent) 35%, var(--rule)); }
+.digest-signup:not(.digest-header) .digest-cta { background: var(--accent-soft); }
+.digest-submit { background: var(--accent); color: #fff; }
+.digest-submit:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 85%, var(--ink)); }
+
+.newsletter-page .methodology-inner { max-width: 1000px; padding-top: 32px; }
+.newsletter-page .methodology-head { margin-bottom: 18px; }
+.newsletter-page .newsletter-lede { max-width: 660px; margin-bottom: 14px; }
+.newsletter-page .newsletter-promise { color: var(--accent); font: 11px/1.8 var(--mono); margin-bottom: 28px; }
+.newsletter-showcase { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 28px; margin-bottom: 44px; }
+.newsletter-edition { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.newsletter-edition select { min-width: 0; max-width: 55%; min-height: 44px; padding: 0 8px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper-raised); font: 13px var(--mono); }
+.newsletter-form { scroll-margin-top: 20px; }
+.newsletter-form .digest-signup { margin-bottom: 0; }
+.newsletter-form .digest-signup form { padding: 24px; gap: 16px; }
+.newsletter-form .digest-form-heading strong { font-size: 23px; line-height: 1.25; }
+.newsletter-form .digest-form-heading p { font-size: 14px; line-height: 1.5; margin: 6px 0 0; }
+.newsletter-form .digest-consent, .newsletter-form .digest-error { font-size: 12px; line-height: 1.5; margin-bottom: 0; }
+.newsletter-form .digest-form-actions { flex-wrap: wrap; }
+.newsletter-form .digest-submit { width: 100%; min-height: 46px; justify-content: center; }
+.newsletter-page .newsletter-jump { display: none; }
+
+@media (max-width: 700px) {
+  .newsletter-showcase { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .newsletter-page .newsletter-jump { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--accent); color: #fff; font: 12px var(--mono); text-decoration: none; margin-bottom: 28px; }
+  .newsletter-page .newsletter-promise { margin-bottom: 14px; }
+  .newsletter-page .methodology-head h1 { font-size: clamp(28px, 7vw, 40px); }
+  .newsletter-form .digest-signup form { padding: 18px; }
+  .newsletter-sample .issue-preview-body { display: flex; gap: 14px; align-items: center; margin: 14px 0; }
+  .newsletter-sample .issue-preview figure { width: 100px; flex-shrink: 0; margin: 0; }
+  .newsletter-sample .issue-preview img { height: 100px; }
+  .newsletter-sample .issue-preview .issue-preview-title { font-size: 22px; }
+  .newsletter-sample .issue-preview-more { display: none; }
+  .newsletter-sample .issue-preview-location { font-size: 14px; }
+}
+@media (max-width: 360px) {
+  .issue-preview { padding: 14px; }
+  .newsletter-sample .issue-preview-body, .issue-preview-compact .issue-preview-body { gap: 10px; }
+  .newsletter-sample .issue-preview figure, .issue-preview-compact figure { width: 72px; }
+  .newsletter-sample .issue-preview img, .issue-preview-compact img { height: 80px; }
+  .issue-preview .issue-preview-link { font-size: 11px; }
+}

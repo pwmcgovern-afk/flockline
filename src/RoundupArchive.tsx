@@ -207,6 +207,9 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
         {roundup ? (
           <>
             <p className="newsletter-lede">{roundup.summary}</p>
+            <a className="insight-digest-invitation" href={`/newsletter?region=${scopeId}&src=roundup-issue`}>
+              <span><strong>The next edition, straight to your inbox.</strong><small>Get the free Monday digest →</small></span>
+            </a>
 
             {(roundup.findings || []).map((finding, position) => (
               <article className="archive-finding" key={`${finding.speciesCode || finding.title}-${position}`}>
