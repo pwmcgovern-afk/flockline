@@ -11,6 +11,7 @@ The weekly roundup introduction shows a saved issue before the fresh-generation 
 - `LatestIssuePreview.tsx` reads `/api/roundup-archive?scope=…`. Viewing a sample never calls the generation or email endpoints.
 - The preview shows the actual issue date and links to its permanent dated URL. It selects the first illustrated finding, falling back to the first finding without an image. It does not invent sightings or label older issues as this week's news.
 - Artwork retains the species-illustration disclaimer. Titles and locations come directly from the saved issue.
+- If the image host fails, the preview removes the broken illustration and keeps the issue title, location, date, and link readable.
 - Changing the preview edition updates the signup default until the visitor edits their subscription choices. After that, their chosen subscriptions remain intact.
 - Aborted requests cannot replace a newer region's sample. Missing or failed samples offer the archive link while the signup form remains usable.
 - Signup still requires email confirmation. The button describes the benefit, and the adjacent explanation tells readers that confirmation comes first.
