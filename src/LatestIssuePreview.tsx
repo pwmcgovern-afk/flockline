@@ -8,6 +8,7 @@ import { requestJson } from "./request";
 export default function LatestIssuePreview({ regionId, compact = false }: { regionId: string; compact?: boolean }) {
   const [issue, setIssue] = useState<ArchiveRoundup | null>(null);
   const [status, setStatus] = useState("Loading a published issue…");
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -32,7 +33,7 @@ export default function LatestIssuePreview({ regionId, compact = false }: { regi
   // the render before its new request starts.
   const current = issue?.scopeId === regionId ? issue : null;
   const finding = current?.findings.find((bird) => bird.image?.kind === "species-illustration" && bird.image.url) ?? current?.findings[0];
-  const image = finding?.image?.kind === "species-illustration" ? finding.image : null;
+  const image = finding?.image?.kind === "species-illustration" && finding.image.url !== failedImageUrl ? finding.image : null;
   const date = current?.generatedAt.slice(0, 10);
   const issueUrl = current ? `/roundup/${regionId}/${date}` : "/roundup";
   const otherBirds = current?.findings.filter((bird) => bird !== finding && bird.comName).slice(0, 2);
@@ -46,7 +47,7 @@ export default function LatestIssuePreview({ regionId, compact = false }: { regi
           <div className="issue-preview-body">
             {image?.url ? (
               <figure>
-                <img src={image.url} alt={image.alt || `Illustration of ${finding.comName || finding.title}`} loading="lazy" />
+                <img src={image.url} alt={image.alt || `Illustration of ${finding.comName || finding.title}`} loading="lazy" onError={() => setFailedImageUrl(image.url || null)} />
                 <figcaption>Species illustration, not the reported individual.</figcaption>
               </figure>
             ) : null}

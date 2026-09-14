@@ -496,6 +496,26 @@ test("newsletter previews stay dated, handle region races and failures, and pres
   await finish(s);
 });
 
+test("newsletter keeps the published sample readable when its illustration fails", async () => {
+  const s = await session({ handlers: {
+    "/api/roundup-archive": (route) => json(route, {
+      ...roundup("northeast"), generatedAt: "2026-09-07T14:00:00Z", findings: [{
+        title: "A saved sighting", locName: "Published location",
+        image: { kind: "species-illustration", url: "/missing-illustration.jpg", alt: "Bird illustration" },
+      }],
+    }),
+  } });
+  const { page } = s;
+  await page.route("**/missing-illustration.jpg", (route) => route.abort());
+  await page.goto(base + "/newsletter?region=northeast");
+  await page.getByRole("heading", { name: "A saved sighting", exact: true }).waitFor();
+  await page.locator(".issue-preview-link").scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => !document.querySelector(".issue-preview figure"));
+  assert.equal(await page.locator(".issue-preview-title").innerText(), "A saved sighting");
+  assert.equal(await page.locator(".issue-preview-link").getAttribute("href"), "/roundup/northeast/2026-09-07");
+  await finish(s);
+});
+
 test("history restores defaults, empty states, and the weekly edition", async () => {
   const s = await session();
   const { page } = s;
