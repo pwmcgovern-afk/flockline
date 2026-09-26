@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/illustration-prewarm?region=nationwide",
-      "schedule": "0,20 13 * * 1"
+      "schedule": "5,25,40 13,14,15 * * 1"
     },
     {
       "path": "/api/cron/weekly-digests?region=nationwide&mode=check",
@@ -14,7 +14,7 @@
     },
     {
       "path": "/api/cron/illustration-prewarm?region=northeast",
-      "schedule": "1,21 13 * * 1"
+      "schedule": "6,26,41 13,14,15 * * 1"
     },
     {
       "path": "/api/cron/weekly-digests?region=northeast&mode=check",
@@ -26,7 +26,7 @@
     },
     {
       "path": "/api/cron/illustration-prewarm?region=midwest",
-      "schedule": "2,22 13 * * 1"
+      "schedule": "7,27,42 13,14,15 * * 1"
     },
     {
       "path": "/api/cron/weekly-digests?region=midwest&mode=check",
@@ -38,7 +38,7 @@
     },
     {
       "path": "/api/cron/illustration-prewarm?region=south",
-      "schedule": "3,23 13 * * 1"
+      "schedule": "8,28,43 13,14,15 * * 1"
     },
     {
       "path": "/api/cron/weekly-digests?region=south&mode=check",
@@ -50,7 +50,7 @@
     },
     {
       "path": "/api/cron/illustration-prewarm?region=west",
-      "schedule": "4,24 13 * * 1"
+      "schedule": "9,29,44 13,14,15 * * 1"
     },
     {
       "path": "/api/cron/weekly-digests?region=west&mode=check",
