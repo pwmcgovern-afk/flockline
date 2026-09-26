@@ -69,7 +69,8 @@ export default async function handler(request, response) {
     // Return the operational receipt, not the full saved edition.
     const { roundup: _roundup, ...receipt } = result;
     console.info(JSON.stringify({ event: "weekly_digest_completed", mode, durationMs: Date.now() - startedAt, ...receipt }));
-    response.status(200).json({ ok: true, ...receipt });
+    const ok = result.status !== "awaiting_illustrations";
+    response.status(ok ? 200 : 503).json({ ok, ...receipt });
   } catch (error) {
     console.error(JSON.stringify({ event: "weekly_digest_failed", region: region.id, mode, message: error?.message }));
     response.status(500).json({ ok: false, region: region.id, error: "Digest processing failed. The next scheduled attempt can resume." });

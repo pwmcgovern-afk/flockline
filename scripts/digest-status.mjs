@@ -21,7 +21,7 @@ for (const region of DIGEST_REGIONS) {
     updatedAt: value?.updatedAt || value?.checkedAt,
     broadcastId: value?.broadcastId, providerStatus: value?.providerStatus,
     archived: value?.archived, hasRecipients: value?.hasRecipients,
-    findings: value?.findings, illustrations: value?.illustrations
+    findings: value?.findings, illustrations: value?.illustrations, unresolved: value?.unresolved
   });
 }
 const healthy = results.every((result) => kind === "check"
