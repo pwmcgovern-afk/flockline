@@ -7,6 +7,9 @@ import {
 } from "../lib/roundupArchive.js";
 import { parseArchivePath, renderPage } from "../server-render/seo-entry.js";
 
+import { parseSightingPath } from "../shared/sightingPath.js";
+import { getSightingDetails } from "../lib/sightingDetails.js";
+
 let template;
 export default async function handler(request, response) {
   if (!["GET", "HEAD"].includes(request.method)) {
@@ -19,7 +22,11 @@ export default async function handler(request, response) {
   let status = 200;
   let initial = {};
   try {
-    if (path.startsWith("/roundup")) {
+    if (path.startsWith("/sightings")) {
+      const address = parseSightingPath(path);
+      if (!address) status = 404;
+      else initial = { sighting: await getSightingDetails({ subId: address.subId, species: address.speciesCode }) };
+    } else if (path.startsWith("/roundup")) {
       const parsed = parseArchivePath(path);
       if (!parsed.valid) status = 404;
       else {
@@ -53,7 +60,7 @@ export default async function handler(request, response) {
       status = 404;
   } catch (error) {
     console.error("SEO page archive read failed", error.message);
-    status = 503;
+    status = error.statusCode === 404 ? 404 : 503;
     response.setHeader("Retry-After", "60");
   }
   response.setHeader("Content-Type", "text/html; charset=utf-8");

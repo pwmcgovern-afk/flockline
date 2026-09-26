@@ -9,13 +9,14 @@ import Methodology from "./Methodology";
 import NewsletterPage from "./NewsletterPage";
 import RoundupArchive, { type ArchiveInitial } from "./RoundupArchive";
 import NotFound from "./NotFound";
+import SightingPage, { type SightingDetails } from "./SightingPage";
 
 const App = lazy(() => import("./App"));
 
 inject();
 
 const initialElement = document.getElementById("flockline-page-data");
-const initial: ArchiveInitial & { status?: number } = initialElement ? JSON.parse(initialElement.textContent || "{}") : {};
+const initial: ArchiveInitial & { status?: number; sighting?: SightingDetails } = initialElement ? JSON.parse(initialElement.textContent || "{}") : {};
 
 // Match editorial pages before App mounts: its map-state URL sync would
 // otherwise erase their paths and signup attribution. Keep old methodology
@@ -40,6 +41,7 @@ function Root() {
   if (path === "/roundup" || path.startsWith("/roundup/")) {
     return <RoundupArchive initial={initial} />;
   }
+  if (path.startsWith("/sightings/")) return <SightingPage initial={initial.sighting} />;
   if (path !== "/") return <NotFound />;
 
   return hash === "#methodology" ? <Methodology /> : <App />;

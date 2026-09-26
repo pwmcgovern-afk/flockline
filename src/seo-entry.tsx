@@ -2,6 +2,7 @@ import { renderToString } from "react-dom/server";
 import NewsletterPage from "./NewsletterPage";
 import Methodology from "./Methodology";
 import NotFound from "./NotFound";
+import SightingPage, { type SightingDetails } from "./SightingPage";
 import RoundupArchive, { type ArchiveInitial } from "./RoundupArchive";
 import { parseArchivePath } from "./archivePath";
 import { buildMeta, escapeHtml } from "../shared/shareMeta.js";
@@ -14,7 +15,7 @@ const ORIGIN = "https://flockline.app";
 export function renderPage(
   template: string,
   url: URL,
-  initial: ArchiveInitial = {},
+  initial: ArchiveInitial & { sighting?: SightingDetails } = {},
   status = 200,
 ) {
   const path = url.pathname.replace(/\/+$/, "") || "/";
@@ -34,6 +35,11 @@ export function renderPage(
           }
         : buildMeta(url);
   if (initial.roundup) meta.description = initial.roundup.summary;
+  if (initial.sighting && status === 200) {
+    const { finding, checklist } = initial.sighting;
+    meta.title = `${finding.comName} sighting · Flockline`;
+    meta.description = `Field notes for ${finding.comName}${finding.locName ? ` at ${finding.locName}` : ""}, reported ${checklist.observedAt?.slice(0, 10) || "on eBird"}. Photos, observer notes, and checklist details.`;
+  }
 
   const content =
     status === 404 ? (
@@ -51,6 +57,8 @@ export function renderPage(
       <NewsletterPage search={url.search} />
     ) : path === "/methodology" ? (
       <Methodology />
+    ) : path.startsWith("/sightings/") ? (
+      <SightingPage pathname={path} initial={initial.sighting} />
     ) : path.startsWith("/roundup") ? (
       <RoundupArchive pathname={path} initial={initial} />
     ) : (

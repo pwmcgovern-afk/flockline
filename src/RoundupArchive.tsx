@@ -1,3 +1,4 @@
+import { sightingPath } from "../shared/sightingPath.js";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import DigestSignup from "./DigestSignup";
@@ -220,12 +221,13 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
                   </figure>
                 ) : null}
                 <span className="archive-kind">{kindLabel(finding.kind)}</span>
-                <h2>{finding.title}</h2>
+                <h2>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h2>
                 <p>{finding.detail}</p>
                 <p className="archive-meta">
                   {[finding.locName, finding.obsDt ? formatIssueDate(finding.obsDt) : "", Number.isFinite(finding.howMany) && (finding.howMany || 0) > 0 ? `${finding.howMany} ${finding.howMany === 1 ? "bird" : "birds"}` : ""].filter(Boolean).join(" · ")}
                 </p>
                 <p className="archive-links">
+                  {sightingPath(finding) ? <a href={sightingPath(finding)!}>Learn more →</a> : null}
                   {finding.speciesCode ? (
                     <a href={`/?bird=${encodeURIComponent(finding.speciesCode)}&days=7&region=${encodeURIComponent(scopeId)}&mode=trail&provisional=1&hotspots=0`}>
                       View on the live map
