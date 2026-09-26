@@ -274,7 +274,7 @@ function SightingArticle({
           ) : null}
           {checklist.numSpecies != null ? (
             <div>
-              <dt>All species on the outing</dt>
+              <dt>Species logged on this checklist</dt>
               <dd>{checklist.numSpecies} {checklist.numSpecies === 1 ? "species" : "different species"}</dd>
             </div>
           ) : null}
