@@ -1,4 +1,5 @@
 import "dotenv/config";
+import sightingHandler from "../api/sighting.js";
 import cors from "cors";
 import express from "express";
 import fs from "node:fs";
@@ -105,6 +106,8 @@ app.post("/api/digest-subscription", digestSubscriptionHandler);
 app.get("/api/digest-confirm", digestConfirmHandler);
 app.get("/api/roundup-archive", roundupArchiveHandler);
 app.get("/api/cron/illustration-prewarm", illustrationPrewarmHandler);
+
+app.get("/api/sighting", sightingHandler);
 
 app.get("/api/checklist", async (request, response) => {
   try {

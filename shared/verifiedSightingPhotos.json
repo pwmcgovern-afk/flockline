@@ -1,0 +1,446 @@
+[
+  {
+    "assetId": "665344218",
+    "speciesCode": "corplo",
+    "subId": "S394925341",
+    "credit": "Toni Taylor",
+    "locName": "Odiorne Point SP, Rye, New Hampshire",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665344564",
+    "speciesCode": "corplo",
+    "subId": "S394925341",
+    "credit": "Toni Taylor",
+    "locName": "Odiorne Point SP, Rye, New Hampshire",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665344713",
+    "speciesCode": "corplo",
+    "subId": "S394925341",
+    "credit": "Toni Taylor",
+    "locName": "Odiorne Point SP, Rye, New Hampshire",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665344809",
+    "speciesCode": "corplo",
+    "subId": "S394925341",
+    "credit": "Toni Taylor",
+    "locName": "Odiorne Point SP, Rye, New Hampshire",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665409652",
+    "speciesCode": "redegr",
+    "subId": "S394915292",
+    "credit": "Zak Hepler",
+    "locName": "Pea Island NWR--South Pond",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665409653",
+    "speciesCode": "redegr",
+    "subId": "S394915292",
+    "credit": "Zak Hepler",
+    "locName": "Pea Island NWR--South Pond",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665481872",
+    "speciesCode": "redegr",
+    "subId": "S394915292",
+    "credit": "Isaac Boardman",
+    "locName": "Pea Island NWR--South Pond",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665376497",
+    "speciesCode": "sprgro",
+    "subId": "S394918587",
+    "credit": "Gary Cowell",
+    "locName": "N. Preachers Rd.",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665376498",
+    "speciesCode": "sprgro",
+    "subId": "S394918587",
+    "credit": "Gary Cowell",
+    "locName": "N. Preachers Rd.",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665376499",
+    "speciesCode": "sprgro",
+    "subId": "S394918587",
+    "credit": "Gary Cowell",
+    "locName": "N. Preachers Rd.",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665376500",
+    "speciesCode": "sprgro",
+    "subId": "S394918587",
+    "credit": "Gary Cowell",
+    "locName": "N. Preachers Rd.",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665376501",
+    "speciesCode": "sprgro",
+    "subId": "S394918587",
+    "credit": "Gary Cowell",
+    "locName": "N. Preachers Rd.",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665376502",
+    "speciesCode": "sprgro",
+    "subId": "S394918587",
+    "credit": "Gary Cowell",
+    "locName": "N. Preachers Rd.",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665332444",
+    "speciesCode": "amgplo",
+    "subId": "S394919962",
+    "credit": "Alan Wells",
+    "locName": "Piermont Pier",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665332445",
+    "speciesCode": "amgplo",
+    "subId": "S394919962",
+    "credit": "Alan Wells",
+    "locName": "Piermont Pier",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665332446",
+    "speciesCode": "amgplo",
+    "subId": "S394919962",
+    "credit": "Alan Wells",
+    "locName": "Piermont Pier",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665332537",
+    "speciesCode": "amgplo",
+    "subId": "S394919962",
+    "credit": "Alan Wells",
+    "locName": "Piermont Pier",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665332443",
+    "speciesCode": "amgplo",
+    "subId": "S394919962",
+    "credit": "Alan Wells",
+    "locName": "Piermont Pier",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665332442",
+    "speciesCode": "amgplo",
+    "subId": "S394919962",
+    "credit": "Alan Wells",
+    "locName": "Piermont Pier",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665179562",
+    "speciesCode": "renpha",
+    "subId": "S394403094",
+    "credit": "Allan Strong",
+    "locName": "Lake Champlain pelagic - Quaker Smith Point VT south to Charlotte and back north to Jones Point (NY)",
+    "observedAt": "2026-09-18",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665179583",
+    "speciesCode": "renpha",
+    "subId": "S394403094",
+    "credit": "Allan Strong",
+    "locName": "Lake Champlain pelagic - Quaker Smith Point VT south to Charlotte and back north to Jones Point (NY)",
+    "observedAt": "2026-09-18",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665179584",
+    "speciesCode": "renpha",
+    "subId": "S394403094",
+    "credit": "Allan Strong",
+    "locName": "Lake Champlain pelagic - Quaker Smith Point VT south to Charlotte and back north to Jones Point (NY)",
+    "observedAt": "2026-09-18",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665179588",
+    "speciesCode": "renpha",
+    "subId": "S394403094",
+    "credit": "Allan Strong",
+    "locName": "Lake Champlain pelagic - Quaker Smith Point VT south to Charlotte and back north to Jones Point (NY)",
+    "observedAt": "2026-09-18",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665179591",
+    "speciesCode": "renpha",
+    "subId": "S394403094",
+    "credit": "Allan Strong",
+    "locName": "Lake Champlain pelagic - Quaker Smith Point VT south to Charlotte and back north to Jones Point (NY)",
+    "observedAt": "2026-09-18",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665295377",
+    "speciesCode": "larbun",
+    "subId": "S394766031",
+    "credit": "Jon Skinner",
+    "locName": "Nahant--Heritage Trail and Lowlands Park",
+    "observedAt": "2026-09-20",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665490056",
+    "speciesCode": "ameavo",
+    "subId": "S394916295",
+    "credit": "george borden",
+    "locName": "Hughlett Point Natural Area Preserve",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665308203",
+    "speciesCode": "pirfly1",
+    "subId": "S394812554",
+    "credit": "Daniel Moore",
+    "locName": "Base and Meridian WA",
+    "observedAt": "2026-09-20",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665308204",
+    "speciesCode": "pirfly1",
+    "subId": "S394812554",
+    "credit": "Daniel Moore",
+    "locName": "Base and Meridian WA",
+    "observedAt": "2026-09-20",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665324987",
+    "speciesCode": "sabgul",
+    "subId": "S394926985",
+    "credit": "J R",
+    "locName": "Clear Creek Wetlands",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665324988",
+    "speciesCode": "sabgul",
+    "subId": "S394926985",
+    "credit": "J R",
+    "locName": "Clear Creek Wetlands",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665334320",
+    "speciesCode": "sabgul",
+    "subId": "S394926985",
+    "credit": "J R",
+    "locName": "Clear Creek Wetlands",
+    "observedAt": "2026-09-21",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665319036",
+    "speciesCode": "whiwag",
+    "subId": "S394877002",
+    "credit": "Dan Ellison",
+    "locName": "Warm Springs WMA--Arco Ponds",
+    "observedAt": "2026-09-20",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665319037",
+    "speciesCode": "whiwag",
+    "subId": "S394877002",
+    "credit": "Dan Ellison",
+    "locName": "Warm Springs WMA--Arco Ponds",
+    "observedAt": "2026-09-20",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665654860",
+    "speciesCode": "lcspet",
+    "subId": "S396577818",
+    "credit": "George Lynch",
+    "locName": "Sandwich Marina",
+    "observedAt": "2026-09-26",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665654861",
+    "speciesCode": "lcspet",
+    "subId": "S396577818",
+    "credit": "George Lynch",
+    "locName": "Sandwich Marina",
+    "observedAt": "2026-09-26",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665644631",
+    "speciesCode": "royter1",
+    "subId": "S396537420",
+    "credit": "Stephen Spector",
+    "locName": "Silver Sands SP",
+    "observedAt": "2026-09-26",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665644632",
+    "speciesCode": "royter1",
+    "subId": "S396537420",
+    "credit": "Stephen Spector",
+    "locName": "Silver Sands SP",
+    "observedAt": "2026-09-26",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "665644633",
+    "speciesCode": "royter1",
+    "subId": "S396537420",
+    "credit": "Stephen Spector",
+    "locName": "Silver Sands SP",
+    "observedAt": "2026-09-26",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "167803841",
+    "speciesCode": "parjae",
+    "credit": "Doug Gochfeld",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "203317141",
+    "speciesCode": "rehwoo",
+    "credit": "Ryan Sanderson",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "269208341",
+    "speciesCode": "phivir",
+    "credit": "Steve Kelling",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "566182081",
+    "speciesCode": "redpha1",
+    "credit": "Mark Faherty",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "453467141",
+    "speciesCode": "stisan",
+    "credit": "Matt Misewicz",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "485895791",
+    "speciesCode": "conwar",
+    "credit": "Will Sweet",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "615822296",
+    "speciesCode": "redcro",
+    "credit": "Lory Cantin",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "394656501",
+    "speciesCode": "brnpel",
+    "credit": "Dorian Anderson",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "450090601",
+    "speciesCode": "clanut",
+    "credit": "Brandon Nidiffer",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "60634471",
+    "speciesCode": "olsfly",
+    "credit": "Luke Seitz",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "167803911",
+    "speciesCode": "bklkit",
+    "credit": "Doug Gochfeld",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "407906431",
+    "speciesCode": "whiibi",
+    "credit": "Dorian Anderson",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "607119771",
+    "speciesCode": "bubsan",
+    "credit": "Matt Misewicz",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "122152161",
+    "speciesCode": "yebfly",
+    "credit": "Jeremiah Trimble",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "72942181",
+    "speciesCode": "shtsan",
+    "credit": "Zak Pohlen",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "325771901",
+    "speciesCode": "evegro",
+    "credit": "John Jansen",
+    "verifiedAt": "2026-09-26"
+  },
+  {
+    "assetId": "30267291",
+    "speciesCode": "pecsan",
+    "credit": "Daniel Pettersson",
+    "verifiedAt": "2026-09-26"
+  }
+]

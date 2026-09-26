@@ -1,3 +1,4 @@
+import { sightingPath } from "../shared/sightingPath.js";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ArchiveRoundup } from "./RoundupArchive";
@@ -53,7 +54,7 @@ export default function LatestIssuePreview({ regionId, compact = false }: { regi
             ) : null}
             <div className="issue-preview-copy">
               <p className="issue-preview-date">{current.scopeLabel} · <time dateTime={date}>{new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`))}</time></p>
-              <Heading className="issue-preview-title">{finding.title}</Heading>
+              <Heading className="issue-preview-title">{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</Heading>
               {finding.locName ? <p className="issue-preview-location">Reported at {finding.locName}.</p> : null}
               {!compact && otherBirds?.length ? <p className="issue-preview-more">Also inside: {otherBirds.map((bird) => bird.comName).join(", ")}.</p> : null}
             </div>

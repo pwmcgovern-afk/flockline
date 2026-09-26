@@ -99,6 +99,7 @@ function insights(url) {
       {
         kind: "rarity",
         title: `Finding for ${regions[0]}`,
+        subId: "S123456789",
         detail: "A verified report.",
         speciesCode: "osprey",
         comName: "Osprey",
@@ -124,9 +125,9 @@ async function session({ width = 1280, height = 900, touch = false, handlers = {
     hasTouch: touch,
     reducedMotion: "reduce",
   });
-  await context.addInitScript(() =>
-    localStorage.setItem("flockline.tourSeen.v2", "1"),
-  );
+  await context.addInitScript(() => {
+    if (window.top === window) localStorage.setItem("flockline.tourSeen.v2", "1");
+  });
   await context.route("**/*", async (route) => {
     const url = new URL(route.request().url());
     if (url.hostname !== "127.0.0.1" && url.hostname !== "localhost") {
@@ -888,5 +889,47 @@ test("timeline counts follow the selected day and field records have a keyboard 
       .isDisabled(),
     true,
   );
+  await finish(s);
+});
+
+const sightingFixture = {
+  finding: { kind: "rarity", speciesCode: "osprey", comName: "Osprey", sciName: "Pandion haliaetus", subId: "S123456789", locName: "Audit coast", detail: "A verified report." },
+  checklist: { subId: "S123456789", observedAt: "2026-09-21 08:49", observerName: "Audit observer", protocolLabel: "Traveling", durationMinutes: 40, distanceKm: 0.12, numObservers: 1, numSpecies: 7, observation: { count: "1", media: { photos: 2 } } },
+  observationExcerpt: "One bird fishing along the coast.", checklistExcerpt: "",
+  media: { status: "ready", photos: [
+    { assetId: "12345678", speciesCode: "osprey", subId: "S123456789", credit: "Audit observer", match: "checklist" },
+    { assetId: "12345679", speciesCode: "osprey", subId: "S123456789", credit: "Audit observer", match: "checklist" },
+  ] },
+};
+test("phone sighting pages open from titles and Learn more, show photos and notes, and reload directly", async () => {
+  for (const [width, touch] of [[1280, false], [320, true]]) {
+    const s = await session({ width, height: 844, touch, handlers: { "/api/sighting": (route) => json(route, sightingFixture) } });
+    const { page } = s;
+    await page.goto(base + "/?bird=browse&region=northeast&view=insights");
+    await page.locator(".insight-card").first().waitFor();
+    assert.equal(await page.locator(".insight-card h3 a").first().getAttribute("href"), "/sightings/S123456789/osprey");
+    assert.equal(await page.getByRole("link", { name: "Learn more →", exact: true }).first().getAttribute("href"), "/sightings/S123456789/osprey");
+    await page.locator(".insight-card h3 a").first().click();
+    await page.getByRole("heading", { name: "Osprey", exact: true }).waitFor();
+    assert.match(await page.locator("blockquote").innerText(), /One bird fishing/);
+    assert.equal(await page.locator("iframe").getAttribute("src"), "https://macaulaylibrary.org/asset/12345678/embed");
+    await page.getByRole("button", { name: "Photo 2", exact: true }).click();
+    assert.equal(await page.locator("iframe").getAttribute("src"), "https://macaulaylibrary.org/asset/12345679/embed");
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, "Photo and facts fit the viewport");
+    await page.reload();
+    await page.getByRole("heading", { name: "Osprey", exact: true }).waitFor();
+    await page.getByRole("link", { name: "Back to sightings", exact: true }).click();
+    await page.locator(".insight-card").first().waitFor();
+    await finish(s);
+  }
+});
+test("sighting failure can retry without leaving the detail page", async () => {
+  let available = false;
+  const s = await session({ handlers: { "/api/sighting": (route) => available ? json(route, sightingFixture) : json(route, {}, 502) } });
+  await s.page.goto(base + "/sightings/S123456789/osprey");
+  await s.page.getByRole("button", { name: "Try again", exact: true }).waitFor();
+  available = true;
+  await s.page.getByRole("button", { name: "Try again", exact: true }).click();
+  await s.page.getByRole("heading", { name: "Osprey", exact: true }).waitFor();
   await finish(s);
 });

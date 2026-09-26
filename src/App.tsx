@@ -1,3 +1,4 @@
+import { sightingPath } from "../shared/sightingPath.js";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import L from "leaflet";
 import { requestJson } from "./request";
@@ -3232,8 +3233,9 @@ export default function App() {
                                       ? "Notable run"
                                       : "Rare report"}
                                 </span>
-                                <h3>{finding.title}</h3>
+                                <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                                 <p>{finding.detail}</p>
+                                {sightingPath(finding) ? <a className="sighting-learn-more" href={sightingPath(finding)!}>Learn more →</a> : null}
                                 <div className="insight-meta roundup-facts">
                                   {finding.locName ? (
                                     <span title={finding.locName}>
@@ -3562,8 +3564,9 @@ export default function App() {
                             {insightIcon(finding.kind)}
                             {finding.kind === "wide" ? "Widespread" : finding.kind === "surge" ? "Cluster" : "Rarity"}
                           </span>
-                          <h3>{finding.title}</h3>
+                          <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                           <p>{finding.detail}</p>
+                          {sightingPath(finding) ? <a className="sighting-learn-more" href={sightingPath(finding)!}>Learn more →</a> : null}
                           <div className="insight-meta">
                             {finding.region ? (
                               <span>

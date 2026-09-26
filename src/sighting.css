@@ -1,0 +1,192 @@
+.sighting-page .methodology-inner {
+  max-width: 850px;
+}
+.sighting-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 52px;
+  font-size: 13px;
+}
+.sighting-nav .back {
+  margin: 0;
+}
+.sighting-head h1 {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: clamp(38px, 6vw, 64px);
+  font-weight: 400;
+  line-height: 1.06;
+  margin: 12px 0 8px;
+  letter-spacing: -1.6px;
+}
+.sighting-page .sighting-scientific {
+  font-style: italic;
+  font-size: 19px;
+  color: #78776e;
+  margin: 0 0 24px;
+}
+.sighting-page .sighting-location {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+.sighting-page .sighting-byline {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #78776e;
+}
+.sighting-page .sighting-photos {
+  margin: 34px 0;
+  background: #ebe9e2;
+  border: 1px solid #d8d6cc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.sighting-photo-label {
+  padding: 13px 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 11px;
+}
+.sighting-photos iframe {
+  display: block;
+  border: 0;
+  width: 100%;
+  aspect-ratio: 640 / 510;
+  min-height: 340px;
+  background: #f4f3ed;
+}
+.sighting-page .sighting-photo-credit,
+.sighting-page .sighting-photo-context {
+  padding: 0 18px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.sighting-page .sighting-photo-credit {
+  margin: 15px 0 8px;
+}
+.sighting-page .sighting-photo-context {
+  margin: 0 0 16px;
+  color: #67695f;
+}
+.sighting-photo-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 18px 18px;
+}
+.sighting-photo-picker button[aria-pressed="true"] {
+  color: white;
+  background: #384c3e;
+}
+.sighting-page .sighting-illustration {
+  margin: 32px 0;
+}
+.sighting-illustration img {
+  max-height: 500px;
+  object-fit: contain;
+}
+.sighting-page .sighting-notes {
+  border-block: 1px solid #d8d6cc;
+  padding: 28px 0;
+  margin-top: 36px;
+}
+.sighting-notes blockquote {
+  margin: 15px 0 0;
+}
+.sighting-notes blockquote p {
+  font-family: Georgia, serif;
+  font-size: clamp(23px, 4vw, 31px);
+  line-height: 1.45;
+  color: #384c3e;
+}
+.sighting-notes blockquote footer {
+  font-size: 13px;
+  color: #78776e;
+}
+.sighting-notes a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.sighting-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px 28px;
+}
+.sighting-facts dt {
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #78776e;
+  font-size: 10px;
+  margin-bottom: 7px;
+}
+.sighting-facts dd {
+  margin: 0;
+  font-size: 18px;
+  color: #303d31;
+}
+.sighting-page .sighting-small {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #78776e;
+}
+.sighting-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin: 30px 0;
+  font-size: 14px;
+}
+.sighting-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.sighting-actions .pill {
+  background: #384c3e;
+  color: #fff;
+  padding: 13px 20px;
+}
+.insight-card h3 a,
+.archive-finding h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+.insight-card h3 a:hover,
+.archive-finding h2 a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+@media (max-width: 600px) {
+  .sighting-nav {
+    margin-bottom: 34px;
+    font-size: 12px;
+  }
+  .sighting-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
+  }
+  .sighting-photos iframe {
+    min-height: 430px;
+  }
+  .sighting-actions {
+    align-items: flex-start;
+    gap: 20px;
+  }
+}
+.insight-card .sighting-learn-more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  margin-top: 7px;
+  color: #384c3e;
+  font-size: 13px;
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+.issue-preview-title a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 4px; }
