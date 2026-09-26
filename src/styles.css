@@ -2353,6 +2353,40 @@ button.pill:hover {
   gap: 8px;
 }
 
+.insights-regions {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.insights-regions button {
+  grid-column: span 2;
+  min-height: 44px;
+  padding: 9px 8px;
+  border: 1px solid var(--rule-soft);
+  border-radius: 7px;
+  background: var(--paper-sunk);
+  color: var(--ink-2);
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.insights-regions button:nth-last-child(-n + 2) {
+  grid-column: span 3;
+}
+
+.insights-regions button:hover {
+  border-color: #384c3e;
+  color: var(--ink);
+}
+
+.insights-regions button[aria-pressed="true"] {
+  background: #384c3e;
+  border-color: #384c3e;
+  color: white;
+}
+
 .scope-row .segmented {
   flex: 1;
   justify-content: space-between;

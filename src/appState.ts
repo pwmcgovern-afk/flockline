@@ -20,7 +20,6 @@ export type AppState = {
 };
 
 const DEFAULT_DAYS = 7;
-const DEFAULT_REGION_ID = "northeast";
 const VIEWS: AppView[] = ["map", "insights", "ask", "birds", "menu", "roundup"];
 
 type RegionPreset = {
@@ -109,7 +108,9 @@ export function buildAppUrl(
   if (explicit || state.lookbackDays !== DEFAULT_DAYS) {
     params.set("days", String(state.lookbackDays));
   }
-  if (matchingPreset && (explicit || matchingPreset.id !== DEFAULT_REGION_ID)) {
+  // Keep the chosen region in every URL so browser history never falls back
+  // to a different saved preference after nationwide discovery.
+  if (matchingPreset) {
     params.set("region", matchingPreset.id);
   } else if (!matchingPreset && (explicit || !sameRegions(state.regions, allRegions))) {
     params.set("states", state.regions.length ? state.regions.join(",") : "none");

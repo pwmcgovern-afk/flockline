@@ -92,6 +92,6 @@ describe("sighting pages", () => {
     expect(html).toContain(
       'href="https://flockline.app/sightings/S394925341/corplo"',
     );
-    expect(html).toContain("In the observer’s words");
+    expect(html).toContain("Notes from this checklist");
   });
 });

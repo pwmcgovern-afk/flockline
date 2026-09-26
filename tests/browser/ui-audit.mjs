@@ -100,7 +100,7 @@ function insights(url) {
         kind: "rarity",
         title: `Finding for ${regions[0]}`,
         subId: "S123456789",
-        detail: "A verified report.",
+        detail: "27 notable Osprey reports across 2 states, with up to 2 birds in a single report.",
         speciesCode: "osprey",
         comName: "Osprey",
         regionCode: regions[0],
@@ -441,19 +441,35 @@ test("signup validates editions, freezes submitted values, and recovers from API
   await finish(s);
 });
 
-test("phone discovery opens Insights and carries the regional edition into newsletter signup", async () => {
+test("phone discovery starts nationwide, exposes regional buttons, and carries the chosen edition into signup", async () => {
   const s = await session({ width: 390, height: 844, touch: true });
   const { page } = s;
-  await page.goto(base + "/?bird=browse&region=northeast");
+  await page.goto(base + "/");
+  await page.waitForURL(/region=nationwide/);
+  // A saved regional map and a separately pinned Insights scope must not trap
+  // a fresh discovery action inside either selection.
+  await page.goto(base + "/?bird=browse&region=northeast&iregion=west");
   await page.getByRole("button", { name: "Explore notable sightings", exact: true }).tap();
   await page.locator(".insight-card").first().waitFor();
   assert.equal(await page.locator(".map-empty").count(), 0, "Welcome card leaves the map when a panel opens");
+  const regions = page.getByRole("group", { name: "Insights region", exact: true });
+  assert.equal(await regions.getByRole("button", { name: "National", exact: true }).getAttribute("aria-pressed"), "true");
+  assert.equal(new URL(page.url()).searchParams.get("region"), "nationwide");
+  assert.equal(await page.evaluate(() => {
+    const bounds = window.__flocklineMap.getBounds();
+    return bounds.contains([34.05, -118.24]) && bounds.contains([40.71, -74]);
+  }), true, "Discovery frames the country, including both coasts");
+  await regions.getByRole("button", { name: "West", exact: true }).tap();
+  await page.getByRole("heading", { name: `Finding for ${US_REGION_PRESETS.find((r) => r.id === "west").stateCodes[0]}`, exact: true }).waitFor();
+  assert.equal(await regions.getByRole("button", { name: "West", exact: true }).getAttribute("aria-pressed"), "true");
+  await regions.getByRole("button", { name: "National", exact: true }).tap();
+  await page.locator(".insight-card").first().waitFor();
   await page.locator(".insight-digest-invitation").tap();
   await page.waitForURL("**/newsletter?**");
-  assert.equal(new URL(page.url()).searchParams.get("region"), "northeast");
+  assert.equal(new URL(page.url()).searchParams.get("region"), "nationwide");
   assert.equal(new URL(page.url()).searchParams.get("src"), "insights");
   await page.getByRole("link", { name: "Get the free digest", exact: true }).tap();
-  assert.equal(await page.getByRole("checkbox", { name: "Northeast", exact: true }).isChecked(), true);
+  assert.equal(await page.getByRole("checkbox", { name: "Nationwide", exact: true }).isChecked(), true);
   const form = await page.locator("#subscribe").boundingBox();
   assert.ok(form.y >= 0 && form.y < 60, "Phone signup shortcut brings the form into view");
   await finish(s);
@@ -523,8 +539,8 @@ test("history restores defaults, empty states, and the weekly edition", async ()
   await openMap(page);
   await page.locator(".tab-insights").click();
   await page
-    .getByRole("combobox", { name: "Insights region" })
-    .selectOption("west");
+    .getByRole("group", { name: "Insights region" })
+    .getByRole("button", { name: "West", exact: true }).click();
   await page
     .locator(".window-pills")
     .getByRole("button", { name: "30D", exact: true })
@@ -536,8 +552,8 @@ test("history restores defaults, empty states, and the weekly edition", async ()
     .click();
   await page.goBack();
   assert.equal(
-    await page.getByRole("combobox", { name: "Insights region" }).inputValue(),
-    "west",
+    await page.getByRole("group", { name: "Insights region" }).getByRole("button", { name: "West", exact: true }).getAttribute("aria-pressed"),
+    "true",
   );
   assert.equal(
     await page
@@ -557,8 +573,8 @@ test("history restores defaults, empty states, and the weekly edition", async ()
   );
   await page.locator(".tab-insights").click();
   assert.equal(
-    await page.getByRole("combobox", { name: "Insights region" }).inputValue(),
-    "map",
+    await page.getByRole("group", { name: "Insights region" }).getByRole("button", { pressed: true }).count(),
+    0,
   );
   await page
     .getByRole("button", { name: "Weekly roundup", exact: true })
@@ -649,8 +665,8 @@ test("slow Insights responses cannot appear beneath a different region", async (
   await page.locator(".tab-insights").click();
   await page.waitForRequest((r) => r.url().includes("/api/insights"));
   await page
-    .getByRole("combobox", { name: "Insights region" })
-    .selectOption("west");
+    .getByRole("group", { name: "Insights region" })
+    .getByRole("button", { name: "West", exact: true }).click();
   await page
     .getByRole("heading", {
       name: `Finding for ${US_REGION_PRESETS.find((r) => r.id === "west").stateCodes[0]}`,
@@ -893,7 +909,7 @@ test("timeline counts follow the selected day and field records have a keyboard 
 });
 
 const sightingFixture = {
-  finding: { kind: "rarity", speciesCode: "osprey", comName: "Osprey", sciName: "Pandion haliaetus", subId: "S123456789", locName: "Audit coast", detail: "A verified report." },
+  finding: { kind: "rarity", speciesCode: "osprey", comName: "Osprey", sciName: "Pandion haliaetus", subId: "S123456789", locName: "Audit coast", detail: "27 notable Osprey reports across 2 states, with up to 2 birds in a single report." },
   checklist: { subId: "S123456789", observedAt: "2026-09-21 08:49", observerName: "Audit observer", protocolLabel: "Traveling", durationMinutes: 40, distanceKm: 0.12, numObservers: 1, numSpecies: 7, observation: { count: "1", media: { photos: 2 } } },
   observationExcerpt: "One bird fishing along the coast.", checklistExcerpt: "",
   media: { status: "ready", photos: [
@@ -912,6 +928,10 @@ test("phone sighting pages open from titles and Learn more, show photos and note
     await page.locator(".insight-card h3 a").first().click();
     await page.getByRole("heading", { name: "Osprey", exact: true }).waitFor();
     assert.match(await page.locator("blockquote").innerText(), /One bird fishing/);
+    assert.match(await page.getByRole("complementary", { name: "How to read these counts" }).innerText(), /1 bird was recorded.*repeat sightings/s);
+    await page.getByRole("heading", { name: "On this checklist", exact: true }).waitFor();
+    await page.getByRole("heading", { name: "Regional overview · Multiple reports", exact: true }).waitFor();
+    assert.equal(await page.getByRole("link", { name: "Open featured checklist", exact: true }).getAttribute("href"), "https://ebird.org/checklist/S123456789");
     assert.equal(await page.locator("iframe").getAttribute("src"), "https://macaulaylibrary.org/asset/12345678/embed");
     await page.getByRole("button", { name: "Photo 2", exact: true }).click();
     assert.equal(await page.locator("iframe").getAttribute("src"), "https://macaulaylibrary.org/asset/12345679/embed");
