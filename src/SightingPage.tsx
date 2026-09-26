@@ -158,7 +158,7 @@ function SightingArticle({
           <div className="sighting-photo-label">
             {activePhoto.match === "checklist"
               ? "Photographed on this checklist"
-              : "A closer look at the species"}
+              : "Species photo · Different report"}
           </div>
           <iframe
             key={activePhoto.assetId}
