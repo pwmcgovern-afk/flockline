@@ -4,6 +4,8 @@ Each real finding links to `/sightings/{eBird checklist ID}/{species code}`. The
 
 Source facts and observer notes come from the authenticated eBird checklist API. Notes are excerpts, capped at 25 words in total per checklist and credited to the observer. Missing effort stays missing instead of becoming a zero. Dates remain in the observation's local time.
 
+The detail page describes one species on one checklist. Its only bird count comes from that checklist's observation, shown once near the top. Broader report totals and maximum counts stay in Insights and roundups; saved regional prose is not rendered on an individual sighting page. Outing metadata is available in the collapsed Checklist details section, with explicit person/species units and missing effort omitted.
+
 ## Saved context
 
 The rolling notable feed cannot reconstruct old stories. `saveSightingFindings` saves the headline, regional summary, location and illustration reference to public Blob at `sightings/{subId}/{speciesCode}.json` when Insights or a roundup is generated or archived. The write is bounded and best effort: a storage outage must not stop the existing map or weekly send. Readers can still load the verified checklist if saved story context is unavailable.

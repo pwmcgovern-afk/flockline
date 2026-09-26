@@ -928,9 +928,14 @@ test("phone sighting pages open from titles and Learn more, show photos and note
     await page.locator(".insight-card h3 a").first().click();
     await page.getByRole("heading", { name: "Osprey", exact: true }).waitFor();
     assert.match(await page.locator("blockquote").innerText(), /One bird fishing/);
-    assert.match(await page.getByRole("complementary", { name: "How to read these counts" }).innerText(), /1 bird was recorded.*repeat sightings/s);
-    await page.getByRole("heading", { name: "On this checklist", exact: true }).waitFor();
-    await page.getByRole("heading", { name: "Regional overview · Multiple reports", exact: true }).waitFor();
+    assert.match(await page.getByRole("complementary", { name: "Reported bird count" }).innerText(), /1 bird reported/);
+    assert.equal(await page.getByText("1 bird reported", { exact: true }).count(), 1);
+    assert.equal((await page.locator("body").innerText()).includes("27 notable"), false);
+    assert.equal(await page.getByText("Birders on the outing", { exact: true }).isVisible(), false);
+    await page.locator(".sighting-checklist-details summary").click();
+    assert.equal(await page.getByText("Birders on the outing", { exact: true }).isVisible(), true);
+    assert.match(await page.locator(".sighting-checklist-details").innerText(), /1 person/);
+    assert.match(await page.locator(".sighting-checklist-details").innerText(), /7 different species/);
     assert.equal(await page.getByRole("link", { name: "Open featured checklist", exact: true }).getAttribute("href"), "https://ebird.org/checklist/S123456789");
     assert.equal(await page.locator("iframe").getAttribute("src"), "https://macaulaylibrary.org/asset/12345678/embed");
     await page.getByRole("button", { name: "Photo 2", exact: true }).click();
