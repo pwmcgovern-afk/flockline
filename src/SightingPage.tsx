@@ -153,15 +153,14 @@ function SightingArticle({
         </p>
       </header>
 
-      <aside className="sighting-scope" aria-label="How to read these counts">
-        <strong>This page features one checklist.</strong>
-        <p>
+      <aside className="sighting-scope" aria-label="Reported bird count">
+        <strong>
           {count && count !== "X"
-            ? `${count} ${count === "1" ? "bird was" : "birds were"} recorded for this species on this visit. `
-            : "This species was present on this visit, but the birds were not counted. "}
-          {finding.detail
-            ? "The regional overview below counts reports from multiple visits. Those reports can include repeat sightings of the same birds."
-            : "The count and field notes below apply to this visit only."}
+            ? `${count} ${count === "1" ? "bird" : "birds"} reported`
+            : "Bird present · Count not supplied"}
+        </strong>
+        <p>
+          {finding.comName || "This species"} on the visit described below.
         </p>
       </aside>
 
@@ -247,57 +246,43 @@ function SightingArticle({
         ) : null}
       </section>
 
-      <section>
-        <h2>On this checklist</h2>
+      <details className="sighting-checklist-details">
+        <summary>Checklist details</summary>
+        <p className="sighting-small">About the observer’s outing.</p>
         <dl className="sighting-facts">
-          <div>
-            <dt>Birds of this species</dt>
-            <dd>
-              {count === "X" ? "Present, not counted" : count || "Not counted"}
-            </dd>
-          </div>
           <div>
             <dt>Survey type</dt>
             <dd>{checklist.protocolLabel || "Not supplied"}</dd>
           </div>
-          <div>
-            <dt>Time in the field</dt>
-            <dd>
-              {checklist.durationMinutes != null
-                ? `${checklist.durationMinutes} minutes`
-                : "Not supplied"}
-            </dd>
-          </div>
-          <div>
-            <dt>Distance covered</dt>
-            <dd>
-              {checklist.distanceKm != null
-                ? `${checklist.distanceKm.toLocaleString()} km`
-                : "Not supplied"}
-            </dd>
-          </div>
-          <div>
-            <dt>Observers</dt>
-            <dd>{checklist.numObservers ?? "Not supplied"}</dd>
-          </div>
-          <div>
-            <dt>Species on the checklist</dt>
-            <dd>{checklist.numSpecies ?? "Not supplied"}</dd>
-          </div>
+          {checklist.durationMinutes != null ? (
+            <div>
+              <dt>Time in the field</dt>
+              <dd>{checklist.durationMinutes} minutes</dd>
+            </div>
+          ) : null}
+          {checklist.distanceKm != null ? (
+            <div>
+              <dt>Distance covered</dt>
+              <dd>{checklist.distanceKm.toLocaleString()} km</dd>
+            </div>
+          ) : null}
+          {checklist.numObservers != null ? (
+            <div>
+              <dt>Birders on the outing</dt>
+              <dd>{checklist.numObservers} {checklist.numObservers === 1 ? "person" : "people"}</dd>
+            </div>
+          ) : null}
+          {checklist.numSpecies != null ? (
+            <div>
+              <dt>All species on the outing</dt>
+              <dd>{checklist.numSpecies} {checklist.numSpecies === 1 ? "species" : "different species"}</dd>
+            </div>
+          ) : null}
         </dl>
-      </section>
+      </details>
 
-      {finding.detail ? (
-        <section>
-          <h2>Regional overview · Multiple reports</h2>
-          <p>{finding.detail}</p>
-          <p className="sighting-context">
-            These are reports, not a count of distinct birds. We feature one
-            supporting checklist above; the eBird button below opens that
-            checklist, not the full set of regional reports.
-          </p>
-        </section>
-      ) : null}
+      {/* This URL identifies one species on one checklist. Keep regional
+          totals in Insights, where their full geographic scope is visible. */}
       {!media.photos.length && checklist.observation?.media.photos ? (
         <p className="sighting-small">
           This checklist has {checklist.observation.media.photos} photo

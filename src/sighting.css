@@ -43,12 +43,11 @@
   margin: 24px 0;
   font-size: 14px;
 }
+.sighting-scope strong {
+  font-size: 24px;
+}
 .sighting-page .sighting-scope p {
   margin: 6px 0 0;
-  font-size: 14px;
-  line-height: 1.6;
-}
-.sighting-page .sighting-context {
   font-size: 14px;
   line-height: 1.6;
 }
@@ -128,6 +127,22 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
+}
+.sighting-checklist-details {
+  margin: 0 0 24px;
+  border-bottom: 1px solid #d8d6cc;
+  padding-bottom: 16px;
+}
+.sighting-checklist-details summary {
+  padding: 12px 0;
+  cursor: pointer;
+  color: #384c3e;
+  font-size: 15px;
+  font-weight: 600;
+}
+.sighting-checklist-details summary:focus-visible {
+  outline: 2px solid #384c3e;
+  outline-offset: 3px;
 }
 .sighting-facts {
   display: grid;

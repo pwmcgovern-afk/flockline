@@ -82,6 +82,46 @@ describe("sighting pages", () => {
     expect(html).toContain("Reference photograph from a different report");
     expect(html).not.toContain("Photographed on this checklist");
   });
+  it("shows the checklist count once without mixing in regional report totals or maxima", () => {
+    const data = {
+      ...sighting,
+      finding: {
+        ...sighting.finding,
+        howMany: 2,
+        detail: "27 notable reports in 2 states, with up to 2 birds in a single report.",
+      },
+    };
+    const html = renderToStaticMarkup(
+      <SightingPage pathname="/sightings/S394925341/corplo" initial={data} />,
+    );
+    expect(html.match(/1 bird reported/g)).toHaveLength(1);
+    expect(html).not.toContain(data.finding.detail);
+    expect(html).not.toContain("2 birds reported");
+    expect(html).not.toContain("Regional overview");
+    expect(html).toContain('<details class="sighting-checklist-details">');
+  });
+  it.each([
+    ["X", "Bird present · Count not supplied"],
+    [null, "Bird present · Count not supplied"],
+    ["2-4", "2-4 birds reported"],
+    ["3", "3 birds reported"],
+  ])("preserves the source count %s without inventing a precise total", (count, label) => {
+    const data = {
+      ...sighting,
+      checklist: {
+        ...sighting.checklist,
+        durationMinutes: null,
+        distanceKm: null,
+        observation: { ...sighting.checklist.observation!, count },
+      },
+    };
+    const html = renderToStaticMarkup(
+      <SightingPage pathname="/sightings/S394925341/corplo" initial={data} />,
+    );
+    expect(html).toContain(label!);
+    expect(html).not.toContain("Time in the field");
+    expect(html).not.toContain("Distance covered");
+  });
   it("publishes a useful deep link and escaped initial data", () => {
     const html = renderPage(
       readFileSync("index.html", "utf8"),
