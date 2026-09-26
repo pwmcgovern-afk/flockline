@@ -37,8 +37,23 @@
   line-height: 1.7;
   color: #78776e;
 }
+.sighting-scope {
+  border-left: 3px solid #384c3e;
+  padding: 4px 0 4px 16px;
+  margin: 24px 0;
+  font-size: 14px;
+}
+.sighting-page .sighting-scope p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.sighting-page .sighting-context {
+  font-size: 14px;
+  line-height: 1.6;
+}
 .sighting-page .sighting-photos {
-  margin: 34px 0;
+  margin: 24px 0;
   background: #ebe9e2;
   border: 1px solid #d8d6cc;
   border-radius: 8px;
@@ -56,6 +71,9 @@
   width: 100%;
   aspect-ratio: 640 / 510;
   min-height: 340px;
+  /* Cornell caps the photo at 460px and supplies a 552px large embed. Scaling
+     its full height with our wider article added blank space below the credit. */
+  max-height: 552px;
   background: #f4f3ed;
 }
 .sighting-page .sighting-photo-credit,
@@ -90,8 +108,8 @@
 }
 .sighting-page .sighting-notes {
   border-block: 1px solid #d8d6cc;
-  padding: 28px 0;
-  margin-top: 36px;
+  padding: 22px 0;
+  margin-top: 24px;
 }
 .sighting-notes blockquote {
   margin: 15px 0 0;
@@ -136,20 +154,44 @@
 .sighting-actions {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 12px;
   flex-wrap: wrap;
   margin: 30px 0;
   font-size: 14px;
 }
-.sighting-actions a {
+.sighting-page .sighting-action {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 11px 18px;
+  border: 1px solid #a7aea4;
+  border-radius: 8px;
+  color: #384c3e;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
 }
-.sighting-actions .pill {
+.sighting-page .sighting-action:hover {
+  background: #e7eae3;
+  border-color: #384c3e;
+  text-decoration: none;
+}
+.sighting-page .sighting-action:focus-visible {
+  outline: 2px solid #384c3e;
+  outline-offset: 3px;
+}
+.sighting-page .sighting-action-primary {
   background: #384c3e;
+  border-color: #384c3e;
   color: #fff;
-  padding: 13px 20px;
+}
+.sighting-page .sighting-action-primary:hover {
+  background: #283d30;
+  color: #fff;
 }
 .insight-card h3 a,
 .archive-finding h2 a {
@@ -175,8 +217,8 @@
     min-height: 430px;
   }
   .sighting-actions {
-    align-items: flex-start;
-    gap: 20px;
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 .insight-card .sighting-learn-more {

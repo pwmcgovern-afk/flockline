@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Map, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ChecklistDetailsResponse, Insight } from "./types";
 import { requestJson } from "./request";
@@ -134,7 +134,7 @@ function SightingArticle({
   return (
     <article>
       <header className="sighting-head">
-        <span className="archive-kind">The field notes · eBird sighting</span>
+        <span className="archive-kind">The field notes · Featured eBird checklist</span>
         <h1>{finding.comName || "Bird sighting"}</h1>
         {finding.sciName ? (
           <p className="sighting-scientific">{finding.sciName}</p>
@@ -152,6 +152,18 @@ function SightingArticle({
             : ""}
         </p>
       </header>
+
+      <aside className="sighting-scope" aria-label="How to read these counts">
+        <strong>This page features one checklist.</strong>
+        <p>
+          {count && count !== "X"
+            ? `${count} ${count === "1" ? "bird was" : "birds were"} recorded for this species on this visit. `
+            : "This species was present on this visit, but the birds were not counted. "}
+          {finding.detail
+            ? "The regional overview below counts reports from multiple visits. Those reports can include repeat sightings of the same birds."
+            : "The count and field notes below apply to this visit only."}
+        </p>
+      </aside>
 
       {activePhoto ? (
         <section className="sighting-photos" aria-label="Bird photographs">
@@ -210,7 +222,7 @@ function SightingArticle({
       ) : null}
 
       <section className="sighting-notes">
-        <span className="archive-kind">In the observer’s words</span>
+        <span className="archive-kind">Notes from this checklist</span>
         {data.observationExcerpt ? (
           <blockquote>
             <p>“{data.observationExcerpt}”</p>
@@ -236,10 +248,10 @@ function SightingArticle({
       </section>
 
       <section>
-        <h2>The observation</h2>
+        <h2>On this checklist</h2>
         <dl className="sighting-facts">
           <div>
-            <dt>Birds reported</dt>
+            <dt>Birds of this species</dt>
             <dd>
               {count === "X" ? "Present, not counted" : count || "Not counted"}
             </dd>
@@ -277,12 +289,12 @@ function SightingArticle({
 
       {finding.detail ? (
         <section>
-          <h2>Why it caught our eye</h2>
+          <h2>Regional overview · Multiple reports</h2>
           <p>{finding.detail}</p>
-          <p className="sighting-small">
-            Flockline’s regional summary. Counts across several reports may
-            include the same individual. The observation above is one supporting
-            checklist.
+          <p className="sighting-context">
+            These are reports, not a count of distinct birds. We feature one
+            supporting checklist above; the eBird button below opens that
+            checklist, not the full set of regional reports.
           </p>
         </section>
       ) : null}
@@ -299,11 +311,11 @@ function SightingArticle({
         </p>
       ) : null}
       <div className="sighting-actions">
-        <a className="pill" href={mapUrl}>
-          Explore on the map
+        <a className="sighting-action sighting-action-primary" href={mapUrl}>
+          <Map size={17} /> Explore on the map
         </a>
-        <a href={checklistUrl} target="_blank" rel="noreferrer">
-          Read the full eBird checklist <ArrowUpRight size={14} />
+        <a className="sighting-action" href={checklistUrl} target="_blank" rel="noreferrer">
+          Open featured checklist <ArrowUpRight size={17} />
         </a>
       </div>
       <footer className="methodology-foot">

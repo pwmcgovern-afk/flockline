@@ -101,7 +101,7 @@ describe("buildAppUrl", () => {
       hotspotsOnly: false
     };
     expect(buildAppUrl("https://flockline.vercel.app/?old=1#methodology", state, regions, US_REGION_PRESETS)).toBe(
-      "https://flockline.vercel.app/?bird=osprey"
+      "https://flockline.vercel.app/?bird=osprey&region=northeast"
     );
   });
 
@@ -162,7 +162,7 @@ describe("buildAppUrl", () => {
       insightBack: 3
     };
     expect(buildAppUrl("https://example.com", state, regions, US_REGION_PRESETS)).toBe(
-      "https://example.com/?bird=osprey&view=insights&iback=3&iregion=west"
+      "https://example.com/?bird=osprey&region=northeast&view=insights&iback=3&iregion=west"
     );
   });
 
@@ -179,7 +179,7 @@ describe("buildAppUrl", () => {
       insightBack: 7
     };
     expect(buildAppUrl("https://example.com", state, regions, US_REGION_PRESETS)).toBe(
-      "https://example.com/?bird=osprey&view=insights"
+      "https://example.com/?bird=osprey&region=northeast&view=insights"
     );
   });
 });

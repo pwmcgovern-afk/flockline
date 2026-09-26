@@ -47,7 +47,6 @@ import {
   DEFAULT_REGION_ID,
   US_REGION_PRESETS,
   US_STATES,
-  getCensusRegion,
   getRegionPreset,
   matchingRegionPreset
 } from "../shared/usGeography.js";
@@ -69,7 +68,7 @@ import type {
 } from "./types";
 
 const defaultStates: Region[] = US_STATES;
-const defaultRegionCodes = getCensusRegion(DEFAULT_REGION_ID)?.stateCodes ?? [];
+const defaultRegionCodes = US_STATES.map((state) => state.code);
 
 // Keep the initial client bundle lean. The full nationwide catalog arrives
 // from /api/config immediately after mount; these familiar birds make the
@@ -667,6 +666,14 @@ export default function App() {
   const openPicker = () => {
     setSpeciesQuery("");
     setPickerOpen(true);
+  };
+
+  const exploreNationwide = () => {
+    selectRegionPreset("nationwide");
+    // Discovery starts broad even when a previous visit pinned Insights to a
+    // region. Following the map lets the reader narrow the scope afterward.
+    setInsightRegions(null);
+    setDrawer("insights");
   };
 
   // Back to the opening position: the whole country, no bird, default window,
@@ -2532,20 +2539,16 @@ export default function App() {
                   That link asked for the species code <strong>{unknownCode}</strong>, which is not in
                   eBird's taxonomy. Pick a bird instead.
                 </>
-              ) : selectedRegions.length ? (
-                <>
-                  Discover notable sightings across {selectedRegionSummary}, or follow a bird
-                  you already have in mind.
-                </>
               ) : (
-                // Interpolating the summary here read "reported across No
-                // states selected." Say what to do about it instead.
-                <>No states are selected. Choose some from Menu, then pick a bird.</>
+                <>
+                  Discover notable birds nationwide, then zoom in or choose a
+                  region. Or follow a bird you already have in mind.
+                </>
               )}
             </p>
             <div className="map-discovery-actions">
-              {!unknownCode && selectedRegions.length ? (
-                <button type="button" className="pill discovery-primary" onClick={() => setDrawer("insights")}>
+              {!unknownCode ? (
+                <button type="button" className="pill discovery-primary" onClick={exploreNationwide}>
                   <Compass size={14} /> Explore notable sightings
                 </button>
               ) : null}
@@ -3432,36 +3435,20 @@ export default function App() {
               <div className="drawer-body">
                 <div className="insights-scope">
                   <p className="insights-intro">A few sightings worth a closer look. Open any finding on the map to explore where it was reported.</p>
-                  <div className="scope-row">
-                    <select
-                      className="scope-select"
-                      // Reflect "following the map" explicitly. Deriving this
-                      // from the effective scope made the select already read
-                      // e.g. "Northeast" while unpinned, so choosing Northeast
-                      // fired no change event and pinning it was impossible.
-                      value={insightRegions === null ? "map" : (insightRegionPreset?.id ?? "custom")}
-                      onChange={(event) => {
-                        const next = event.target.value;
-                        if (next === "map") {
-                          setInsightRegions(null);
-                          return;
-                        }
-                        const region = getRegionPreset(next);
-                        if (region) {
-                          const available = new Set(states.map((state) => state.code));
-                          setInsightRegions(region.stateCodes.filter((code) => available.has(code)));
-                        }
-                      }}
-                      aria-label="Insights region"
-                    >
+                  <div className="insights-regions" role="group" aria-label="Insights region">
                       {US_REGION_PRESETS.map((region) => (
-                        <option key={region.id} value={region.id}>{region.name}</option>
+                        <button
+                          type="button"
+                          key={region.id}
+                          aria-pressed={insightRegionPreset?.id === region.id}
+                          onClick={() => {
+                            const available = new Set(states.map((state) => state.code));
+                            setInsightRegions(region.stateCodes.filter((code) => available.has(code)));
+                          }}
+                        >
+                          {region.id === "nationwide" ? "National" : region.name}
+                        </button>
                       ))}
-                      {insightRegionPreset ? null : (
-                        <option value="custom">{insightsScopeLabel}</option>
-                      )}
-                      <option value="map">Match the map</option>
-                    </select>
                   </div>
 
                   <div className="scope-row">
@@ -3483,7 +3470,7 @@ export default function App() {
 
                   <div className="scope-note">
                     <span>
-                      {insightsPinned ? "Pinned scope" : "Following the map"} · past{" "}
+                      {insightsScopeLabel} · past{" "}
                       {effectiveInsightBack} {effectiveInsightBack === 1 ? "day" : "days"}
                     </span>
                     {insightsPinned ? (
@@ -3494,7 +3481,7 @@ export default function App() {
                           setInsightBack(null);
                         }}
                       >
-                        Reset
+                        Match the map
                       </button>
                     ) : null}
                     {insightsStale && !insightsLoading ? (
@@ -4011,7 +3998,13 @@ function buildInitialAppState(): Partial<AppState> {
     validRegions,
     US_REGION_PRESETS
   );
-  return { ...preferences, ...urlState };
+  return {
+    ...preferences,
+    // Explicit regional links keep their intended scope. Ordinary visits start
+    // discovery nationwide even if the map remembers a previous local filter.
+    insightRegions: urlState.regions ? null : defaultRegionCodes,
+    ...urlState,
+  };
 }
 
 function readStoredString(key: string) {
