@@ -4,11 +4,15 @@ Each real finding links to `/sightings/{eBird checklist ID}/{species code}`. The
 
 Source facts and observer notes come from the authenticated eBird checklist API. Notes are excerpts, capped at 25 words in total per checklist and credited to the observer. Missing effort stays missing instead of becoming a zero. Dates remain in the observation's local time.
 
-The detail page describes one species on one checklist. Its only bird count comes from that checklist's observation, shown once near the top. Broader report totals and maximum counts stay in Insights and roundups; saved regional prose is not rendered on an individual sighting page. Outing metadata is available in the collapsed Checklist details section, with explicit person/species units and missing effort omitted.
+The detail page describes one species on one checklist. Its only bird count comes from that checklist's observation, shown once near the top. A separate reporting-frequency section shows reported sightings on distinct eBird checklists, with the region, requested date window, and every counted checklist linked. Each checklist counts as one reported sighting of the species. These are not unique birds or independently verified encounters; shared and repeat checklists may cover the same outing or individuals. Saved regional prose is not rendered on an individual sighting page. Outing metadata is available in the collapsed Checklist details section, with explicit person/species units and missing effort omitted.
 
 ## Saved context
 
 The rolling notable feed cannot reconstruct old stories. `saveSightingFindings` saves the headline, regional summary, location and illustration reference to public Blob at `sightings/{subId}/{speciesCode}.json` when Insights or a roundup is generated or archived. The write is bounded and best effort: a storage outage must not stop the existing map or weekly send. Readers can still load the verified checklist if saved story context is unavailable.
+
+New findings save a structured reporting snapshot with source checklist IDs, dates, locations and per-checklist counts. Counts are derived from these records, never generated prose. Duplicate species/checklist rows from the notable API count once. The feed requests up to 10,000 rows per upstream region; partial coverage is labeled when a request fails or reaches that limit. The UI always explains that the notable feed may omit other reports.
+
+Older stories without evidence use a separately labeled current seven-day snapshot for the saved region, or the featured state’s Census region, falling back to National if neither is known. This read is cached for 15 minutes and never overwrites historical story text or claims to recover its old totals. A feed failure leaves the featured checklist usable with an unavailable notice.
 
 The September 21, 2026 editions and the September 26 Northeast insights were backfilled at launch.
 

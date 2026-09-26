@@ -247,3 +247,71 @@
   text-underline-offset: 3px;
 }
 .issue-preview-title a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+
+.sighting-reporting {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid #d8d6cc;
+  border-radius: 8px;
+  background: #eeede6;
+}
+.sighting-page .sighting-reporting h2 {
+  margin: 12px 0 5px;
+  font-size: clamp(24px, 4vw, 32px);
+  font-family: var(--font-serif, Georgia, serif);
+  text-transform: none;
+  letter-spacing: normal;
+  border: 0;
+  padding: 0;
+  font-weight: 400;
+  color: #384c3e;
+}
+.sighting-page .sighting-reporting-total {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.sighting-page .sighting-reporting .sighting-small {
+  margin: 8px 0;
+  color: #60655b;
+}
+.sighting-report-list summary {
+  cursor: pointer;
+  padding: 12px 0 4px;
+  color: #384c3e;
+  font-size: 14px;
+  font-weight: 600;
+}
+.sighting-report-list summary:focus-visible {
+  outline: 2px solid #384c3e;
+  outline-offset: 3px;
+}
+.sighting-report-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.sighting-report-list li {
+  border-top: 1px solid #d8d6cc;
+  padding: 12px 0;
+}
+.sighting-page .sighting-report-list a {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #384c3e;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.sighting-report-list svg { flex-shrink: 0; }
+.sighting-report-list li > span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #60655b;
+}

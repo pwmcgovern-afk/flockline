@@ -15,7 +15,16 @@ export type SightingPhoto = {
   observedAt?: string;
   match: "checklist" | "species";
 };
+export type SightingReporting = {
+  timing: "published" | "recent";
+  scopeLabel: string;
+  back: number;
+  asOf: string;
+  partial: boolean;
+  reports: { subId: string; observedAt: string | null; locName: string; count: string | null }[];
+};
 export type SightingDetails = {
+  reporting?: SightingReporting | null;
   finding: Insight & {
     sciName?: string;
     scopeId?: string;
@@ -164,6 +173,8 @@ function SightingArticle({
         </p>
       </aside>
 
+      <ReportingSummary reporting={data.reporting} featuredId={checklist.subId} />
+
       {activePhoto ? (
         <section className="sighting-photos" aria-label="Bird photographs">
           <div className="sighting-photo-label">
@@ -281,8 +292,6 @@ function SightingArticle({
         </dl>
       </details>
 
-      {/* This URL identifies one species on one checklist. Keep regional
-          totals in Insights, where their full geographic scope is visible. */}
       {!media.photos.length && checklist.observation?.media.photos ? (
         <p className="sighting-small">
           This checklist has {checklist.observation.media.photos} photo
@@ -312,5 +321,45 @@ function SightingArticle({
         <a href="/methodology">How to read Flockline sightings</a>
       </footer>
     </article>
+  );
+}
+
+function ReportingSummary({ reporting, featuredId }: {
+  reporting?: SightingReporting | null;
+  featuredId: string | null;
+}) {
+  if (!reporting) return <p className="sighting-small">Reporting totals are temporarily unavailable. The featured checklist is shown above.</p>;
+  const total = reporting.reports.length;
+  const included = reporting.reports.some((report) => report.subId === featuredId);
+  return (
+    <section className="sighting-reporting" aria-label="Reporting frequency">
+      <span className="archive-kind">{reporting.scopeLabel} · {reporting.timing === "recent" ? "Recent reporting" : "Reporting when featured"}</span>
+      <h2>{total.toLocaleString()} reported {total === 1 ? "sighting" : "sightings"}</h2>
+      <p className="sighting-reporting-total">On {total.toLocaleString()} eBird {total === 1 ? "checklist" : "checklists"} · {reporting.back}-day window ending {formatDate(reporting.asOf.slice(0, 10))}</p>
+      <p className="sighting-small">
+        Each checklist counts as one reported sighting of this species. Several checklists may describe the same birds or outing.
+        {included ? " The featured checklist is included in this total." : " The featured checklist is outside this feed snapshot."}
+      </p>
+      <p className="sighting-small">
+        {reporting.partial ? "Partial coverage. " : ""}Counts reflect the available eBird notable feed, which may omit other reports.
+        {reporting.timing === "recent" ? " This recent snapshot may be newer than the featured visit." : ""}
+      </p>
+      {total > 0 ? (
+        <details className="sighting-report-list">
+          <summary>View {total === 1 ? "the reporting checklist" : `all ${total.toLocaleString()} reporting checklists`}</summary>
+          <ul>
+            {reporting.reports.map((report) => (
+              <li key={report.subId}>
+                <a href={`https://ebird.org/checklist/${report.subId}`} target="_blank" rel="noreferrer">
+                  <span>{report.locName}{report.subId === featuredId ? " · Featured" : ""}</span>
+                  <ArrowUpRight size={15} aria-hidden="true" />
+                </a>
+                <span>{formatDate(report.observedAt)} · {report.count ? `${report.count} ${report.count === "1" ? "bird" : "birds"}` : "Present, count not supplied"}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+    </section>
   );
 }
