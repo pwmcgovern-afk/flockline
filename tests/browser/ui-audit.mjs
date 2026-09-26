@@ -909,6 +909,10 @@ test("timeline counts follow the selected day and field records have a keyboard 
 });
 
 const sightingFixture = {
+  reporting: { timing: "published", scopeLabel: "Northeast", back: 7, asOf: "2026-09-26T20:00:00Z", partial: false, reports: [
+    { subId: "S123456789", observedAt: "2026-09-21 08:49", locName: "Audit coast", count: "1" },
+    { subId: "S123456790", observedAt: "2026-09-22 09:00", locName: "Another coast", count: "2" },
+  ] },
   finding: { kind: "rarity", speciesCode: "osprey", comName: "Osprey", sciName: "Pandion haliaetus", subId: "S123456789", locName: "Audit coast", detail: "27 notable Osprey reports across 2 states, with up to 2 birds in a single report." },
   checklist: { subId: "S123456789", observedAt: "2026-09-21 08:49", observerName: "Audit observer", protocolLabel: "Traveling", durationMinutes: 40, distanceKm: 0.12, numObservers: 1, numSpecies: 7, observation: { count: "1", media: { photos: 2 } } },
   observationExcerpt: "One bird fishing along the coast.", checklistExcerpt: "",
@@ -931,6 +935,14 @@ test("phone sighting pages open from titles and Learn more, show photos and note
     assert.match(await page.getByRole("complementary", { name: "Reported bird count" }).innerText(), /1 bird reported/);
     assert.equal(await page.getByText("1 bird reported", { exact: true }).count(), 1);
     assert.equal((await page.locator("body").innerText()).includes("27 notable"), false);
+    const reporting = page.getByRole("region", { name: "Reporting frequency" });
+    assert.match(await reporting.innerText(), /2 reported sightings/);
+    assert.match(await reporting.innerText(), /On 2 eBird checklists/);
+    assert.equal(await reporting.getByRole("link").count(), 0);
+    await reporting.locator("summary").click();
+    assert.equal(await reporting.getByRole("link").count(), 2);
+    assert.equal(await reporting.getByRole("link", { name: "Another coast" }).getAttribute("href"), "https://ebird.org/checklist/S123456790");
+    assert.match(await reporting.innerText(), /September 22, 2026 · 9:00 AM local time · 2 birds/);
     assert.equal(await page.getByText("Birders on the outing", { exact: true }).isVisible(), false);
     await page.locator(".sighting-checklist-details summary").click();
     assert.equal(await page.getByText("Birders on the outing", { exact: true }).isVisible(), true);

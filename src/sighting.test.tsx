@@ -122,6 +122,37 @@ describe("sighting pages", () => {
     expect(html).not.toContain("Time in the field");
     expect(html).not.toContain("Distance covered");
   });
+  it("separates checklist frequency from individual birds and links every counted report", () => {
+    const reporting: SightingDetails["reporting"] = {
+      timing: "published", scopeLabel: "Northeast", back: 7, asOf: "2026-09-26T20:00:00Z", partial: false,
+      reports: [
+        { subId: "S394925341", observedAt: "2026-09-21 08:49", locName: "Odiorne Point", count: "1" },
+        { subId: "S394925342", observedAt: "2026-09-21 09:00", locName: "The harbor", count: "2" },
+        { subId: "S394925343", observedAt: "2026-09-22", locName: "The beach", count: null },
+      ],
+    };
+    const html = renderToStaticMarkup(<SightingPage pathname="/sightings/S394925341/corplo" initial={{ ...sighting, reporting }} />);
+    expect(html).toContain("1 bird reported");
+    expect(html).toContain("3 reported sightings");
+    expect(html).toContain("On 3 eBird checklists");
+    expect(html).toContain("7-day window ending September 26, 2026");
+    expect(html).toContain("Each checklist counts as one reported sighting");
+    expect(html).toContain("same birds or outing");
+    expect(html).toContain("featured checklist is included");
+    expect(html).toContain("Present, count not supplied");
+    for (const report of reporting.reports) expect(html).toContain(`href="https://ebird.org/checklist/${report.subId}"`);
+  });
+  it("distinguishes recent partial or empty feeds from historical totals and absence", () => {
+    const html = renderToStaticMarkup(<SightingPage pathname="/sightings/S394925341/corplo" initial={{ ...sighting, reporting: {
+      timing: "recent", scopeLabel: "Northeast", back: 7, asOf: "2026-09-26T20:00:00Z", partial: true, reports: [],
+    } }} />);
+    expect(html).toContain("Partial coverage");
+    expect(html).toContain("outside this feed snapshot");
+    expect(html).toContain("may be newer than the featured visit");
+    expect(html).toContain("0 reported sightings");
+    expect(html).not.toContain("View all 0");
+    expect(html).toContain("1 bird reported");
+  });
   it("publishes a useful deep link and escaped initial data", () => {
     const html = renderPage(
       readFileSync("index.html", "utf8"),
