@@ -932,8 +932,8 @@ test("phone sighting pages open from titles and Learn more, show photos and note
     await page.locator(".insight-card h3 a").first().click();
     await page.getByRole("heading", { name: "Osprey", exact: true }).waitFor();
     assert.match(await page.locator("blockquote").innerText(), /One bird fishing/);
-    assert.match(await page.getByRole("complementary", { name: "Reported bird count" }).innerText(), /1 bird reported/);
-    assert.equal(await page.getByText("1 bird reported", { exact: true }).count(), 1);
+    assert.match(await page.getByRole("complementary", { name: "Reported bird count" }).innerText(), /1 bird on this checklist/);
+    assert.equal(await page.getByText("1 bird on this checklist", { exact: true }).count(), 1);
     assert.equal((await page.locator("body").innerText()).includes("27 notable"), false);
     const reporting = page.getByRole("region", { name: "Reporting frequency" });
     assert.match(await reporting.innerText(), /2 reported sightings/);

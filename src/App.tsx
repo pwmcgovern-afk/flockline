@@ -1,4 +1,5 @@
 import { sightingPath } from "../shared/sightingPath.js";
+import { findingKindLabel } from "../shared/findingKind.js";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import L from "leaflet";
 import { requestJson } from "./request";
@@ -2289,7 +2290,7 @@ export default function App() {
                 {selectedSpecies ? (
                   <>
                     <span>
-                      {loading ? "Counting" : `${windowStats.locations.toLocaleString()} locations`}
+                      {loading ? "Counting" : `${windowStats.locations.toLocaleString()} ${pluralize("location", windowStats.locations)}`}
                     </span>
                     <span className="sep">·</span>
                     {/* Locations and birds diverge sharply for flocking species,
@@ -2890,7 +2891,7 @@ export default function App() {
                   <div className="scrubber-foot">
                     {timelineMode === "cumulative" ? (
                       <span>
-                        <strong>{visibleStats.sightings.toLocaleString()}</strong> locations through{" "}
+                        <strong>{visibleStats.sightings.toLocaleString()}</strong> {pluralize("location", visibleStats.sightings)} through{" "}
                         {formatDateKey(selectedDateKey)}
                       </span>
                     ) : (
@@ -3252,11 +3253,7 @@ export default function App() {
                               >
                                 <span className="insight-kind">
                                   {insightIcon(finding.kind)}
-                                  {finding.kind === "wide"
-                                    ? "Across the region"
-                                    : finding.kind === "surge"
-                                      ? "Notable run"
-                                      : "Rare report"}
+                                  {findingKindLabel(finding.kind)}
                                 </span>
                                 <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                                 <p>{finding.detail}</p>
@@ -3274,7 +3271,7 @@ export default function App() {
                                   {finding.howMany ? (
                                     <span>
                                       <Bird />
-                                      {finding.howMany.toLocaleString()}
+                                      {finding.howMany.toLocaleString()} {pluralize("bird", finding.howMany)}
                                     </span>
                                   ) : null}
                                   {finding.speciesCode ? (
@@ -3571,7 +3568,7 @@ export default function App() {
                         >
                           <span className="insight-kind">
                             {insightIcon(finding.kind)}
-                            {finding.kind === "wide" ? "Widespread" : finding.kind === "surge" ? "Cluster" : "Rarity"}
+                            {findingKindLabel(finding.kind)}
                           </span>
                           <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                           <p>{finding.detail}</p>

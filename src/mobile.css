@@ -160,6 +160,8 @@
   .insight-meta a, .insight-meta button { min-height: 44px; }
   .app.drawer-open .scrubber { display: none; }
   .app.drawer-open .leaflet-control-attribution { visibility: hidden; }
+  /* The sheet stops 8px short of the top; keep the red digest button from peeking above it. */
+  .app.drawer-open .mobile-header { visibility: hidden; }
 
   .sighting-sheet {
     left: max(8px, env(safe-area-inset-left, 0px));

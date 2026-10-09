@@ -1,4 +1,5 @@
 import { sightingPath } from "../shared/sightingPath.js";
+import { findingKindLabel as kindLabel } from "../shared/findingKind.js";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import DigestSignup from "./DigestSignup";
@@ -53,11 +54,6 @@ function formatIssueDate(value: string) {
   }).format(parsed);
 }
 
-function kindLabel(kind?: string) {
-  if (kind === "wide") return "Across the region";
-  if (kind === "surge") return "Notable run";
-  return "Rare report";
-}
 
 export type ArchiveInitial = { index?: ArchiveIndex; roundup?: ArchiveRoundup };
 

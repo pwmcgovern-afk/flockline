@@ -94,17 +94,17 @@ describe("sighting pages", () => {
     const html = renderToStaticMarkup(
       <SightingPage pathname="/sightings/S394925341/corplo" initial={data} />,
     );
-    expect(html.match(/1 bird reported/g)).toHaveLength(1);
+    expect(html.match(/1 bird on this checklist/g)).toHaveLength(1);
     expect(html).not.toContain(data.finding.detail);
-    expect(html).not.toContain("2 birds reported");
+    expect(html).not.toContain("2 birds on this checklist");
     expect(html).not.toContain("Regional overview");
     expect(html).toContain('<details class="sighting-checklist-details">');
   });
   it.each([
     ["X", "Bird present · Count not supplied"],
     [null, "Bird present · Count not supplied"],
-    ["2-4", "2-4 birds reported"],
-    ["3", "3 birds reported"],
+    ["2-4", "2-4 birds on this checklist"],
+    ["3", "3 birds on this checklist"],
   ])("preserves the source count %s without inventing a precise total", (count, label) => {
     const data = {
       ...sighting,
@@ -132,7 +132,7 @@ describe("sighting pages", () => {
       ],
     };
     const html = renderToStaticMarkup(<SightingPage pathname="/sightings/S394925341/corplo" initial={{ ...sighting, reporting }} />);
-    expect(html).toContain("1 bird reported");
+    expect(html).toContain("1 bird on this checklist");
     expect(html).toContain("3 reported sightings");
     expect(html).toContain("On 3 eBird checklists");
     expect(html).toContain("7-day window ending September 26, 2026");
@@ -173,7 +173,7 @@ describe("sighting pages", () => {
     expect(html).toContain("may be newer than the featured visit");
     expect(html).toContain("0 reported sightings");
     expect(html).not.toContain("View all 0");
-    expect(html).toContain("1 bird reported");
+    expect(html).toContain("1 bird on this checklist");
   });
   it("publishes a useful deep link and escaped initial data", () => {
     const html = renderPage(
