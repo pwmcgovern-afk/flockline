@@ -1,4 +1,5 @@
 import { sightingPath } from "../shared/sightingPath.js";
+import { findingKindLabel } from "../shared/findingKind.js";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import L from "leaflet";
 import { requestJson } from "./request";
@@ -809,7 +810,23 @@ export default function App() {
     attemptFit();
   }, []);
 
-  const dateKeys = useMemo(() => buildDateKeys(lookbackDays), [lookbackDays]);
+  // eBird dates are local to each observation, not to the visitor. Anchor the
+  // window to the newest reported day when it is within a day of the
+  // visitor's own date, so a viewer ahead of or behind U.S. time zones does
+  // not get an empty map. Recomputing with each payload also rolls the window
+  // over after midnight in a long-open tab.
+  const newestObservationDay = useMemo(() => {
+    let newest = "";
+    for (const feature of payload?.featureCollection.features ?? []) {
+      const day = feature.properties.obsDt.slice(0, 10);
+      if (day > newest) newest = day;
+    }
+    return newest;
+  }, [payload]);
+  const dateKeys = useMemo(
+    () => buildDateKeys(lookbackDays, timelineEndKey(newestObservationDay)),
+    [lookbackDays, newestObservationDay, payload?.generatedAt]
+  );
   const selectedDateKey = dateKeys[selectedDayIndex] ?? dateKeys[dateKeys.length - 1] ?? todayKey();
   const earliestDateKey = dateKeys[0] ?? selectedDateKey;
   const allFeatures = payload?.featureCollection.features ?? [];
@@ -2273,7 +2290,7 @@ export default function App() {
                 {selectedSpecies ? (
                   <>
                     <span>
-                      {loading ? "Counting" : `${windowStats.locations.toLocaleString()} locations`}
+                      {loading ? "Counting" : `${windowStats.locations.toLocaleString()} ${pluralize("location", windowStats.locations)}`}
                     </span>
                     <span className="sep">·</span>
                     {/* Locations and birds diverge sharply for flocking species,
@@ -2508,6 +2525,12 @@ export default function App() {
             ) : (
               <button type="button" onClick={() => setDrawer("menu")}>Pick states</button>
             )}
+          </div>
+        ) : null}
+
+        {payload?.coverage?.limitedRegions?.length && !failedRegionSummary && !error && !loading ? (
+          <div className="map-note" role="status">
+            <span>eBird’s 10,000-location limit was reached, so some locations are missing. Narrow the states or days to see them all.</span>
           </div>
         ) : null}
 
@@ -2868,7 +2891,7 @@ export default function App() {
                   <div className="scrubber-foot">
                     {timelineMode === "cumulative" ? (
                       <span>
-                        <strong>{visibleStats.sightings.toLocaleString()}</strong> locations through{" "}
+                        <strong>{visibleStats.sightings.toLocaleString()}</strong> {pluralize("location", visibleStats.sightings)} through{" "}
                         {formatDateKey(selectedDateKey)}
                       </span>
                     ) : (
@@ -3230,11 +3253,7 @@ export default function App() {
                               >
                                 <span className="insight-kind">
                                   {insightIcon(finding.kind)}
-                                  {finding.kind === "wide"
-                                    ? "Across the region"
-                                    : finding.kind === "surge"
-                                      ? "Notable run"
-                                      : "Rare report"}
+                                  {findingKindLabel(finding.kind)}
                                 </span>
                                 <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                                 <p>{finding.detail}</p>
@@ -3252,7 +3271,7 @@ export default function App() {
                                   {finding.howMany ? (
                                     <span>
                                       <Bird />
-                                      {finding.howMany.toLocaleString()}
+                                      {finding.howMany.toLocaleString()} {pluralize("bird", finding.howMany)}
                                     </span>
                                   ) : null}
                                   {finding.speciesCode ? (
@@ -3549,7 +3568,7 @@ export default function App() {
                         >
                           <span className="insight-kind">
                             {insightIcon(finding.kind)}
-                            {finding.kind === "wide" ? "Widespread" : finding.kind === "surge" ? "Cluster" : "Rarity"}
+                            {findingKindLabel(finding.kind)}
                           </span>
                           <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                           <p>{finding.detail}</p>
@@ -3824,15 +3843,25 @@ export default function App() {
   );
 }
 
-function buildDateKeys(days: number) {
+function buildDateKeys(days: number, endKey = todayKey()) {
   const keys: string[] = [];
-  const now = new Date();
+  const [year, month, day] = endKey.split("-").map(Number);
+  const end = new Date(year, month - 1, day, 12);
   for (let index = days - 1; index >= 0; index -= 1) {
-    const date = new Date(now);
-    date.setDate(now.getDate() - index);
+    const date = new Date(end);
+    date.setDate(end.getDate() - index);
     keys.push(toDateKey(date));
   }
   return keys;
+}
+
+function timelineEndKey(newestObservationDay: string) {
+  const today = todayKey();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(newestObservationDay)) return today;
+  const offsetDays = Math.round(
+    (Date.parse(`${newestObservationDay}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 86_400_000
+  );
+  return Math.abs(offsetDays) <= 1 ? newestObservationDay : today;
 }
 
 function todayKey() {

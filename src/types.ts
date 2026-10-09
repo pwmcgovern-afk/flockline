@@ -75,6 +75,7 @@ export type SightingsResponse = {
     requestedRegions: string[];
     successfulRegions: string[];
     failedRegions: string[];
+    limitedRegions?: string[];
   };
   generatedAt: string;
   featureCollection: {

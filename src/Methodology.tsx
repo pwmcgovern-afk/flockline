@@ -45,9 +45,9 @@ export default function Methodology() {
             </p>
             <p>
               The <strong>birds</strong> figure beside it is a different thing: the sum of the
-              counts birders actually typed in. Plenty of checklists record that a bird was present
-              without saying how many, and those contribute nothing to it. So that number is a
-              floor too, and always lower than the birds really out there.
+              counts on each location's latest report. Plenty of checklists record that a bird was
+              present without saying how many, and those count as one. So that number is a floor
+              too, and always lower than the birds really out there.
             </p>
           </div>
         </section>
@@ -76,9 +76,9 @@ export default function Methodology() {
           <p>
             Nationwide selects all 50 states plus Washington, D.C. in one step. The other four
             presets follow U.S. Census groupings: Northeast, Midwest, South, and West. Choosing one
-            selects every state in it, and the state buttons refine that selection. Northeast is the
-            first-visit default so older links still work, but the map, timeline, Insights, and Ask
-            all work at every scale.
+            selects every state in it, and the state buttons refine that selection. First visits
+            start Nationwide, and links that name a region or states open exactly that selection.
+            The map, timeline, Insights, and Ask all work at every scale.
           </p>
         </section>
 
@@ -125,6 +125,13 @@ export default function Methodology() {
             generation is unavailable. In both cases the species, places, dates, and checklist
             links come straight from eBird. The model only phrases what the data already says, and
             it is given the exact records so it cannot invent a sighting.
+          </p>
+          <p>
+            Report counts come from distinct eBird checklists. When several birders share one
+            outing, eBird gives each of them a copy of the checklist with the same place and start
+            time, so Flockline counts those copies as one sighting and says how many separate
+            outings the checklists came from. A bird count beside a place is always that
+            checklist's own count; the largest count in the region is described separately.
           </p>
           <h3>Scope and shareable links</h3>
           <p>

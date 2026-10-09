@@ -315,3 +315,12 @@
   line-height: 1.6;
   color: #60655b;
 }
+
+/* The source and "may not still be present" caveat must be readable. */
+.sighting-page .methodology-foot p {
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.55;
+}
