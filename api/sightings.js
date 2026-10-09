@@ -10,7 +10,8 @@ export default async function handler(request, response) {
   try {
     const payload = await getSightings(request.query);
     const fresh = ["1", "true", "yes", "on"].includes(String(request.query.fresh || "").toLowerCase());
-    response.setHeader("Cache-Control", fresh ? "no-store" : "s-maxage=300, stale-while-revalidate=300");
+    const partial = payload.coverage?.failedRegions?.length > 0;
+    response.setHeader("Cache-Control", fresh || partial ? "no-store" : "s-maxage=300, stale-while-revalidate=300");
     response.status(200).json(payload);
   } catch (error) {
     response.status(error.statusCode || 502).json({

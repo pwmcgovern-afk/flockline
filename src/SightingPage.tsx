@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { ChecklistDetailsResponse, Insight } from "./types";
 import { requestJson } from "./request";
 import { parseSightingPath } from "../shared/sightingPath.js";
+import { outingKey } from "../shared/reportingOutings.js";
 import NotFound from "./NotFound";
 import "./sighting.css";
 
@@ -21,7 +22,13 @@ export type SightingReporting = {
   back: number;
   asOf: string;
   partial: boolean;
-  reports: { subId: string; observedAt: string | null; locName: string; count: string | null }[];
+  reports: {
+    subId: string;
+    observedAt: string | null;
+    locId?: string | null;
+    locName: string;
+    count: string | null;
+  }[];
 };
 export type SightingDetails = {
   reporting?: SightingReporting | null;
@@ -331,13 +338,23 @@ function ReportingSummary({ reporting, featuredId }: {
   if (!reporting) return <p className="sighting-small">Reporting totals are temporarily unavailable. The featured checklist is shown above.</p>;
   const total = reporting.reports.length;
   const included = reporting.reports.some((report) => report.subId === featuredId);
+  // Shared checklists repeat one outing for every birder on it.
+  const outingSizes: Record<string, number> = {};
+  for (const report of reporting.reports) {
+    const key = outingKey(report);
+    outingSizes[key] = (outingSizes[key] || 0) + 1;
+  }
+  const outings = Object.keys(outingSizes).length;
   return (
     <section className="sighting-reporting" aria-label="Reporting frequency">
       <span className="archive-kind">{reporting.scopeLabel} · {reporting.timing === "recent" ? "Recent reporting" : "Reporting when featured"}</span>
-      <h2>{total.toLocaleString()} reported {total === 1 ? "sighting" : "sightings"}</h2>
+      <h2>{outings.toLocaleString()} reported {outings === 1 ? "sighting" : "sightings"}</h2>
       <p className="sighting-reporting-total">On {total.toLocaleString()} eBird {total === 1 ? "checklist" : "checklists"} · {reporting.back}-day window ending {formatDate(reporting.asOf.slice(0, 10))}</p>
       <p className="sighting-small">
-        Each checklist counts as one reported sighting of this species. Several checklists may describe the same birds or outing.
+        {outings < total
+          ? "Checklists with the same location and start time count as one sighting, because eBird gives every birder on a shared outing their own checklist. "
+          : "Each checklist is a separate reported sighting of this species. "}
+        Different sightings may still involve the same birds.
         {included ? " The featured checklist is included in this total." : " The featured checklist is outside this feed snapshot."}
       </p>
       <p className="sighting-small">
@@ -354,7 +371,10 @@ function ReportingSummary({ reporting, featuredId }: {
                   <span>{report.locName}{report.subId === featuredId ? " · Featured" : ""}</span>
                   <ArrowUpRight size={15} aria-hidden="true" />
                 </a>
-                <span>{formatDate(report.observedAt)} · {report.count ? `${report.count} ${report.count === "1" ? "bird" : "birds"}` : "Present, count not supplied"}</span>
+                <span>
+                  {formatDate(report.observedAt)} · {report.count ? `${report.count} ${report.count === "1" ? "bird" : "birds"}` : "Present, count not supplied"}
+                  {outingSizes[outingKey(report)] > 1 ? " · Shared outing" : ""}
+                </span>
               </li>
             ))}
           </ul>
