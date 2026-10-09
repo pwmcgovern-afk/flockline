@@ -310,11 +310,23 @@ test("touch users can select a bird, open its map record, save it and return to 
   await page.locator(".picker-results button").filter({ hasText: "Bald Eagle" }).tap();
   await page.waitForURL(/bird=baleag/);
   await page.waitForFunction(() => document.querySelector(".masthead-meta")?.textContent.includes("1 location"));
-  const point = await page.evaluate(() => {
+  // The count can render before a deferred camera fit lands, so wait until the
+  // marker holds still on screen before tapping where it is.
+  const point = await page.evaluate(async () => {
     const map = window.__flocklineMap;
-    const marker = map.latLngToContainerPoint([41.3, -72.95]);
-    const bounds = map.getContainer().getBoundingClientRect();
-    return { x: bounds.x + marker.x, y: bounds.y + marker.y };
+    const where = () => {
+      const marker = map.latLngToContainerPoint([41.3, -72.95]);
+      const bounds = map.getContainer().getBoundingClientRect();
+      return { x: bounds.x + marker.x, y: bounds.y + marker.y };
+    };
+    let last = where();
+    for (let still = 0, tries = 0; still < 5 && tries < 100; tries += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      const next = where();
+      still = Math.abs(next.x - last.x) < 1 && Math.abs(next.y - last.y) < 1 ? still + 1 : 0;
+      last = next;
+    }
+    return last;
   });
   await page.touchscreen.tap(point.x, point.y);
   await page.getByRole("complementary", { name: "Sighting details" }).waitFor();
