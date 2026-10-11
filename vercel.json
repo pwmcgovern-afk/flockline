@@ -68,6 +68,15 @@
     },
     "api/sitemap.js": {
       "maxDuration": 30
+    },
+    "api/roundup.js": {
+      "maxDuration": 60
+    },
+    "api/insights.js": {
+      "maxDuration": 60
+    },
+    "api/sighting.js": {
+      "maxDuration": 60
     }
   },
   "routes": [
