@@ -1,6 +1,6 @@
 # Flockline eBird data access request
 
-Prepared October 14, 2026. Draft only. No request has been submitted and no terms have been accepted by preparing this file.
+Prepared October 14, 2026. This file is the local draft, not a submission receipt. A later signed-in visit to [Cornell's request page](https://ebird.org/data/request) on October 14 displayed an existing request under review. Its contents, submission time and submitter are not visible, so this draft must not be treated as a verified copy of that request. No duplicate request was submitted or agreement accepted during the status check. The next step is Cornell's decision, followed by confirming that the approved scope covers the intended use before expanding the pilot.
 
 ## Proposed form fields
 
