@@ -188,6 +188,20 @@ class CohortTests(unittest.TestCase):
         with self.assertRaisesRegex(InputError, "input audit failed"):
             self.run_cohort()
 
+    def test_place_date_conflicts_exclude_every_copy_without_losing_unrelated_evidence(self):
+        for field, value in (("COUNTRY CODE", "CA"), ("STATE CODE", "US-NY"),
+                             ("COUNTY CODE", "US-CT-001"), ("OBSERVATION DATE", "2024-12-31")):
+            with self.subTest(field=field):
+                events = [self.event(**{"GROUP IDENTIFIER": "G1"}),
+                          self.event("S2", **{"GROUP IDENTIFIER": "G1", field: value}), self.event("S3")]
+                self.prepare(events, [self.observation(event, i + 1) for i, event in enumerate(events)])
+                report = self.run_cohort(evidence_species=["bird1"])
+                self.assertEqual(report["inputAudit"]["warnings"]["sharedGroupsWithConflictingPlaceOrDate"], 1)
+                self.assertEqual(report["selection"]["unitsByDecision"], {"included": 1, "shared_copy_conflict": 1})
+                periods = report["speciesEvidence"]["periods"]
+                self.assertEqual(sum(p["candidateUnits"] for p in periods), 1)
+                self.assertEqual(sum(p["species"][0]["acceptedPositiveUnits"] for p in periods), 1)
+
     def test_seasonal_bins_and_empty_checklists_are_retained_without_absence_claims(self):
         days = ("01-01", "01-07", "01-08", "01-14", "01-15", "01-21", "01-22", "01-31", "02-28")
         self.prepare(events=[self.event(f"S{i + 1}", **{"OBSERVATION DATE": f"2025-{day}"})

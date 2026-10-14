@@ -42,7 +42,7 @@ class FrequencyTests(unittest.TestCase):
         coverage = "file_supplied" if supplied else "unknown"
         return {"methodVersion": "flockline-ebd-candidate-cohort-v1", "publicationReady": False,
                 "taxonomyChecks": "passed", "taxonomy": {"version": "2024", "sha256": "d" * 64}, "scope": scope,
-                "inputAudit": {"methodVersion": "flockline-ebd-input-audit-v2", "inputChecks": "passed",
+                "inputAudit": {"methodVersion": "flockline-ebd-input-audit-v3", "inputChecks": "passed",
                                "release": "Jan-2026", "sources": sources, "provisionalCoverage": coverage},
                 "selection": {"candidateUnits": 3 * len(periods)},
                 "speciesEvidence": {"methodVersion": "flockline-ebd-species-evidence-v1", "status": "supplied_evidence_only",
@@ -220,7 +220,7 @@ class FrequencyTests(unittest.TestCase):
                 self.calculate(report, coverage)
 
     def test_invalid_counts_missing_periods_and_incompatible_methods_fail(self):
-        for change in ("count", "bool", "overlap", "missing", "duplicate", "method", "unresolved"):
+        for change in ("count", "bool", "overlap", "missing", "duplicate", "method", "input_method", "unresolved"):
             report = self.report()
             bird = report["speciesEvidence"]["periods"][0]["species"][0]
             if change == "count": bird["acceptedPositiveUnits"] = 4
@@ -229,6 +229,7 @@ class FrequencyTests(unittest.TestCase):
             if change == "missing": report["speciesEvidence"]["periods"].pop()
             if change == "duplicate": report["speciesEvidence"]["periods"][1] = deepcopy(report["speciesEvidence"]["periods"][0])
             if change == "method": report["speciesEvidence"]["methodVersion"] = "future-version"
+            if change == "input_method": report["inputAudit"]["methodVersion"] = "flockline-ebd-input-audit-v2"
             if change == "unresolved": report["taxonomyChecks"] = "failed"
             with self.subTest(change=change), self.assertRaises(InputError):
                 coverage_template(report, "e" * 64)

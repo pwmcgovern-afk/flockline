@@ -13,7 +13,7 @@ import sqlite3
 import tempfile
 
 
-METHOD = "flockline-ebd-input-audit-v2"
+METHOD = "flockline-ebd-input-audit-v3"
 EVENT_FIELDS = (
     "SAMPLING EVENT IDENTIFIER", "COUNTRY CODE", "STATE CODE", "COUNTY CODE",
     "OBSERVATION DATE", "GROUP IDENTIFIER", "ALL SPECIES REPORTED",
@@ -184,8 +184,14 @@ def audit_inputs(ebd, sampling, provisional=None):
                     COUNT(DISTINCT protocol) protocols, COUNT(DISTINCT effort) efforts
                     FROM events WHERE unit LIKE 'G%' GROUP BY unit HAVING COUNT(*)>1)
             """).fetchone()
-            if shared[2]:
-                errors["sharedGroupsWithConflictingPlaceOrDate"] = shared[2]
+            # Different copies may disagree even when every observation joins
+            # its own checklist correctly. The cohort excludes those entire
+            # groups; they do not invalidate unrelated checklist records.
+            warnings = {key: value for key, value in (
+                ("sharedGroupsWithConflictingPlaceOrDate", shared[2]),
+                ("sharedGroupsWithMixedCompleteness", shared[3]),
+                ("sharedGroupsWithMixedProtocolOrEffort", shared[4]),
+            ) if value}
             totals = db.execute("""
                 SELECT COUNT(*), COUNT(DISTINCT unit), SUM(complete),
                     SUM(accepted=0 AND provisional=0), SUM(accepted=0 AND provisional=1),
@@ -199,14 +205,14 @@ def audit_inputs(ebd, sampling, provisional=None):
              "Choose and validate effort filters and shared-checklist selection before aggregation."]
     if provisional is None:
         gates.insert(0, "Provisional coverage is unknown. Do not infer non-detections from accepted records alone.")
-    if shared[3] or shared[4]:
-        gates.append("Shared copies disagree on completeness or effort; resolve before choosing denominators.")
+    if warnings:
+        gates.append("Shared copies disagree on place, date, completeness or effort. Exclude conflicting groups before choosing denominators.")
     return {
         "methodVersion": METHOD, "release": release,
         "inputChecks": "failed" if errors else "passed",
         "publicationReady": False, "sources": sources,
         "provisionalCoverage": "file_supplied" if provisional else "unknown",
-        "errors": dict(sorted(errors.items())), "reviewRequired": gates,
+        "errors": dict(sorted(errors.items())), "warnings": warnings, "reviewRequired": gates,
         "sampling": {
             "checklists": totals[0], "distinctChecklistOrGroupIds": totals[1],
             "completeChecklistsBeforeDeduplication": totals[2],
