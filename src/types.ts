@@ -1,3 +1,5 @@
+import type { HistoricalBaseline } from "../lib/historicalBaseline.js";
+
 export type Region = {
   code: string;
   abbr: string;
@@ -110,6 +112,9 @@ export type Insight = {
   // Raw eBird region code (e.g. "US-OK"), so "View on map" can widen the map's
   // states to include wherever the finding actually is.
   regionCode?: string;
+  countyCode?: string | null;
+  countyName?: string | null;
+  historicalBaseline?: HistoricalBaseline;
   obsDt?: string;
   subId?: string;
   lat?: number | null;
@@ -132,6 +137,7 @@ export type InsightsResponse = {
     requestedRegions: string[];
     successfulRegions: string[];
     failedRegions: string[];
+    limitedRegions?: string[];
   };
   findings: Insight[];
 };

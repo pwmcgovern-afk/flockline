@@ -2510,6 +2510,39 @@ button.pill:hover {
   margin-left: -9px;
 }
 
+.historical-context {
+  margin: 14px 0;
+  padding: 12px 14px;
+  border-left: 2px solid var(--rule-soft);
+  background: rgba(63, 80, 65, 0.035);
+}
+
+.historical-context .historical-context-label {
+  display: block;
+  margin-bottom: 5px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.historical-context p,
+.historical-context details,
+.historical-context.unavailable {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.historical-context .historical-context-sample,
+.historical-context details {
+  margin-top: 7px;
+  color: var(--ink-2);
+}
+
+.historical-context details p { margin-top: 8px; }
+.historical-context summary { cursor: pointer; }
+.historical-context a { text-decoration: underline; text-underline-offset: 3px; }
+
 .insight-meta a,
 .insight-meta > span,
 .insight-meta button {

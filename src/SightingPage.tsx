@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowUpRight, Map, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ChecklistDetailsResponse, Insight } from "./types";
+import HistoricalContext from "./HistoricalContext";
 import { requestJson } from "./request";
 import { parseSightingPath } from "../shared/sightingPath.js";
 import { outingKey } from "../shared/reportingOutings.js";
@@ -183,6 +184,8 @@ function SightingArticle({
           {finding.comName || "This species"} on the visit described below.
         </p>
       </aside>
+
+      <HistoricalContext finding={finding} />
 
       <ReportingSummary
         reporting={data.reporting}

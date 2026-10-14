@@ -4,6 +4,8 @@ import { reviewStatusLabel } from "../shared/findingCopy.js";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import DigestSignup from "./DigestSignup";
+import HistoricalContext from "./HistoricalContext";
+import type { HistoricalBaseline } from "../lib/historicalBaseline.js";
 import NotFound from "./NotFound";
 import { parseArchivePath } from "./archivePath";
 import { requestJson } from "./request";
@@ -26,6 +28,11 @@ type ArchiveFinding = {
   howMany?: number | null;
   obsValid?: boolean | null;
   obsReviewed?: boolean | null;
+  historicalBaseline?: HistoricalBaseline;
+  countyCode?: string | null;
+  countyName?: string | null;
+  regionCode?: string;
+  region?: string;
   subId?: string;
   image?: { url?: string; alt?: string; kind?: string } | null;
 };
@@ -224,6 +231,7 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
                 <span className="archive-kind">{kindLabel(finding.kind)}</span>
                 <h2>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h2>
                 <p>{finding.detail}</p>
+                <HistoricalContext finding={finding} />
                 <p className="archive-meta">
                   {[finding.locName, finding.obsDt ? formatIssueDate(finding.obsDt) : "", Number.isFinite(finding.howMany) && (finding.howMany || 0) > 0 ? `${finding.howMany} ${finding.howMany === 1 ? "bird" : "birds"}` : ""].filter(Boolean).join(" · ")}
                 </p>

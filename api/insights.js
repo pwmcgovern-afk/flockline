@@ -1,5 +1,6 @@
 import { getInsights } from "../lib/ebirdCore.js";
 import { enforceRateLimit } from "../lib/rateLimit.js";
+import { waitUntil } from "@vercel/functions";
 
 export default async function handler(request, response) {
   if (request.method !== "GET") {
@@ -21,7 +22,7 @@ export default async function handler(request, response) {
   }
 
   try {
-    const payload = await getInsights(request.query);
+    const payload = await getInsights(request.query, undefined, { waitUntil });
     response.status(200).json(payload);
   } catch (error) {
     response.status(error.statusCode || 502).json({
