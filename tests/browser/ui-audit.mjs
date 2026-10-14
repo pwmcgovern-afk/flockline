@@ -230,6 +230,127 @@ test("source review status remains visible on desktop and phone Insights", async
   }
 });
 
+test("desktop and phone Insights reuse visited scopes, ignore a pending scope, and explicitly refresh", async () => {
+  for (const width of [1280, 390]) {
+    const requests = [];
+    let releaseSouth;
+    const southGate = new Promise((resolve) => { releaseSouth = resolve; });
+    const scopeOf = (url) => US_REGION_PRESETS.find((preset) =>
+      [...preset.stateCodes].sort().join(",") === url.searchParams.get("regions"),
+    )?.id;
+    const s = await session({ width, height: 844, touch: width < 600, handlers: {
+      "/api/insights": async (route, url) => {
+        requests.push(url);
+        const scope = scopeOf(url);
+        if (scope === "south") await southGate;
+        const payload = insights(url);
+        payload.coverage.limitedRegions = payload.regions;
+        payload.findings[0].title = `${scope} ${url.searchParams.has("fresh") ? "refreshed" : "original"}`;
+        return json(route, payload);
+      },
+    } });
+    const { page } = s;
+    await openMap(page, "?bird=osprey&region=northeast");
+    await page.getByRole("button", { name: "Insights", exact: true }).click();
+    await page.getByRole("heading", { name: "northeast original", exact: true }).waitFor();
+    assert.equal(requests.length, 1);
+    assert.equal(await page.getByText(/report totals are incomplete/).isVisible(), true);
+
+    const regions = page.getByRole("group", { name: "Insights region", exact: true });
+    await regions.getByRole("button", { name: "West", exact: true }).click();
+    await page.getByRole("heading", { name: "west original", exact: true }).waitFor();
+    await regions.getByRole("button", { name: "Northeast", exact: true }).click();
+    await page.getByRole("heading", { name: "northeast original", exact: true }).waitFor();
+    await delay(200);
+    assert.equal(requests.length, 2, "Returning to a loaded scope does not read eBird again");
+
+    const southStarted = page.waitForRequest((request) =>
+      request.url().includes("/api/insights") && scopeOf(new URL(request.url())) === "south",
+    );
+    await regions.getByRole("button", { name: "South", exact: true }).click();
+    await southStarted;
+    await regions.getByRole("button", { name: "Northeast", exact: true }).click();
+    await page.getByRole("heading", { name: "northeast original", exact: true }).waitFor();
+    releaseSouth();
+    await delay(200);
+    assert.equal(await page.getByRole("heading", { name: "south original", exact: true }).count(), 0);
+    assert.equal(await page.getByText("Reading recent checklists…", { exact: true }).count(), 0);
+    assert.equal(requests.length, 3, "Returning from an unfinished scope still uses saved results");
+
+    await page.getByRole("button", { name: "Re-run insights", exact: true }).click();
+    await page.getByRole("heading", { name: "northeast refreshed", exact: true }).waitFor();
+    assert.equal(requests.length, 4);
+    assert.equal(requests.at(-1).searchParams.get("fresh"), "1");
+    assert.ok(requests.at(-1).searchParams.get("_t"), "Explicit refresh bypasses the CDN copy");
+    await finish(s);
+  }
+});
+
+test("desktop and phone show available and missing historical context in Insights and sighting pages", async () => {
+  // Synthetic data exercises the UI contract without making a scientific claim
+  // about this species or depending on the current imported county registry.
+  const baseline = {
+    status: "available", speciesCode: "osprey", comName: "Osprey",
+    area: { type: "county", code: "US-CA-075", name: "San Francisco County" },
+    season: { month: 10, startDay: 8, endDay: 14, label: "October 8–14" },
+    years: { start: 2015, end: 2025 }, frequency: 0.0125, checklistCount: 1234,
+    sourceUrl: "https://ebird.org/barchart?r=US-CA-075&bmo=1&emo=12&byr=2015&eyr=2025",
+    sourceAttribution: "eBird Basic Dataset, Cornell Lab of Ornithology",
+    termsUrl: "https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/",
+    downloadedAt: "2026-10-14T12:00:00Z", datasetVersion: "synthetic-browser-fixture",
+    methodVersion: "barchart-frequency-v1", taxonomyVersion: "eBird 2025",
+    annualRecurrence: null, confidence: null,
+    coverage: { scope: "county", yearsRepresented: null, pooledYears: true },
+  };
+  const contextFindings = [
+    { ...osprey, title: "Osprey", kind: "notable", subId: "S123456789", regionCode: "US-CA",
+      countyCode: "US-CA-075", countyName: "San Francisco", historicalBaseline: baseline },
+    { ...eagle, title: "Bald Eagle", kind: "notable", subId: "S123456790", regionCode: "US-NY",
+      countyCode: "US-NY-061", countyName: "New York", historicalBaseline: {
+        status: "unavailable", reason: "county_not_covered", confidence: null, annualRecurrence: null,
+      } },
+  ];
+  for (const width of [1280, 390]) {
+    const s = await session({ width, height: 844, touch: width < 600, handlers: {
+      "/api/insights": (route, url) => json(route, { ...insights(url), findings: contextFindings }),
+      "/api/sighting": (route, url) => {
+        const finding = contextFindings.find((item) => item.speciesCode === url.searchParams.get("species"));
+        return json(route, {
+          ...sightingFixture, finding,
+          checklist: { ...sightingFixture.checklist, subId: finding.subId },
+          media: { status: "unavailable", photos: [] },
+        });
+      },
+    } });
+    const { page } = s;
+    await openMap(page);
+    await page.getByRole("button", { name: "Insights", exact: true }).click();
+    await page.getByRole("heading", { name: "Osprey", exact: true }).waitFor();
+    const available = page.locator(".insight-card").filter({ has: page.getByRole("heading", { name: "Osprey", exact: true }) });
+    assert.match(await available.locator(".historical-context").innerText(), /1\.25%.*complete eBird checklists/s);
+    assert.match(await available.locator(".historical-context").innerText(), /1,234 complete checklists/);
+    assert.match(await available.locator(".historical-context").innerText(), /not a rarity rating/);
+    await available.getByText("Source and limits", { exact: true }).click();
+    assert.match(await available.locator("details").innerText(), /does not establish how regularly/);
+    assert.equal(await available.getByRole("link", { name: "eBird source chart", exact: true }).getAttribute("href"), baseline.sourceUrl);
+
+    const missing = page.locator(".insight-card").filter({ has: page.getByRole("heading", { name: "Bald Eagle", exact: true }) });
+    assert.match(await missing.locator(".historical-context").innerText(), /Historical baseline not yet available for this county/);
+    assert.doesNotMatch(await missing.locator(".historical-context").innerText(), /%/);
+    assert.equal(await missing.getByRole("link", { name: "View eBird's county history →", exact: true }).getAttribute("href"), "https://ebird.org/barchart?r=US-NY-061");
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+
+    await available.getByRole("link", { name: "Learn more →", exact: true }).click();
+    await page.getByRole("heading", { name: "Osprey", exact: true }).waitFor();
+    assert.match(await page.locator(".historical-context").innerText(), /1\.25%/);
+    await page.goto(base + "/sightings/S123456790/baleag");
+    await page.getByRole("heading", { name: "Bald Eagle", exact: true }).waitFor();
+    assert.match(await page.locator(".historical-context").innerText(), /Historical baseline not yet available/);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+    await finish(s);
+  }
+});
+
 test("map reported count omits unknown counts while retaining their locations", async () => {
   const s = await session({ handlers: {
     "/api/sightings": async (route, url) => {
@@ -515,7 +636,7 @@ test("phone discovery starts nationwide, exposes regional buttons, and carries t
     return bounds.contains([34.05, -118.24]) && bounds.contains([40.71, -74]);
   }), true, "Discovery frames the country, including both coasts");
   await regions.getByRole("button", { name: "West", exact: true }).tap();
-  await page.getByRole("heading", { name: `Finding for ${US_REGION_PRESETS.find((r) => r.id === "west").stateCodes[0]}`, exact: true }).waitFor();
+  await page.getByRole("heading", { name: `Finding for ${[...US_REGION_PRESETS.find((r) => r.id === "west").stateCodes].sort()[0]}`, exact: true }).waitFor();
   assert.equal(await regions.getByRole("button", { name: "West", exact: true }).getAttribute("aria-pressed"), "true");
   await regions.getByRole("button", { name: "National", exact: true }).tap();
   await page.locator(".insight-card").first().waitFor();
@@ -706,6 +827,7 @@ test("scope changes immediately clear old dots and recover after clearing states
 
 test("slow Insights responses cannot appear beneath a different region", async () => {
   const requests = [];
+  const westFirstState = [...US_REGION_PRESETS.find((r) => r.id === "west").stateCodes].sort()[0];
   const s = await session({
     handlers: {
       "/api/insights": async (route, url) => {
@@ -724,7 +846,7 @@ test("slow Insights responses cannot appear beneath a different region", async (
     .getByRole("button", { name: "West", exact: true }).click();
   await page
     .getByRole("heading", {
-      name: `Finding for ${US_REGION_PRESETS.find((r) => r.id === "west").stateCodes[0]}`,
+      name: `Finding for ${westFirstState}`,
       exact: true,
     })
     .waitFor();
@@ -737,7 +859,7 @@ test("slow Insights responses cannot appear beneath a different region", async (
   );
   assert.ok(
     requests.some((q) =>
-      q.includes(US_REGION_PRESETS.find((r) => r.id === "west").stateCodes[0]),
+      q.includes(westFirstState),
     ),
   );
   await finish(s);

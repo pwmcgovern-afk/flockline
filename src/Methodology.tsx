@@ -125,8 +125,8 @@ export default function Methodology() {
             Insights and weekly roundups select reports from eBird's notable-observations feed.
             A report is flagged in its local and date-specific context; the species may be an
             expected seasonal visitor or familiar elsewhere. Flockline uses recency and geographic
-            variety to select reports, without a historical baseline or a ranking of biological
-            rarity. Short summaries use factual templates, not generated interpretations, and
+            variety to select reports. Historical context is shown where a county baseline is
+            available; it does not rank biological rarity. Short summaries use factual templates, not generated interpretations, and
             preserve the source's review status when available.
           </p>
           <p>
@@ -135,12 +135,50 @@ export default function Methodology() {
             not inflate that figure. Different outings can still report the same birds. A bird
             count beside a place belongs to the featured checklist.
           </p>
+          <p>
+            Nationwide Insights uses one bounded country feed so a useful selection loads quickly.
+            If eBird's result limit is reached, the panel says that coverage and report totals are
+            incomplete. Weekly roundups make additional state requests to extend coverage; they
+            still disclose failures and limits. Neither selection is an exhaustive alert service.
+          </p>
           <h3>Scope and shareable links</h3>
           <p>
             Insights carry their own region and window, separate from the map. By default they follow
             whatever the map is showing; pick a region or a different window inside the panel and
             they stay pinned to it. The link button copies a URL that reopens Flockline directly on
             that exact view, so "notable reports in the West over the past three days" is one link.
+          </p>
+        </section>
+
+        <section id="historical-context">
+          <h2>Historical context</h2>
+          <p>
+            The initial pilot covers San Francisco County using eBird's official histogram
+            download for 2016–2025. For each featured report, Flockline looks up that species in
+            the county and seasonal period of the observation. The percentage is the share of
+            complete checklists reporting the species, with all complete checklists in that
+            period supplying the denominator. It is not calculated from the recent notable feed.
+          </p>
+          <p>
+            eBird exports four periods per month: days 1–7, 8–14, 15–21 and 22 through month end.
+            We show the percentage, complete-checklist sample size, years and county together.
+            A county average does not describe every habitat or hotspot. Low reporting frequency
+            alone does not mean rare: seasonal visitors and habitat specialists may be expected
+            despite appearing on a small share of county checklists.
+          </p>
+          <p>
+            The pooled export cannot establish recurrence across individual years or whether a
+            flock count is unusual. Sample size is descriptive; it is not a calibrated confidence
+            score. Reporting also depends on observer effort and repeated visits to known birds.
+            Missing counties or species are labelled unavailable, never treated as zero. Only
+            baselines ending before the observation year are used. Broader coverage and annual
+            recurrence require additional historical imports and validation.
+          </p>
+          <p>
+            Source data © eBird and its contributors. See the{" "}
+            <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075" target="_blank" rel="noreferrer">pilot source chart</a>,{" "}
+            <a href="https://support.ebird.org/en/support/solutions/articles/48001255130-ebird-bar-charts-and-graphs" target="_blank" rel="noreferrer">eBird's frequency explanation</a>{" "}
+            and <a href="https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/" target="_blank" rel="noreferrer">data terms</a>.
           </p>
         </section>
 

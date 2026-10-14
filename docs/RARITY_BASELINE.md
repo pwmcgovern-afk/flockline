@@ -1,6 +1,14 @@
 # Local seasonal reporting baseline
 
-Research and manual export pilot, October 14, 2026. This is a proposed next feature, not a deployed rarity score.
+Historical-context pilot, October 14, 2026. The app now supports a county and seasonal reporting baseline. It is not a rarity score.
+
+## Implemented pilot
+
+The bundled registry contains 468 species and 498 taxon aliases for San Francisco County, 2016-2025. Live Insights and future roundups retain eBird's county metadata and attach the matching seasonal frequency. Sighting pages can recover legacy county metadata through the official hotspot-info endpoint when the checklist identifies a public hotspot. Existing available historical snapshots are preserved; missing county coverage remains unavailable, with a link to eBird's history. No model or new request is needed for the baseline lookup itself.
+
+The public UI shows frequency, sample size, years, county, attribution, source chart and limitations. It does not infer annual recurrence, a detection numerator from rounded percentages, unusual flock size, movement, or a cause. The importer and lookup explicitly distinguish absent data from an exported zero.
+
+See [data provenance and import instructions](../data/README.md). The original histogram and taxonomy files remain outside the repository. Nationwide EBD plus Sampling Event Data access is a separate [prepared request](EBIRD_ACCESS_REQUEST.md); broader coverage is not yet available.
 
 ## Recommended approach
 
@@ -25,7 +33,7 @@ Sources: [eBird bar-chart documentation](https://support.ebird.org/en/support/so
 
 For sustained coverage, request an eBird Basic Dataset regional subset with Sampling Event Data and preprocess it offline. The companion checklist records establish non-detections and effort. Apply shared-checklist deduplication using group identifiers, consistent effort filters, taxonomic rollup, and attention to spatial and temporal sampling bias. Do not reconstruct history through thousands of recent-API calls. [Cornell analytical guidance](https://ebird.github.io/ebird-best-practices/ebird.html)
 
-The EBD has a project-access request and monthly releases. Its raw data should remain outside the public app/repository. Confirm the intended Flockline use and permission requirements before deploying derived tables, especially for sponsorship or commercial use. [Download guide](https://support.ebird.org/en/support/solutions/articles/48000838205-download-ebird-data), [data access terms](https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/).
+The EBD has a project-access request and monthly releases. Its raw data remains outside the public app/repository. The current free educational pilot publishes attributed derived summaries under the applicable terms. The access request discloses the intended use and asks about classification and any permission needed for future sponsorship or commercial use. [Download guide](https://support.ebird.org/en/support/solutions/articles/48000838205-download-ebird-data), [data access terms](https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/).
 
 ## Pilot actually verified
 
@@ -35,7 +43,7 @@ Source: [San Francisco bar charts, 2016-2025](https://ebird.org/barchart?byr=201
 
 ## Implementation shape
 
-1. Preserve county code/name from eBird's full notable response. The current candidate builder keeps state information but discards county metadata.
+1. Preserve county code/name from eBird's full notable response. The candidate builder now keeps both state and county metadata.
 2. Produce versioned summaries keyed by species, geographic scope, seasonal bin, and baseline years. Keep checklist count, detection frequency, eligible/detected years, source release, taxonomy version, and method version.
 3. Use completed prior years so the current influx of observers cannot alter its own baseline. eBird Mobile offers a useful precedent: ten years and a centered three-week seasonal window, with broader geographic coverage when local data are sparse. Its own documentation distinguishes infrequent from rare. [Mobile methodology](https://support.ebird.org/en/support/solutions/articles/48000960508-ebird-mobile-tips-tricks)
 4. Join the current report to the smallest sufficiently sampled baseline. Show the actual scope if it falls back to county or state. Return insufficient coverage for missing or weak history. Zero historical detections is not proof of absence.

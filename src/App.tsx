@@ -43,6 +43,7 @@ import {
 import Tour, { type TourStep } from "./Tour";
 import DigestSignup from "./DigestSignup";
 import LatestIssuePreview from "./LatestIssuePreview";
+import HistoricalContext from "./HistoricalContext";
 import MobileMapHeader from "./MobileMapHeader";
 import { buildAppUrl, parseAppState, type AppState, type AppView, type TimelineMode } from "./appState";
 import {
@@ -342,6 +343,7 @@ export default function App() {
   const sightingLayerRef = useRef<L.LayerGroup | null>(null);
   const sightingsRequestRef = useRef<AbortController | null>(null);
   const insightsRequestRef = useRef<AbortController | null>(null);
+  const insightResultsRef = useRef(new Map<string, { loadedAt: number; data: InsightsResponse }>());
   const drawerElementRef = useRef<HTMLDivElement | null>(null);
   const sightingElementRef = useRef<HTMLElement | null>(null);
   const lastFitKeyRef = useRef("");
@@ -513,12 +515,18 @@ export default function App() {
   const insightScopeKeyRef = useRef(insightScopeKey);
   insightScopeKeyRef.current = insightScopeKey;
 
-  // `fresh` forces a regenerate past both the server's 6h cache and any CDN
-  // copy (unique URL).
+  // Reuse a recently visited scope while this page stays open. Explicit refresh
+  // bypasses this cache as well as the server and CDN copies.
   const loadInsights = useCallback(
     async (options?: { fresh?: boolean }) => {
       if (!effectiveInsightRegions.length) {
         setInsightsError("Select at least one state for Insights.");
+        return;
+      }
+      const saved = insightResultsRef.current.get(insightScopeKey);
+      if (!options?.fresh && saved && Date.now() - saved.loadedAt < 5 * 60 * 1000) {
+        setInsights(saved.data);
+        setInsightsError("");
         return;
       }
       insightsRequestRef.current?.abort();
@@ -530,7 +538,7 @@ export default function App() {
       try {
         const params = new URLSearchParams({
           back: String(effectiveInsightBack),
-          regions: effectiveInsightRegions.join(",")
+          regions: [...effectiveInsightRegions].sort().join(",")
         });
         if (options?.fresh) {
           params.set("fresh", "1");
@@ -544,6 +552,11 @@ export default function App() {
           throw new ApiError(data.error || "Insights request failed.");
         }
         failedInsightScopeRef.current = null;
+        if (insightResultsRef.current.size >= 12) {
+          const oldest = insightResultsRef.current.keys().next().value;
+          if (oldest) insightResultsRef.current.delete(oldest);
+        }
+        insightResultsRef.current.set(scopeAtStart, { loadedAt: Date.now(), data });
         setInsights(data);
       } catch (requestError) {
         if (controller.signal.aborted || insightScopeKeyRef.current !== scopeAtStart) return;
@@ -618,7 +631,8 @@ export default function App() {
     insightsRequestRef.current?.abort();
     insightsRequestRef.current = null;
     setInsightsLoading(false);
-    setInsights(null);
+    const saved = insightResultsRef.current.get(insightScopeKey);
+    setInsights(saved && Date.now() - saved.loadedAt < 5 * 60 * 1000 ? saved.data : null);
     setInsightsError("");
     return () => insightsRequestRef.current?.abort();
   }, [insightScopeKey]);
@@ -1088,8 +1102,8 @@ export default function App() {
   // Keep insights in step with whatever scope they're pinned to, debounced so
   // dragging the window presets doesn't fire a request per step.
   //
-  // Insights fan out to eBird across every selected state and then to an LLM,
-  // so this only runs when something on screen is waiting on them.
+  // Only fetch when a visible panel needs results. A short debounce groups
+  // rapid filter changes without imposing a noticeable wait on opening.
   useEffect(() => {
     if (
       !insightsWanted
@@ -1101,7 +1115,7 @@ export default function App() {
     ) {
       return;
     }
-    const timeout = window.setTimeout(() => void loadInsights(), 700);
+    const timeout = window.setTimeout(() => void loadInsights(), 100);
     return () => window.clearTimeout(timeout);
   }, [
     effectiveInsightBack,
@@ -3241,6 +3255,7 @@ export default function App() {
                                 <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                                 <p>{finding.detail}</p>
                                 <p className="finding-review-status">{reviewStatusLabel(finding)}</p>
+                                <HistoricalContext finding={finding} />
                                 {sightingPath(finding) ? <a className="sighting-learn-more" href={sightingPath(finding)!}>Learn more →</a> : null}
                                 <div className="insight-meta roundup-facts">
                                   {finding.locName ? (
@@ -3509,6 +3524,13 @@ export default function App() {
                     </p>
                   ) : null}
 
+                  {insights?.coverage?.limitedRegions?.length ? (
+                    <p className="field-hint" role="status">
+                      Showing a selection from eBird's available reports. The feed reached its
+                      result limit, so some places or dates may be missing and report totals are incomplete.
+                    </p>
+                  ) : null}
+
                   {/* A failed re-run must not take the reader's findings away.
                       The loaded list stays below and the failure is reported
                       here; when the list is stale the copy says so, since the
@@ -3554,6 +3576,7 @@ export default function App() {
                           <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                           <p>{finding.detail}</p>
                           <p className="finding-review-status">{reviewStatusLabel(finding)}</p>
+                          <HistoricalContext finding={finding} />
                           {sightingPath(finding) ? <a className="sighting-learn-more" href={sightingPath(finding)!}>Learn more →</a> : null}
                           <div className="insight-meta">
                             {finding.region ? (
