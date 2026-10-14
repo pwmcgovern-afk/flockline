@@ -211,7 +211,7 @@ def audit_inputs(ebd, sampling, provisional=None):
             "checklists": totals[0], "distinctChecklistOrGroupIds": totals[1],
             "completeChecklistsBeforeDeduplication": totals[2],
             "checklistsWithoutObservationRowsInSuppliedFiles": totals[3],
-            "checklistsWithOnlyProvisionalRows": totals[4],
+            "checklistsWithOnlyProvisionalRows": totals[4] if provisional is not None else None,
             "dateRange": [totals[5], totals[6]], "missingCounty": totals[7],
             "countries": countries, "counties": counties, "observationTypes": protocols,
         },
