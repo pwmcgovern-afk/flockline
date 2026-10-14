@@ -37,3 +37,10 @@ To add a verified reference, inspect the actual checklist or species-filtered Me
 ## Verification
 
 Run `npm run check`, `npm run test:ui` and `npm run test:ui:webkit`. The fixture suite covers title links, Learn more, direct reload, photo switching, retries and phone overflow. It blocks external requests, so also visually verify at least one real Cornell embed on the deployed page.
+
+
+## Exact public location recovery
+
+When saved sighting context is missing or lacks a place name, the checklist's exact `locId` can recover its public hotspot name and state from eBird's hotspot-info response. This shares the existing bounded cached county lookup, with a two-second deadline. Private, unmatched and failed responses never supply inferred location facts. Existing saved names are preserved when the location still matches; an authoritative checklist location change clears the old geographic fields and baseline before resolving the new one. If no place is available, the page says so and retains its featured-checklist link.
+
+October 14 reproduction: `S401148419/redcro` had a San Francisco baseline but no visible place because only county fields were kept from `L419667`. The official hotspot response identifies `Mt. Davidson`, California. Regression tests cover missing saved context, a missing name with an existing county, preserved source facts, changed locations and private/unmatched responses.

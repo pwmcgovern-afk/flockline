@@ -165,7 +165,7 @@ function SightingArticle({
             <MapPin size={17} /> {finding.locName}
             {finding.region ? `, ${finding.region}` : ""}
           </p>
-        ) : null}
+        ) : <p className="sighting-location">Location not supplied. See the featured checklist.</p>}
         <p className="sighting-byline">
           {formatDate(checklist.observedAt)}
           {checklist.observerName
