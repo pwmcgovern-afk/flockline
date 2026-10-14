@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { getHistoricalBaseline } from "../lib/historicalBaseline.js";
 import HistoricalContext from "./HistoricalContext";
 import type { AvailableHistoricalBaseline } from "../lib/historicalBaseline.js";
 
@@ -32,5 +33,25 @@ describe("historical percentage interpretation", () => {
     expect(html).toContain(expected);
     expect(html).toContain("complete eBird checklists reported");
     expect(html).not.toContain("percentage is withheld");
+  });
+});
+
+
+describe("annual reporting evidence", () => {
+  it("keeps unknown years visible and provides all ten year-specific sources", () => {
+    const value = getHistoricalBaseline({ countyCode: "US-NY-061", speciesCode: "sora", obsDt: "2026-10-14" });
+    const html = renderToStaticMarkup(<HistoricalContext finding={{ historicalBaseline: value }} />);
+    expect(html).toContain("Reports documented in 1 of 10 years during October 8-14; 4 years have unknown results.");
+    expect((html.match(/>Unknown<\/td>/g) || []).length).toBe(4);
+    expect((html.match(/>Exported zero<\/td>/g) || []).length).toBe(5);
+    expect(html).toContain("byr=2022&amp;eyr=2022");
+    expect(html).toContain("does not prove absence");
+  });
+  it("describes repeated reporting without a rarity or return-probability inference", () => {
+    const value = getHistoricalBaseline({ countyCode: "US-NY-061", speciesCode: "nstspa", obsDt: "2026-10-14" });
+    const html = renderToStaticMarkup(<HistoricalContext finding={{ historicalBaseline: value }} />);
+    expect(html).toContain("Reports in 9 of 10 years during October 8-14.");
+    expect(html).not.toContain("90%");
+    expect(html).not.toContain("years have unknown results");
   });
 });

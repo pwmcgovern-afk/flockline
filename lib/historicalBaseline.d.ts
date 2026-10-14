@@ -1,3 +1,4 @@
+import type { AnnualHistory } from "./annualHistory.js";
 export type HistoricalBaselineUnavailableReason =
   | "county_missing" | "date_invalid" | "county_not_covered" | "baseline_not_prior"
   | "species_not_covered" | "sample_unavailable" | "frequency_unavailable" | "frequency_ambiguous";
@@ -18,6 +19,7 @@ export interface AvailableHistoricalBaseline {
   datasetVersion: string;
   methodVersion: string;
   taxonomyVersion: string;
+  annualHistory?: AnnualHistory;
   annualRecurrence: null;
   confidence: null;
   coverage: { scope: "county"; yearsRepresented: null; pooledYears: true };

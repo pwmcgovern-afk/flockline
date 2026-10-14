@@ -16,7 +16,7 @@ There are four seasonal bins per month: days 1-7, 8-14, 15-21 and 22 through mon
 
 Species rows match the official English eBird taxonomy exactly. Subspecies and form query codes use the taxonomy's `reportAs` parent species when that parent has a frequency row. The importer excludes ambiguous taxa, hybrids and other non-species rows. It never adds their frequencies to species rows, because their reporting can overlap.
 
-This pooled frequency is descriptive historical context. It does not measure population size, count unusualness, the reason for a sighting, or whether a species is rare. A small checklist sample can make the percentage unstable, and a large sample does not remove observer, habitat or effort bias. The file cannot establish how many separate years a species occurred, so annual recurrence and calibrated confidence remain unavailable. Current report review flags must remain independent of this history.
+This pooled frequency is descriptive historical context. It does not measure population size, count unusualness, the reason for a sighting, or whether a species is rare. A small checklist sample can make the percentage unstable, and a large sample does not remove observer, habitat or effort bias. The pooled file cannot establish how many separate years a species occurred. Separate annual evidence is available for Manhattan as described below; calibrated confidence and return probabilities remain unavailable. Current report review flags must remain independent of this history.
 
 ## Reproduce or add a county export
 
@@ -36,3 +36,22 @@ node scripts/import-barchart-baseline.mjs \
 The script validates the export's 48 columns, frequency bounds, whole checklist sample sizes, declared taxon total, metadata and source scope. It preserves other counties and year windows, replacing only the matching county/year edition. Review the imported and skipped row counts, and run `npx vitest run lib/barchartImport.test.js lib/historicalBaseline.test.js` before using the result. A new historical period or taxonomy needs deliberate review; the app does not scrape or refresh data automatically.
 
 For larger coverage, use an approved eBird Basic Dataset and Sampling Event Data workflow with explicit effort and shared-checklist handling. See [the baseline design](../docs/RARITY_BASELINE.md).
+
+## Annual evidence
+
+`annual-history.json` contains separate 2016-2025 New York County exports downloaded October 14, 2026. It is bound to the exact pooled dataset version, county, taxonomy and year window. The runtime sends only ten annual results for the featured species and period, not this entire registry. It makes no new network requests. New findings retain the annual version; matching older pooled snapshots gain supplementary annual evidence on read without changing their pooled facts or stored source record. Existing annual snapshots stay pinned.
+
+An annual value above zero documents reporting. Exact `0.0015` also documents occurrence under either interpretation, but is separately labelled and never turned into an exact percentage. An explicit zero stays zero. Missing species rows, missing frequencies and missing/zero checklist samples are unknown. Each year exposes its own source chart and checklist sample. No detection count, recurrence probability, confidence or rarity classification is inferred. `annualRecurrence` remains null; descriptive evidence lives in `annualHistory`.
+
+Download each year via the official chart UI, with the start and end year equal and all twelve months selected. Prepare a local JSON manifest with `pooledDatasetVersion` copied from the intended pooled dataset and a `years` array. Each entry supplies `year`, `path` (absolute or relative to the manifest), `sourceUrl` and `downloadedAt`. Include every year exactly once. Then run:
+
+```sh
+node scripts/import-annual-history.mjs \
+  --manifest /path/to/annual-manifest.json \
+  --pooled data/historical-baselines.json \
+  --output data/annual-history.json
+```
+
+The importer reuses exact species names from the pooled edition's official taxonomy mapping. It never sums subspecies or substitutes renamed species. It validates source URL scope, completed years, source hashes and every seasonal checklist total against the pooled file. A mismatch requires source/edition review, not relaxing validation. The CLI rejects a pooled registry as its output. Keep original exports and local manifests outside the repository.
+
+Independent October 14 audit: all 122,928 frequency cells across 2,561 annual species rows, all 480 checklist samples, ten SHA-256 hashes, and all 48 pooled sample sums match the downloaded sources. October 8-14 anchors: Sora has one reported year, five explicit zeros and four unknown rows; Nelson's Sparrow has nine reported years and one explicit zero; Red-breasted Nuthatch has reports in all ten years. These summaries concern that seven-day period, not the entire month or year.

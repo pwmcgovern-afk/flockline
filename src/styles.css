@@ -2542,6 +2542,12 @@ button.pill:hover {
 .historical-context details p { margin-top: 8px; }
 .historical-context summary { cursor: pointer; }
 .historical-context a { text-decoration: underline; text-underline-offset: 3px; }
+.annual-history { margin: 12px 0; }
+.annual-history table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.annual-history caption { text-align: left; margin: 10px 0; }
+.annual-history th, .annual-history td { padding: 7px 4px; text-align: left; border-bottom: 1px solid var(--rule); overflow-wrap: anywhere; }
+.annual-history thead th { font-weight: 600; }
+.annual-history th:last-child, .annual-history td:last-child { text-align: right; }
 
 .insight-meta a,
 .insight-meta > span,
