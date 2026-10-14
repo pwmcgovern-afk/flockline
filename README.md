@@ -1,6 +1,8 @@
 # Flockline
 
-Flockline is a live, eBird-backed map for following recent bird movement across the United States. It combines a 1,400+ species national catalog, a Nationwide view plus four U.S. Census region presets with state-level refinement, resilient multi-state data loading, a daily timeline, region-aware notable-sighting insights, weekly regional email digests, a grounded birding assistant, original field-guide artwork, responsive map controls, and a persistent My Birds watchlist with in-app field alerts.
+Flockline is a live, eBird-backed map for exploring recent bird reports across the United States. It combines a 1,400+ species national catalog, a Nationwide view plus four U.S. Census region presets with state-level refinement, resilient multi-state data loading, a timeline of the latest reports at each location, region-aware selections from eBird's notable feed, weekly regional email digests, an AI birding assistant with eBird tools, original field-guide artwork, responsive map controls, and a persistent My Birds watchlist with in-app field alerts.
+
+Insights and digests select reports deterministically by recency and geographic variety and describe source facts using templates. They do not rank biological rarity, compare observations with a historical seasonal baseline, or infer movement from separate sightings. eBird notable flags are local and date-specific; reports retain their available review status. The map's reported count sums supplied numeric counts, omitting unknown counts. It is not a count of distinct birds or a population lower bound.
 
 Production: [flockline.app](https://flockline.app)
 
@@ -30,13 +32,15 @@ EBIRD_API_KEY=your_ebird_api_key_here
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
 ```
 
-Without an eBird token, Flockline uses deterministic demo sightings so the map and timeline remain usable. Without an Anthropic key, live map data still works and AI-authored features fall back gracefully.
+Without an eBird token, Flockline uses deterministic demo sightings so the map and timeline remain usable. Without an Anthropic key, live map data, Insights, and digest summaries still work; Ask is unavailable.
 
 ### Weekly email digest
 
 The email flow uses Resend Contacts, one subscriber Segment, and five opt-in Topics. An encrypted confirmation link prevents an address from being subscribed without its owner's approval. Each edition has its own secured Vercel Cron beginning at 10 a.m. Eastern on Monday, staggered over five minutes. Three further attempts at 15-minute intervals resume incomplete work. A daylight-saving guard rejects the alternate UTC hour.
 
-Delivery saves the issue and a Resend draft ID in Blob before sending. A retry resumes that same broadcast, including after an uncertain network result. Conditional Blob writes prevent overlapping workers, and completed receipts survive function-log expiration. Empty regional audiences are archived without creating or sending a broadcast. Image generation runs separately before delivery; the send path uses cached illustrations and a text fallback.
+Delivery saves the issue and a Resend draft ID in Blob before sending. A retry resumes that same broadcast, including after an uncertain network result. Conditional Blob writes prevent overlapping workers, and completed receipts survive function-log expiration. Empty regional audiences are archived without creating or sending a broadcast. Image generation runs separately before delivery; the send path requires a cached illustration for every entry and stays pending if artwork is incomplete.
+
+The `source-facts-v1` editorial policy also corrects legacy web editions on read, with a visible note, while preserving their original saved observations, dates, and artwork. This does not rewrite historical blobs or change already-delivered email. New archive writes and email rendering use factual templates; Ask remains generative.
 
 Each region also has a protected `mode=check` cron. Its dashboard **Run** button checks the actual sender, subscriber routing, live eBird data, rendering, and Blob writes without creating a broadcast, sending mail, or publishing a new archive issue. These checks run before Monday delivery and can be run manually on any day. All cron paths require `CRON_SECRET`; a region is mandatory. The old all-region `persist-only` shortcut has been removed.
 

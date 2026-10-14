@@ -44,10 +44,10 @@ export default function Methodology() {
               up at, not the number of checklists and not the number of individual birds.
             </p>
             <p>
-              The <strong>birds</strong> figure beside it is a different thing: the sum of the
-              counts on each location's latest report. Plenty of checklists record that a bird was
-              present without saying how many, and those count as one. So that number is a floor
-              too, and always lower than the birds really out there.
+              The <strong>reported count</strong> sums the supplied numeric counts on each
+              location's latest report. Reports without counts remain on the map but are omitted
+              from that sum. Reports can overlap or miss birds, so this is neither a count of
+              distinct birds nor a reliable lower bound on the population.
             </p>
           </div>
         </section>
@@ -55,13 +55,15 @@ export default function Methodology() {
         <section>
           <h2>The timeline</h2>
           <p>
-            The scrubber animates movement over your chosen window, and the two modes answer
-            different questions.
+            The scrubber filters the latest report from each location by date. It does not track
+            individual birds or reconstruct their movement. The two modes show different views
+            of those same records.
           </p>
           <ul>
             <li>
-              <strong>Trail</strong> shows every location reported through the selected day, colored
-              by recency. It is the full picture of where a species has been.
+              <strong>Trail</strong> shows locations whose latest report falls on or before the
+              selected day, colored by recency. Earlier reports at the same location are not
+              included in this feed.
             </li>
             <li>
               <strong>New</strong> shows only the locations whose freshest report is the selected
@@ -85,19 +87,19 @@ export default function Methodology() {
         <section>
           <h2>Read the data honestly</h2>
           <p>
-            This is the part worth internalizing. A sightings map reflects birder effort, not bird
-            abundance.
+            These reports reflect where birds were detected and where people looked. They are
+            not a population survey.
           </p>
           <ul>
             <li>
-              <strong>Common birds are under-reported.</strong> Many birders do not bother logging
-              crows, robins, starlings, gulls, or pigeons. The map shows far fewer dots than where
-              these birds actually are. Treat counts for ubiquitous species as a floor, never a total.
+              <strong>Reports are observations.</strong> Species differ in how easily they can be
+              found and identified. Counts also depend on time spent looking, habitat, weather,
+              and the number of observers.
             </li>
             <li>
-              <strong>"Reviewed" is not a quality score.</strong> eBird manually vets only flagged or
-              locally rare reports. Common-bird records are auto-accepted and stay unreviewed, so a
-              low reviewed share is normal, not a problem.
+              <strong>Review status is separate from rarity.</strong> Records can be accepted by
+              eBird without individual review. A flagged report may await review, and an accepted
+              report does not establish that a species is rare across an entire region.
             </li>
             <li>
               <strong>Coverage is uneven.</strong> Well-birded hotspots and weekends produce more
@@ -120,25 +122,25 @@ export default function Methodology() {
         <section>
           <h2>Insights</h2>
           <p>
-            Insights summarize eBird's notable-observations feed. Flockline generates the short
-            summaries from those verified records and falls back to plain templated text if
-            generation is unavailable. In both cases the species, places, dates, and checklist
-            links come straight from eBird. The model only phrases what the data already says, and
-            it is given the exact records so it cannot invent a sighting.
+            Insights and weekly roundups select reports from eBird's notable-observations feed.
+            A report is flagged in its local and date-specific context; the species may be an
+            expected seasonal visitor or familiar elsewhere. Flockline uses recency and geographic
+            variety to select reports, without a historical baseline or a ranking of biological
+            rarity. Short summaries use factual templates, not generated interpretations, and
+            preserve the source's review status when available.
           </p>
           <p>
-            Report counts come from distinct eBird checklists. When several birders share one
-            outing, eBird gives each of them a copy of the checklist with the same place and start
-            time, so Flockline counts those copies as one sighting and says how many separate
-            outings the checklists came from. A bird count beside a place is always that
-            checklist's own count; the largest count in the region is described separately.
+            Report counts come from distinct eBird checklists. Flockline groups reports of the
+            same species at the same place and start time as one outing, so shared checklists do
+            not inflate that figure. Different outings can still report the same birds. A bird
+            count beside a place belongs to the featured checklist.
           </p>
           <h3>Scope and shareable links</h3>
           <p>
             Insights carry their own region and window, separate from the map. By default they follow
             whatever the map is showing; pick a region or a different window inside the panel and
             they stay pinned to it. The link button copies a URL that reopens Flockline directly on
-            that exact view, so "rare birds in the West over the past three days" is one link.
+            that exact view, so "notable reports in the West over the past three days" is one link.
           </p>
         </section>
 
@@ -157,10 +159,11 @@ export default function Methodology() {
           <h2>Ask</h2>
           <p>
             The Ask assistant answers questions about birds and their recent activity. It is
-            grounded: it queries the live eBird API through tools (species lookups, recent and
-            notable sightings, sightings near a point) rather than answering from memory, so it will
-            not fabricate sightings, counts, or locations. When you ask to see a bird, it can load
-            that species onto the map and zoom to a real reported spot. Ask uses your selected states
+            designed to use the live eBird API through tools for species lookups, recent and
+            notable sightings, and sightings near a point. AI answers can still contain mistakes;
+            check the linked source before relying on a sighting or interpretation. When you ask
+            to see a bird, it can load that species onto the map and zoom to a reported spot.
+            Ask uses your selected states
             as its regional focus. If you say "near me" without naming a place, it asks for a town,
             park, ZIP code, or coordinates instead of assuming your location.
           </p>
@@ -173,7 +176,7 @@ export default function Methodology() {
             overlapping regional searches can reuse work. The refresh button in the top-right forces
             a live re-pull from eBird, bypassing that cache, when you want the very latest. Insights
             have a longer cache because they summarize a broader set of notable reports; the re-run
-            button inside the panel forces a regenerate.
+            button inside the panel refreshes the selection.
           </p>
         </section>
 

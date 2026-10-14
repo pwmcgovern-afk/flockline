@@ -10,7 +10,7 @@ export type AppState = {
   timelineMode: TimelineMode;
   includeProvisional: boolean;
   hotspotsOnly: boolean;
-  // Insights carry their own scope so a link can point at "rare birds in the
+  // Insights carry their own scope so a link can point at "notable reports in the
   // West over the past 3 days" without disturbing whatever the map is showing.
   // null on either field means "follow the map".
   view?: AppView;

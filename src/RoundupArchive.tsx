@@ -1,5 +1,6 @@
 import { sightingPath } from "../shared/sightingPath.js";
 import { findingKindLabel as kindLabel } from "../shared/findingKind.js";
+import { reviewStatusLabel } from "../shared/findingCopy.js";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import DigestSignup from "./DigestSignup";
@@ -23,6 +24,8 @@ type ArchiveFinding = {
   locName?: string;
   obsDt?: string;
   howMany?: number | null;
+  obsValid?: boolean | null;
+  obsReviewed?: boolean | null;
   subId?: string;
   image?: { url?: string; alt?: string; kind?: string } | null;
 };
@@ -32,6 +35,7 @@ export type ArchiveRoundup = {
   scopeLabel: string;
   generatedAt: string;
   summary: string;
+  editorialNote?: string;
   findings: ArchiveFinding[];
 };
 
@@ -100,12 +104,12 @@ function IndexView({ initial }: { initial?: ArchiveIndex }) {
 
         <header className="methodology-head">
           <span className="script">weekly roundups</span>
-          <h1>The week in rare birds</h1>
+          <h1>The week in bird reports</h1>
         </header>
 
         <p className="newsletter-lede">
-          Every Monday, Flockline distills the past week of verified eBird notable sightings into
-          six findings per region. Each issue lives here permanently after it is sent.
+          Every Monday, Flockline selects six species from the past week of eBird notable
+          reports in each region. Browse each issue and its original checklists here.
         </p>
 
         <DigestSignup defaultRegionId="nationwide" src="roundup" />
@@ -188,7 +192,7 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
           <span className="script">
             {regionName} · {roundup ? `week ending ${formatIssueDate(roundup.generatedAt)}` : "weekly roundup"}
           </span>
-          <h1>The week in rare birds</h1>
+          <h1>The week in bird reports</h1>
         </header>
 
         {status === "loading" ? <p className="archive-status">Loading this issue…</p> : null}
@@ -204,6 +208,7 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
         {roundup ? (
           <>
             <p className="newsletter-lede">{roundup.summary}</p>
+            {roundup.editorialNote ? <p className="archive-meta">{roundup.editorialNote}</p> : null}
             <a className="insight-digest-invitation" href={`/newsletter?region=${scopeId}&src=roundup-issue`}>
               <span><strong>The next edition, straight to your inbox.</strong><small>Get the free Monday digest →</small></span>
             </a>
@@ -222,6 +227,7 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
                 <p className="archive-meta">
                   {[finding.locName, finding.obsDt ? formatIssueDate(finding.obsDt) : "", Number.isFinite(finding.howMany) && (finding.howMany || 0) > 0 ? `${finding.howMany} ${finding.howMany === 1 ? "bird" : "birds"}` : ""].filter(Boolean).join(" · ")}
                 </p>
+                <p className="archive-meta">{reviewStatusLabel(finding)}</p>
                 <p className="archive-links">
                   {sightingPath(finding) ? <a href={sightingPath(finding)!}>Learn more →</a> : null}
                   {finding.speciesCode ? (

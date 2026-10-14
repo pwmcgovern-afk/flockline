@@ -5,7 +5,7 @@ import type { ArchiveRoundup } from "./RoundupArchive";
 import { requestJson } from "./request";
 
 // Read a saved issue, never the generation endpoint. A preview should stay
-// inexpensive and show exactly what subscribers received, with its real date.
+// inexpensive and show the published edition, including any factual corrections.
 export default function LatestIssuePreview({ regionId, compact = false }: { regionId: string; compact?: boolean }) {
   const [issue, setIssue] = useState<ArchiveRoundup | null>(null);
   const [status, setStatus] = useState("Loading a published issue…");

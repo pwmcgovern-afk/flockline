@@ -8,7 +8,7 @@ Implemented September 7, 2026.
 - `/newsletter`: regional signup page. Query parameters still select editions and preserve signup attribution.
 - `/methodology`: explanation of the data and its limits. Old `/#methodology` bookmarks still work.
 - `/roundup`: crawlable index of every saved weekly issue.
-- `/roundup/{region}/{date}`: full saved article in initial HTML, with its own title, description, canonical, Article and breadcrumb structured data.
+- `/roundup/{region}/{date}`: issue built from saved observations in initial HTML, with its own title, description, canonical, Article and breadcrumb structured data.
 - `/roundup/{region}`: temporary redirect to the latest saved issue, so Google indexes its permanent dated URL.
 
 The sitemap at `/sitemap.xml` reads the archive, includes only actual published issues and the four main pages, and updates without a deployment. It currently lists 19 URLs (15 issues). Missing pages and invalid dates return HTTP 404 and noindex. Archive outages return uncached HTTP 503, not an empty index. No fabricated modification dates or speculative species/location pages are published.
@@ -16,6 +16,8 @@ The sitemap at `/sitemap.xml` reads the archive, includes only actual published 
 ## Implementation
 
 `npm run build` builds the browser assets and the server-only `src/seo-entry.tsx` renderer. `api/page.js` reads the built HTML template and renders the same newsletter, archive, and methodology React components used by the browser. Initial archive data is safely serialized for the client, avoiding a second request or a loading flash. The map is loaded separately so editorial pages do not download its JavaScript. The map still requires JavaScript, with descriptive initial HTML for readers and crawlers.
+
+Archive reads and the renderer apply `source-facts-v1` to legacy descriptions, using saved species, locations, dates, and counts. The article, metadata, and hydrated client share that corrected copy. A visible correction note identifies older issues; their original publication dates and observations are preserved, and reading an issue does not rewrite its stored blob.
 
 The ordered `routes` in `vercel.json` send `/` to the renderer before Vercel's filesystem phase. This is necessary because a normal fallback rewrite gives the static `index.html` precedence at `/`, skipping query-specific share metadata and server-rendered content. Assets and APIs keep their normal filesystem handling. `www` redirects permanently to the apex; `/index.html` redirects to `/`. Preview HTML carries an HTTP noindex header.
 

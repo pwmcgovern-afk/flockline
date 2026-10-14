@@ -4,13 +4,13 @@ September 13, 2026.
 
 The map's welcome card offers notable sightings before asking visitors to choose a species. Opening a panel hides the welcome card. Insights gives its first finding a stronger visual treatment and links directly to newsletter signup with the current regional edition.
 
-The weekly roundup introduction shows a saved issue before the fresh-generation region choices. Its signup invitation sits directly below that sample. The newsletter landing page pairs the same sample with the regional signup form on desktop and offers a jump to signup on phones. Archive issues also offer signup near the top.
+The weekly roundup introduction shows a saved issue before the regional selection choices. Its signup invitation sits directly below that sample. The newsletter landing page pairs the same sample with the regional signup form on desktop and offers a jump to signup on phones. Archive issues also offer signup near the top.
 
 ## Content and behavior
 
 - `LatestIssuePreview.tsx` reads `/api/roundup-archive?scope=…`. Viewing a sample never calls the generation or email endpoints.
 - The preview shows the actual issue date and links to its permanent dated URL. It selects the first illustrated finding, falling back to the first finding without an image. It does not invent sightings or label older issues as this week's news.
-- Artwork retains the species-illustration disclaimer. Titles and locations come directly from the saved issue.
+- Artwork retains the species-illustration disclaimer. Titles and descriptions use `source-facts-v1` templates built from saved observations. Legacy web editions are corrected on read with a visible note on the issue; the original observations and publication dates remain intact.
 - If the image host fails, the preview removes the broken illustration and keeps the issue title, location, date, and link readable.
 - Changing the preview edition updates the signup default until the visitor edits their subscription choices. After that, their chosen subscriptions remain intact.
 - Aborted requests cannot replace a newer region's sample. Missing or failed samples offer the archive link while the signup form remains usable.
