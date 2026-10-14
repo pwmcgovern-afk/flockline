@@ -14,8 +14,10 @@ import sqlite3
 import tempfile
 
 try:
+    from . import ebd_evidence
     from .ebd_inputs import CATEGORIES, InputError, audit_inputs, source_rows
 except ImportError:  # Direct CLI use, without installing a Python package.
+    import ebd_evidence
     from ebd_inputs import CATEGORIES, InputError, audit_inputs, source_rows
 
 
@@ -162,9 +164,12 @@ def validate_scope(counties, start, end):
 
 
 def candidate_cohort(ebd, sampling, taxonomy_path, taxonomy_version, taxonomy_sha256,
-                     counties, start, end, provisional=None):
+                     counties, start, end, provisional=None, evidence_species=None):
     validate_scope(counties, start, end)
     taxonomy = load_taxonomy(taxonomy_path, taxonomy_version, taxonomy_sha256)
+    requested_species = set(evidence_species or [])
+    evidence_periods = ebd_evidence.prepare_periods(counties, start, end, evidence_species, taxonomy) \
+        if evidence_species is not None else None
     audit = audit_inputs(ebd, sampling, provisional)
     if audit["inputChecks"] != "passed":
         raise InputError("Source input audit failed; resolve its diagnostics before selecting a cohort.")
@@ -196,6 +201,8 @@ def candidate_cohort(ebd, sampling, taxonomy_path, taxonomy_version, taxonomy_sh
                     FROM events GROUP BY unit;
                 CREATE UNIQUE INDEX unit_id ON units(unit);
             """)
+            if evidence_periods is not None:
+                ebd_evidence.create_tables(db)
             selections = dict(db.execute("SELECT reason, COUNT(*) FROM units GROUP BY reason ORDER BY reason"))
             periods = [{"countyCode": county, "year": year, "month": month,
                         "seasonalBin": period, "candidateUnits": count}
@@ -223,19 +230,24 @@ def candidate_cohort(ebd, sampling, taxonomy_path, taxonomy_version, taxonomy_sh
                     if count != "X" and not re.fullmatch(r"[0-9]+", count):
                         raise InputError("Observation counts changed after their input audit.")
                     kinds["present_without_count" if count == "X" else "explicit_zero" if int(count) == 0 else "positive_count"] += 1
-                    reason = db.execute("SELECT u.reason FROM events e JOIN units u ON e.unit=u.unit WHERE e.id=?",
+                    reason = db.execute("SELECT u.reason, e.unit FROM events e JOIN units u ON e.unit=u.unit WHERE e.id=?",
                                         (row["SAMPLING EVENT IDENTIFIER"],)).fetchone()
                     if reason is None:
                         raise InputError("Sources changed after their input audit.")
                     if reason[0] == "included":
                         counts[f"candidate_unit_{status}"] += 1
+                        if code in requested_species:
+                            ebd_evidence.record_row(db, reason[1], code, role, count, exotic)
                 mappings[role], exotic_codes[role], count_kinds[role] = dict(counts), dict(exotics), dict(kinds)
+            unresolved = sum(value for counts in mappings.values() if counts for key, value in counts.items()
+                             if key.startswith("unresolved_"))
+            species_evidence = ebd_evidence.summarize(db, evidence_periods, periods, requested_species,
+                                                     provisional is not None, unresolved == 0) \
+                if evidence_periods is not None else None
     for role, source in repeated_sources.items():
         if source["sha256"] != audit["sources"][role]["sha256"]:
             raise InputError("A source changed after its input audit; no candidate report was produced.")
-    unresolved = sum(value for counts in mappings.values() if counts for key, value in counts.items()
-                     if key.startswith("unresolved_"))
-    return {
+    report = {
         "methodVersion": METHOD, "publicationReady": False,
         "taxonomyChecks": "failed" if unresolved else "passed",
         "scope": {"countyCodes": sorted(counties), "startDate": start, "endDate": end},
@@ -252,8 +264,11 @@ def candidate_cohort(ebd, sampling, taxonomy_path, taxonomy_version, taxonomy_sh
                    "Domestic and ambiguous higher taxa are excluded from this candidate species mapping, not treated as absent.",
                    "Exotic codes remain separate diagnostics; no natural-origin inference is made.",
                    "These filters select a candidate comparison cohort, not an effort-adjusted model or rarity label.",
-                   "No frequency or non-detection is calculated. Confirm query/sensitive-species/provisional coverage and validate methodology before aggregation."],
+                   "No frequency or non-detection is calculated. Confirm query/sensitive-species/provisional coverage and validate methodology before interpreting reporting fractions."],
     }
+    if species_evidence is not None:
+        report["speciesEvidence"] = species_evidence
+    return report
 
 
 def main():
@@ -266,13 +281,15 @@ def main():
     parser.add_argument("--counties", nargs="+", required=True)
     parser.add_argument("--start-date", required=True)
     parser.add_argument("--end-date", required=True)
+    parser.add_argument("--evidence-species", nargs="+", help="Parent-species codes for aggregate supplied-record evidence.")
     args = parser.parse_args()
     try:
         if args.output.exists() or args.output.resolve() in {path.resolve() for path in
                 (args.ebd, args.sampling, args.provisional, args.taxonomy) if path}:
             raise InputError("Choose a new output path; existing files are never overwritten.")
         report = candidate_cohort(args.ebd, args.sampling, args.taxonomy, args.taxonomy_version,
-                                  args.taxonomy_sha256, args.counties, args.start_date, args.end_date, args.provisional)
+                                  args.taxonomy_sha256, args.counties, args.start_date, args.end_date,
+                                  args.provisional, args.evidence_species)
         with args.output.open("x", encoding="utf-8") as handle:
             json.dump(report, handle, ensure_ascii=False, indent=2)
             handle.write("\n")

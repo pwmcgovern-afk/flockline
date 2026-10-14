@@ -1,6 +1,6 @@
 # Preparing broader historical coverage
 
-The four-county histogram pilot is live. Nationwide EBD-based baselines are not yet implemented or published. Cornell shows a data-access request under review; its submitted scope is not visible. Local tools now audit inputs, check taxonomy mapping and select a candidate comparison cohort while access is pending. They do not calculate or publish frequencies.
+The four-county histogram pilot is live. Nationwide EBD-based baselines are not yet implemented or published. Cornell shows a data-access request under review; its submitted scope is not visible. Local tools now audit inputs, check taxonomy mapping, select a candidate comparison cohort and aggregate supplied species evidence while access is pending. They do not calculate or publish frequencies.
 
 ## Source evidence that changes the design
 
@@ -57,9 +57,23 @@ Species map by exact scientific name. Subspecies, intergrades and forms addition
 
 Candidate selection uses complete Stationary or Traveling checklists in the exact requested counties and completed prior years. Cornell's modeling example supplies provisional effort limits: at most 360 minutes, 10 km, 100 km/h and 10 observers, with positive duration and a whole positive observer count. Missing or invalid effort is excluded. Stationary blank distance becomes zero; an explicitly positive stationary distance is excluded for review. These filters do not correct every effort, habitat or observer bias and are not validated rarity thresholds.
 
-One exact group ID contributes at most one candidate unit. Unshared checklist IDs remain separate even when place and date match. Shared copies must agree on country/state/county/date, completeness, protocol and numeric effort. Equivalent numeric representations agree; any substantive difference excludes the entire group. This conservative candidate rule differs from `auk_unique`'s representative-checklist selection and needs ecological review before production use. Species-level evidence merging is not yet implemented.
+One exact group ID contributes at most one candidate unit. Unshared checklist IDs remain separate even when place and date match. Shared copies must agree on country/state/county/date, completeness, protocol and numeric effort. Equivalent numeric representations agree; any substantive difference excludes the entire group. This conservative candidate rule differs from `auk_unique`'s representative-checklist selection and needs ecological review before production use. Optional species-level evidence aggregation is described below.
 
 The report includes exclusions and retained counts by county/year/month/seasonal bin (0-3: days 1-7, 8-14, 15-21, 22 through month end). Units with no supplied observations remain in the selection diagnostics. Counts for a missing provisional file are `null`, not zero. No non-detection, denominator for a published frequency, or rarity conclusion follows from these diagnostics. Exit 0 means input and taxonomy checks passed; unresolved taxa produce a diagnostic report and exit 1. All reports remain `publicationReady: false`.
+
+## Aggregate supplied species evidence
+
+Append `--evidence-species sora redcro rebnut` to the cohort command to request species evidence in the same pass. Use distinct parent-species codes from the pinned taxonomy. `scripts/ebd_evidence.py` groups the mapped records by candidate unit and species, then emits county/year/seasonal-period summaries under `speciesEvidence`, method `flockline-ebd-species-evidence-v1`. The report inherits the input hashes, source release, selected scope and taxonomy provenance from the cohort report.
+
+- A unit has an accepted positive when at least one supplied accepted row for the species or its supported subtaxon has a positive count or `X`. Multiple subtaxa and shared copies still contribute one unit. Bird counts are never summed or compared to select a maximum.
+- Provisional positives are counted separately. A unit can contain both accepted and provisional positives; the report exposes that overlap and the provisional-only count. An unreviewed row cannot promote itself to accepted.
+- Explicit zero rows have separate unit counts and do not establish a live-bird detection. Positive/zero overlap remains visible rather than being silently resolved.
+- `unitsWithoutSuppliedPositiveRows` is a bookkeeping remainder, **not non-detections**. It can contain no supplied record, an explicit zero, an excluded ambiguous/domestic taxon or evidence unavailable from the supplied package. Accepted and provisional files also cannot establish completeness of a query or sensitive-species coverage by themselves.
+- Positive exotic flags are counted once per unit/species/source role/flag. These counts may overlap if shared copies or subtaxa have different flags. Unflagged does not mean known wild origin. Missing provisional statistics remain `null`; a supplied empty file can produce zero, without implying that source coverage is verified.
+
+Every requested county and intersecting seasonal period is present, including periods with no candidate units. Partial first/last bins expose the exact included dates and `partialSeasonalBin: true`; they are never silently presented as full bins. A no-candidate period is explicitly unavailable for inference. Unresolved taxonomy withholds the whole species-evidence table. To bound output size, requests above 100,000 species/period cells fail with instructions to use smaller explicit batches, rather than truncating the report.
+
+`reportingFrequency` remains `null` and `publicationReady` remains false, even when a provisional file is supplied. Confirm original query completeness, sensitive-species coverage, approved use and ecological suitability before deriving and publishing reporting fractions. These aggregates are auditable inputs for that next step, not a substitute for it.
 
 ## Verified public sample
 
@@ -86,10 +100,12 @@ The October 14 candidate audit uses official taxonomy 2024 (15,013 records), SHA
 
 An independent CSV parser and rational-number calculation, without application helpers, reconciled all 317 checklists, 4,863 observation rows, 270 units, selection bins, mapping/exotic/count diagnostics and three source hashes. Aggregate reports are `~/Downloads/flockline-ebd-cohort-reviewed-2026-10-14.json` and `~/Downloads/flockline-ebd-cohort-independent-audit-2026-10-14.json`. Missing provisional coverage remains unknown. This verifies implementation against the sample, not the ecological suitability of the filters.
 
+The separate species-evidence audit requested all 120 mapped species and reconciled all 480 species/period cells using an independent CSV parser, rational effort calculations and sets of source group IDs. The 3,382 mapped observation rows in selected units collapse to 2,818 species/unit reports. That total sums reporting units across species, not individual birds. Every accepted/provisional/zero/flag statistic and the three input hashes matched. The source sample has no provisional file, so its provisional fields remain unknown and its frequency stays unavailable. Synthetic tests cover the accepted/provisional overlap and explicit-zero cases missing from this sample. Reports remain outside the repo: `~/Downloads/flockline-ebd-species-evidence-2026-10-14.json` and `~/Downloads/flockline-ebd-species-evidence-independent-audit-2026-10-14.json`.
+
 ## Remaining processing stages
 
 1. Confirm approved project scope and request a matched regional EBD/SED/provisional release with complete prior years and explicit query coverage. Read its accompanying metadata, taxonomy and sensitive-species policy.
 2. Validate the implemented taxonomy and cohort rules on approved regional data, including source edition, domestic/exotic status, withheld taxa and shared-copy disagreements. The public-sample reconciliation above is an implementation check, not production approval.
 3. Review coverage losses and the ecological suitability of effort filters and group exclusions. Retain source-specific diagnostics; do not sum observation rows to estimate independent birds.
-4. Join all eligible complete checklist/group units to accepted and provisional occurrences. Preserve unresolved evidence separately instead of filling it with zero. Calculate descriptive reporting fractions and annual evidence only for covered scopes. Use a distinct method/version from histogram exports.
+4. The species/unit aggregation is implemented above. Next establish a source-backed coverage contract, then calculate descriptive reporting fractions and annual evidence only for covered scopes. Unresolved evidence must remain separate from non-detections. Use a distinct method/version from histogram exports.
 5. Independently reconcile candidate results, test held-out years and obtain local birding review. Add the new evidence type to the app only with clear denominator, scope, source, method and missing-data labels. Calibrated rarity or unusual-count labels remain a separate validation task.
