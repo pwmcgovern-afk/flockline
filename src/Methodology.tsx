@@ -177,8 +177,9 @@ export default function Methodology() {
         <section id="historical-context">
           <h2>Historical context</h2>
           <p>
-            The pilot covers San Francisco and San Mateo counties in California, and New York
-            County (Manhattan), using eBird's official histogram downloads for 2016–2025.
+            The pilot covers San Francisco and San Mateo counties in California, New York
+            County (Manhattan), and Suffolk County in Massachusetts, using eBird's official
+            histogram downloads for 2016–2025.
             For each featured report, Flockline looks up that species in
             the county and seasonal period of the observation. Where available, the percentage is the share of
             complete checklists reporting the species, with all complete checklists in that
@@ -200,8 +201,10 @@ export default function Methodology() {
             {" "}<a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0255391" target="_blank" rel="noreferrer">Research describing this convention</a>.
           </p>
           <p>
-            For Manhattan, separate annual exports also show which years contain reports in the
-            same seasonal period. Each year links to its source chart and checklist sample.
+            For Manhattan and Suffolk County, separate annual exports also show which years contain
+            reports in the same seasonal period and across the whole month. These scopes are labelled
+            separately: a seven-day window may miss reports elsewhere in the month.
+            Each year links to its source chart and checklist sample.
             Positive values, including occurrence markers, document reports; explicit zeros and
             missing data are shown separately. Missing species rows are unknown, never converted
             to zero. This is a record of reported occurrence, not a return probability or rarity score.
@@ -218,8 +221,9 @@ export default function Methodology() {
           <p>
             Source data © eBird and its contributors. See the{" "}
             source charts for <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075" target="_blank" rel="noreferrer">San Francisco</a>,{" "}
-            <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-081" target="_blank" rel="noreferrer">San Mateo</a> and{" "}
-            <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-NY-061" target="_blank" rel="noreferrer">New York County</a>,{" "}
+            <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-081" target="_blank" rel="noreferrer">San Mateo</a>,{" "}
+            <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-NY-061" target="_blank" rel="noreferrer">New York County</a> and{" "}
+            <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-MA-025" target="_blank" rel="noreferrer">Suffolk County, Massachusetts</a>;{" "}
             <a href="https://support.ebird.org/en/support/solutions/articles/48001255130-ebird-bar-charts-and-graphs" target="_blank" rel="noreferrer">eBird's frequency explanation</a>{" "}
             and <a href="https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/" target="_blank" rel="noreferrer">data terms</a>.
           </p>

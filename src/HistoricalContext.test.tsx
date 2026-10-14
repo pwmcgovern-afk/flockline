@@ -55,3 +55,18 @@ describe("annual reporting evidence", () => {
     expect(html).not.toContain("years have unknown results");
   });
 });
+
+
+describe("Suffolk exact-period and monthly context", () => {
+  it("shows both scopes explicitly without changing the pooled percentage", () => {
+    const value = getHistoricalBaseline({ countyCode: "US-MA-025", speciesCode: "nstspa", obsDt: "2026-10-12" });
+    const html = renderToStaticMarkup(<HistoricalContext finding={{ historicalBaseline: value }} />);
+    expect(html).toContain("0.8%");
+    expect(html).toContain("2,243");
+    expect(html).toContain("Reports in 6 of 10 years during October 8-14.");
+    expect(html).toContain("October (whole month)");
+    expect(html).toContain("reports in 10 of 10 years");
+    expect(html).toContain("Occurrence recorded*");
+    expect(html).not.toContain("0.15%");
+  });
+});

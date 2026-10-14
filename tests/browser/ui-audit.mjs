@@ -488,6 +488,37 @@ test("desktop and phone annual evidence separates unknown years from exported ze
   }
 });
 
+test("desktop and phone distinguish the original Suffolk report's seven-day and whole-month history", async () => {
+  const finding = { speciesCode: "nstspa", comName: "Nelson's Sparrow", title: "Nelson's Sparrow", kind: "notable",
+    subId: "S401644346", countyCode: "US-MA-025", obsDt: "2026-10-12", regionCode: "US-MA" };
+  finding.historicalBaseline = getHistoricalBaseline(finding);
+  for (const width of [1280, 375]) {
+    const s = await session({ width, height: 844, touch: width < 600, handlers: {
+      "/api/sighting": (route) => json(route, { ...sightingFixture, finding, media: { status: "unavailable", photos: [] } }),
+    } });
+    await s.page.goto(base + "/sightings/S401644346/nstspa");
+    await s.page.getByRole("heading", { name: "Nelson's Sparrow", exact: true }).waitFor();
+    assert.match(await s.page.locator(".historical-context").innerText(), /0.8%.*Suffolk County, Massachusetts.*2,243/s);
+    assert.match(await s.page.locator(".annual-history").innerText(), /6 of 10 years during October 8-14.*October \(whole month\): reports in 10 of 10 years/s);
+    await s.page.getByText("Year-by-year evidence", { exact: true }).click();
+    const rows = s.page.locator(".annual-history tbody tr");
+    assert.match(await rows.filter({ hasText: "2016" }).innerText(), /Exported zero.*95/s);
+    assert.match(await rows.filter({ hasText: "2024" }).innerText(), /Occurrence recorded.*327/s);
+    await s.page.getByLabel("Compare years for").selectOption("month");
+    assert.equal(await rows.count(), 10);
+    assert.equal(await rows.filter({ hasText: "Reported" }).count(), 10);
+    assert.match(await rows.filter({ hasText: "2016" }).innerText(), /Reported.*399/s);
+    assert.match(await s.page.locator(".annual-history caption").innerText(), /October \(whole month\)/);
+    assert.equal(await s.page.getByRole("link", { name: "2016", exact: true }).getAttribute("href"),
+      "https://ebird.org/barchart?byr=2016&eyr=2016&bmo=1&emo=12&r=US-MA-025");
+    assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    assert.equal(await s.page.locator(".annual-history table").evaluate(el => el.getBoundingClientRect().width <= el.parentElement.getBoundingClientRect().width), true);
+    await s.page.getByLabel("Compare years for").selectOption("period");
+    assert.match(await rows.filter({ hasText: "2016" }).innerText(), /Exported zero.*95/s);
+    await finish(s);
+  }
+});
+
 test("desktop and phone methodology fragments survive initial rendering and reload", async () => {
   for (const width of [1280, 390]) {
     const s = await session({ width, height: 844, touch: width < 600 });

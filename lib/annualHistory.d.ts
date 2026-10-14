@@ -1,7 +1,5 @@
 import type { HistoricalBaseline } from "./historicalBaseline.js";
-export interface AnnualHistory {
-  datasetVersion: string;
-  methodVersion: string;
+export interface AnnualPeriodEvidence {
   reportedYears: number;
   zeroYears: number;
   unknownYears: number;
@@ -12,5 +10,10 @@ export interface AnnualHistory {
     sourceUrl: string;
     downloadedAt: string;
   }>;
+}
+export interface AnnualHistory extends AnnualPeriodEvidence {
+  datasetVersion: string;
+  methodVersion: string;
+  month?: AnnualPeriodEvidence & { label: string };
 }
 export function withAnnualHistory(baseline: HistoricalBaseline): HistoricalBaseline;

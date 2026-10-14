@@ -1,12 +1,13 @@
 # Historical reporting-frequency data
 
-`historical-baselines.json` is a generated registry of county and seasonal frequency summaries. The pilot covers three counties for 2016-2025, downloaded October 14, 2026. Original histogram and taxonomy exports stay outside the repository.
+`historical-baselines.json` is a generated registry of county and seasonal frequency summaries. The pilot covers four counties for 2016-2025, downloaded October 14, 2026. Original histogram and taxonomy exports stay outside the repository.
 
 | County | Species | Taxon aliases | Official source |
 | --- | ---: | ---: | --- |
 | San Francisco, California | 468 | 498 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075) |
 | San Mateo, California | 437 | 494 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-081) |
 | New York, New York | 343 | 412 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-NY-061) |
+| Suffolk, Massachusetts | 344 | 420 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-MA-025) |
 
 Attribution: eBird and its contributors, Cornell Lab of Ornithology. These derived summaries are provided for Flockline's noncommercial educational use and remain subject to the [eBird Data Access Terms of Use](https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/). eBird and Cornell do not endorse Flockline.
 
@@ -16,7 +17,7 @@ There are four seasonal bins per month: days 1-7, 8-14, 15-21 and 22 through mon
 
 Species rows match the official English eBird taxonomy exactly. Subspecies and form query codes use the taxonomy's `reportAs` parent species when that parent has a frequency row. The importer excludes ambiguous taxa, hybrids and other non-species rows. It never adds their frequencies to species rows, because their reporting can overlap.
 
-This pooled frequency is descriptive historical context. It does not measure population size, count unusualness, the reason for a sighting, or whether a species is rare. A small checklist sample can make the percentage unstable, and a large sample does not remove observer, habitat or effort bias. The pooled file cannot establish how many separate years a species occurred. Separate annual evidence is available for Manhattan as described below; calibrated confidence and return probabilities remain unavailable. Current report review flags must remain independent of this history.
+This pooled frequency is descriptive historical context. It does not measure population size, count unusualness, the reason for a sighting, or whether a species is rare. A small checklist sample can make the percentage unstable, and a large sample does not remove observer, habitat or effort bias. The pooled file cannot establish how many separate years a species occurred. Separate annual evidence is available for Manhattan and Suffolk County as described below; calibrated confidence and return probabilities remain unavailable. Current report review flags must remain independent of this history.
 
 ## Reproduce or add a county export
 
@@ -39,9 +40,11 @@ For larger coverage, use an approved eBird Basic Dataset and Sampling Event Data
 
 ## Annual evidence
 
-`annual-history.json` contains separate 2016-2025 New York County exports downloaded October 14, 2026. It is bound to the exact pooled dataset version, county, taxonomy and year window. The runtime sends only ten annual results for the featured species and period, not this entire registry. It makes no new network requests. New findings retain the annual version; matching older pooled snapshots gain supplementary annual evidence on read without changing their pooled facts or stored source record. Existing annual snapshots stay pinned.
+`annual-history.json` contains separate 2016-2025 New York County and Suffolk County, Massachusetts exports downloaded October 14, 2026. It is bound to the exact pooled dataset version, county, taxonomy and year window. The runtime sends only the featured species's ten annual results for each of the seasonal period and whole month, not this entire registry. It makes no new network requests. New findings retain the annual version; matching older pooled snapshots gain supplementary annual evidence on read without changing their pooled facts or stored source record. Existing annual snapshots stay pinned. Older snapshots without whole-month evidence retain their original scope.
 
 An annual value above zero documents reporting. Exact `0.0015` also documents occurrence under either interpretation, but is separately labelled and never turned into an exact percentage. An explicit zero stays zero. Missing species rows, missing frequencies and missing/zero checklist samples are unknown. Each year exposes its own source chart and checklist sample. No detection count, recurrence probability, confidence or rarity classification is inferred. `annualRecurrence` remains null; descriptive evidence lives in `annualHistory`.
+
+The whole-month view combines the four seasonal bins as occurrence evidence, never by adding or averaging their frequencies. Any positive bin documents reporting; otherwise an occurrence marker documents occurrence; only four valid explicit zeros yield a monthly zero. Missing bins without positive evidence remain unknown. Monthly checklist samples sum the four disjoint periods when all samples are present. The UI labels both scopes and switches table rows, samples and caption together. Derived evidence uses `ebird-annual-occurrence-v2`; the imported source registry retains `ebird-annual-occurrence-v1`.
 
 Download each year via the official chart UI, with the start and end year equal and all twelve months selected. Prepare a local JSON manifest with `pooledDatasetVersion` copied from the intended pooled dataset and a `years` array. Each entry supplies `year`, `path` (absolute or relative to the manifest), `sourceUrl` and `downloadedAt`. Include every year exactly once. Then run:
 
@@ -54,4 +57,6 @@ node scripts/import-annual-history.mjs \
 
 The importer reuses exact species names from the pooled edition's official taxonomy mapping. It never sums subspecies or substitutes renamed species. It validates source URL scope, completed years, source hashes and every seasonal checklist total against the pooled file. A mismatch requires source/edition review, not relaxing validation. The CLI rejects a pooled registry as its output. Keep original exports and local manifests outside the repository.
 
-Independent October 14 audit: all 122,928 frequency cells across 2,561 annual species rows, all 480 checklist samples, ten SHA-256 hashes, and all 48 pooled sample sums match the downloaded sources. October 8-14 anchors: Sora has one reported year, five explicit zeros and four unknown rows; Nelson's Sparrow has nine reported years and one explicit zero; Red-breasted Nuthatch has reports in all ten years. These summaries concern that seven-day period, not the entire month or year.
+Independent October 14 Manhattan audit: all 122,928 frequency cells across 2,561 annual species rows, all 480 checklist samples, ten SHA-256 hashes, and all 48 pooled sample sums match the downloaded sources. October 8-14 anchors: Sora has one reported year, five explicit zeros and four unknown rows; Nelson's Sparrow has nine reported years and one explicit zero; Red-breasted Nuthatch has reports in all ten years. These summaries concern that seven-day period, not the entire month or year.
+
+Independent October 14 Suffolk audit: all 16,512 pooled frequency cells, 48 pooled samples and 420 taxonomy aliases matched the original export and official taxonomy. All 130,080 annual frequency cells across 2,710 annual species rows, 480 annual samples, eleven source hashes (pooled plus annual), and 48 annual-to-pooled sample sums also matched. Existing county datasets were unchanged. Nelson's Sparrow during October 8-14 has frequency 0.008025 across 2,243 complete checklists: six years document occurrence (including a 2024 occurrence marker), four export zero and none are unknown. Across the whole month of October, all ten years have unambiguous positive reporting. This is historical reporting evidence, not a rarity classification.
