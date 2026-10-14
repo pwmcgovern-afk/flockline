@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import { chromium, webkit } from "playwright";
 import { createServer } from "vite";
+import { getHistoricalBaseline } from "../../lib/historicalBaseline.js";
 import { US_STATES, US_REGION_PRESETS } from "../../shared/usGeography.js";
 
 // Run against the local Vite server. All APIs and map tiles are intercepted:
@@ -452,6 +453,37 @@ test("desktop and phone distinguish available, missing and ambiguous historical 
     await page.getByRole("heading", { name: "Bald Eagle", exact: true }).waitFor();
     assert.match(await page.locator(".historical-context").innerText(), /Historical baseline not yet available/);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+    await finish(s);
+  }
+});
+
+test("desktop and phone annual evidence separates unknown years from exported zeros", async () => {
+  const finding = { speciesCode: "sora", comName: "Sora", title: "Sora", kind: "notable", subId: "S402323216",
+    countyCode: "US-NY-061", obsDt: "2026-10-14", regionCode: "US-NY" };
+  finding.historicalBaseline = getHistoricalBaseline(finding);
+  for (const width of [1280, 390]) {
+    const s = await session({ width, height: 844, touch: width < 600, handlers: {
+      "/api/insights": (route, url) => json(route, { ...insights(url), findings: [finding] }),
+      "/api/sighting": (route) => json(route, { ...sightingFixture, finding, media: { status: "unavailable", photos: [] } }),
+    } });
+    await openMap(s.page);
+    await s.page.getByRole("button", { name: "Insights", exact: true }).click();
+    await s.page.getByRole("heading", { name: "Sora", exact: true }).waitFor();
+    assert.match(await s.page.locator(".annual-history").innerText(), /1 of 10 years.*4 years have unknown results/);
+    await s.page.getByText("Year-by-year evidence", { exact: true }).click();
+    const rows = s.page.locator(".annual-history tbody tr");
+    assert.equal(await rows.count(), 10);
+    assert.match(await rows.filter({ hasText: "2016" }).innerText(), /Unknown.*258/s);
+    assert.match(await rows.filter({ hasText: "2018" }).innerText(), /Exported zero.*314/s);
+    assert.match(await rows.filter({ hasText: "2022" }).innerText(), /Reported.*716/s);
+    assert.equal(await s.page.getByRole("link", { name: "2022", exact: true }).getAttribute("href"),
+      "https://ebird.org/barchart?byr=2022&eyr=2022&bmo=1&emo=12&r=US-NY-061");
+    assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await s.page.getByRole("link", { name: "Learn more →", exact: true }).click();
+    await s.page.getByRole("heading", { name: "Sora", exact: true }).waitFor();
+    await s.page.getByText("Year-by-year evidence", { exact: true }).click();
+    assert.equal(await s.page.locator(".annual-history tbody tr").count(), 10);
+    assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await finish(s);
   }
 });

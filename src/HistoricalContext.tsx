@@ -1,5 +1,42 @@
 import type { HistoricalBaseline, HistoricalBaselineUnavailableReason } from "../lib/historicalBaseline.js";
 import { normalizeHistoricalBaseline } from "../shared/historicalFrequency.js";
+import type { AnnualHistory } from "../lib/annualHistory.js";
+
+const annualStatus: Record<AnnualHistory["entries"][number]["status"], string> = {
+  reported: "Reported", occurrence: "Occurrence recorded*", zero: "Exported zero", unknown: "Unknown",
+};
+
+function AnnualEvidence({ history, season }: { history: AnnualHistory; season: string }) {
+  return (
+    <div className="annual-history">
+      <p>
+        {history.unknownYears > 0
+          ? `Reports documented in ${history.reportedYears} of ${history.entries.length} years during ${season}; ${history.unknownYears} years have unknown results.`
+          : `Reports in ${history.reportedYears} of ${history.entries.length} years during ${season}.`}
+      </p>
+      <details>
+        <summary>Year-by-year evidence</summary>
+        <p>
+          Each year uses the same county and seasonal period. An exported zero does not prove absence.
+          Unknown means the species row, frequency or checklist sample is unavailable.
+          These records do not estimate your chance of finding the bird or establish rarity.
+        </p>
+        <table>
+          <caption>Annual eBird exports for {season}</caption>
+          <thead><tr><th scope="col">Year / source</th><th scope="col">Result</th><th scope="col">Complete checklists</th></tr></thead>
+          <tbody>{history.entries.map((entry) => (
+            <tr key={entry.year}>
+              <th scope="row"><a href={entry.sourceUrl} target="_blank" rel="noreferrer" title={`Downloaded ${entry.downloadedAt}`}>{entry.year}</a></th>
+              <td>{annualStatus[entry.status]}</td>
+              <td>{entry.checklistCount === null ? "Unavailable" : entry.checklistCount.toLocaleString("en-US")}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+        {history.entries.some((entry) => entry.status === "occurrence") ? <p>*Occurrence is recorded, but the export does not establish an exact complete-checklist percentage.</p> : null}
+      </details>
+    </div>
+  );
+}
 
 const missingContext: Record<HistoricalBaselineUnavailableReason, string> = {
   county_missing: "County context is unavailable for this report.",
@@ -49,6 +86,7 @@ export default function HistoricalContext({ finding }: { finding: HistoricalFind
         {baseline.area.name} during {baseline.season.label}, {baseline.years.start}–{baseline.years.end}.
       </p>
       <p className="historical-context-sample">Based on {baseline.checklistCount.toLocaleString("en-US")} complete checklists. County reporting frequency, not a rarity rating.</p>
+      {baseline.annualHistory ? <AnnualEvidence history={baseline.annualHistory} season={baseline.season.label} /> : null}
       <details>
         <summary>Source and limits</summary>
         <p>

@@ -200,12 +200,20 @@ export default function Methodology() {
             {" "}<a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0255391" target="_blank" rel="noreferrer">Research describing this convention</a>.
           </p>
           <p>
+            For Manhattan, separate annual exports also show which years contain reports in the
+            same seasonal period. Each year links to its source chart and checklist sample.
+            Positive values, including occurrence markers, document reports; explicit zeros and
+            missing data are shown separately. Missing species rows are unknown, never converted
+            to zero. This is a record of reported occurrence, not a return probability or rarity score.
+          </p>
+          <p>
             The pooled export cannot establish recurrence across individual years or whether a
             flock count is unusual. Sample size is descriptive; it is not a calibrated confidence
             score. Reporting also depends on observer effort and repeated visits to known birds.
             Missing counties or species are labelled unavailable, never treated as zero. Only
-            baselines ending before the observation year are used. Broader coverage and annual
-            recurrence require additional historical imports and validation.
+            baselines ending before the observation year are used. Annual evidence is matched to
+            the pooled edition's county, taxonomy and year window. Broader annual coverage and
+            interpretation require additional historical imports and validation.
           </p>
           <p>
             Source data © eBird and its contributors. See the{" "}
