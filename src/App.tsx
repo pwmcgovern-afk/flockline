@@ -556,7 +556,11 @@ export default function App() {
           const oldest = insightResultsRef.current.keys().next().value;
           if (oldest) insightResultsRef.current.delete(oldest);
         }
-        insightResultsRef.current.set(scopeAtStart, { loadedAt: Date.now(), data });
+        if (data.coverage?.failedRegions?.length) {
+          insightResultsRef.current.delete(scopeAtStart);
+        } else {
+          insightResultsRef.current.set(scopeAtStart, { loadedAt: Date.now(), data });
+        }
         setInsights(data);
       } catch (requestError) {
         if (controller.signal.aborted || insightScopeKeyRef.current !== scopeAtStart) return;
@@ -2486,7 +2490,7 @@ export default function App() {
                 <li key={`${feature.properties.subId ?? "x"}-${index}`}>
                   <button type="button" onClick={() => selectSighting(feature)}>
                     {feature.properties.comName} at {feature.properties.locName},{" "}
-                    {feature.properties.regionCode},{" "}
+                    {feature.properties.regionCode ?? "State not supplied"},{" "}
                     {formatShortDateTime(feature.properties.obsDt)}
                   </button>
                 </li>
@@ -2650,7 +2654,7 @@ export default function App() {
               <span>
                 <strong>{selectedSighting.properties.locName}</strong>
                 <small>
-                  {selectedSighting.properties.regionCode} ·{" "}
+                  {selectedSighting.properties.regionCode ?? "State not supplied"} ·{" "}
                   {formatShortDateTime(selectedSighting.properties.obsDt)}
                 </small>
               </span>
@@ -2661,7 +2665,7 @@ export default function App() {
                 <small>Reported</small>
               </span>
               <span>
-                <strong>{selectedSighting.properties.obsReviewed ? "Reviewed" : "Recent"}</strong>
+                <strong>{reviewStatusLabel(selectedSighting.properties)}</strong>
                 <small>Status</small>
               </span>
               <span>
@@ -3203,6 +3207,13 @@ export default function App() {
                       <p className="field-hint" role="status">
                         Partial data. eBird did not respond for {roundup.coverage.failedRegions.length}{" "}
                         {roundup.coverage.failedRegions.length === 1 ? "state" : "states"}.
+                      </p>
+                    ) : null}
+
+                    {roundup?.coverage.limitedRegions?.length ? (
+                      <p className="field-hint" role="status">
+                        Limited source coverage. Some places or dates may be missing from eBird's
+                        available results, and report totals are incomplete.
                       </p>
                     ) : null}
 

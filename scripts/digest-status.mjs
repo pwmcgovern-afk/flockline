@@ -19,6 +19,8 @@ for (const region of DIGEST_REGIONS) {
   results.push({
     region: region.id, status: value?.status || "missing",
     updatedAt: value?.updatedAt || value?.checkedAt,
+    operation: value?.operation, phase: value?.phase,
+    attemptStartedAt: value?.attemptStartedAt, lastFailure: value?.failure,
     broadcastId: value?.broadcastId, providerStatus: value?.providerStatus,
     archived: value?.archived, hasRecipients: value?.hasRecipients,
     findings: value?.findings, illustrations: value?.illustrations, unresolved: value?.unresolved

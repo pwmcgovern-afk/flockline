@@ -351,7 +351,8 @@ function ReportingSummary({ reporting, featuredId, comName }: {
   if (!reporting) return <p className="sighting-small">Reporting totals are temporarily unavailable. The featured checklist is shown above.</p>;
   const total = reporting.reports.length;
   const included = reporting.reports.some((report) => report.subId === featuredId);
-  // Shared checklists repeat one outing for every birder on it.
+  // Place/time matches often come from shared checklists, but this feed does not
+  // include eBird's group identifier, so the grouping remains an estimate.
   const outingSizes: Record<string, number> = {};
   for (const report of reporting.reports) {
     const key = outingKey(report);
@@ -363,13 +364,13 @@ function ReportingSummary({ reporting, featuredId, comName }: {
       <span className="archive-kind">
         {comName} across {reporting.scopeLabel} · {reporting.timing === "recent" ? "Current week" : "When featured"}
       </span>
-      <h2>{outings.toLocaleString()} reported {outings === 1 ? "sighting" : "sightings"}</h2>
+      <h2>{outings.toLocaleString()} {outings === 1 ? "report group" : "report groups"}</h2>
       <p className="sighting-reporting-total">On {total.toLocaleString()} eBird {total === 1 ? "checklist" : "checklists"} · {reporting.back}-day window ending {formatDate(reporting.asOf.slice(0, 10))}</p>
       <p className="sighting-small">
         {outings < total
-          ? "Checklists with the same location and start time count as one sighting, because eBird gives every birder on a shared outing their own checklist. "
-          : "Each checklist is a separate reported sighting of this species. "}
-        Different sightings may still involve the same birds.
+          ? "Checklists with the same location and start time are grouped together. They may be copies from a shared outing, but this feed does not confirm that. "
+          : "Each checklist appears separately because no matching place and start time was found. "}
+        These groups are not a count of independent sightings or distinct birds.
         {included ? " The featured checklist is included in this total." : " The featured checklist is outside this feed snapshot."}
       </p>
       <p className="sighting-small">
@@ -388,7 +389,7 @@ function ReportingSummary({ reporting, featuredId, comName }: {
                 </a>
                 <span>
                   {formatDate(report.observedAt)} · {report.count ? `${report.count} ${report.count === "1" ? "bird" : "birds"}` : "Present, count not supplied"}
-                  {outingSizes[outingKey(report)] > 1 ? " · Shared outing" : ""}
+                  {outingSizes[outingKey(report)] > 1 ? " · Same place and start time" : ""}
                 </span>
               </li>
             ))}

@@ -22,11 +22,11 @@ export type SightingProperties = {
   locName: string;
   obsDt: string;
   howMany: number | null;
-  obsValid: boolean;
-  obsReviewed: boolean;
+  obsValid: boolean | null;
+  obsReviewed: boolean | null;
   locationPrivate: boolean;
   subId?: string;
-  regionCode: string;
+  regionCode: string | null;
 };
 
 export type SightingFeature = {
@@ -88,6 +88,7 @@ export type SightingsResponse = {
     sightings: number;
     checklists: number;
     regionCounts: Record<string, number>;
+    unknownRegionCount?: number;
     latestObsDt: string | null;
   };
 };
@@ -156,6 +157,8 @@ export type WeeklyRoundupResponse = {
     requestedRegions: string[];
     successfulRegions: string[];
     failedRegions: string[];
+    limitedRegions?: string[];
+    retryableRegions?: string[];
   };
   findings: Insight[];
 };

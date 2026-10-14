@@ -286,6 +286,34 @@ test("desktop and phone Insights reuse visited scopes, ignore a pending scope, a
   }
 });
 
+test("desktop and phone retry an incomplete Insights scope when revisited", async () => {
+  for (const width of [1280, 375]) {
+    let northeastRequests = 0;
+    const s = await session({ width, height: 844, touch: width < 600, handlers: {
+      "/api/insights": (route, url) => {
+        const payload = insights(url);
+        if (payload.regions.includes("US-NY")) {
+          northeastRequests++;
+          payload.findings[0].title = northeastRequests === 1 ? "Incomplete source" : "Recovered source";
+          if (northeastRequests === 1) payload.coverage.failedRegions = ["US-MA"];
+        } else payload.findings[0].title = "Western source";
+        return json(route, payload);
+      },
+    } });
+    await openMap(s.page, "?bird=osprey&region=northeast");
+    await s.page.getByRole("button", { name: "Insights", exact: true }).click();
+    await s.page.getByRole("heading", { name: "Incomplete source", exact: true }).waitFor();
+    const regions = s.page.getByRole("group", { name: "Insights region", exact: true });
+    await regions.getByRole("button", { name: "West", exact: true }).click();
+    await s.page.getByRole("heading", { name: "Western source", exact: true }).waitFor();
+    await regions.getByRole("button", { name: "Northeast", exact: true }).click();
+    await s.page.getByRole("heading", { name: "Recovered source", exact: true }).waitFor();
+    assert.equal(northeastRequests, 2);
+    assert.equal(await s.page.getByText(/eBird did not respond for/).count(), 0);
+    await finish(s);
+  }
+});
+
 test("desktop and phone show available and missing historical context in Insights and sighting pages", async () => {
   // Synthetic data exercises the UI contract without making a scientific claim
   // about this species or depending on the current imported county registry.
@@ -1113,7 +1141,7 @@ test("phone sighting pages open from titles and Learn more, show photos and note
     assert.equal(await page.getByText("1 bird on this checklist", { exact: true }).count(), 1);
     assert.equal((await page.locator("body").innerText()).includes("27 notable"), false);
     const reporting = page.getByRole("region", { name: "Reporting frequency" });
-    assert.match(await reporting.innerText(), /2 reported sightings/);
+    assert.match(await reporting.innerText(), /2 report groups/);
     assert.match(await reporting.innerText(), /On 2 eBird checklists/);
     assert.equal(await reporting.getByRole("link").count(), 0);
     await reporting.locator("summary").click();

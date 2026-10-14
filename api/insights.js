@@ -10,7 +10,7 @@ export default async function handler(request, response) {
   }
 
   const fresh = ["1", "true", "yes", "on"].includes(String(request.query.fresh || "").toLowerCase());
-  response.setHeader("Cache-Control", fresh ? "no-store" : "s-maxage=21600, stale-while-revalidate=86400");
+  response.setHeader("Cache-Control", "no-store");
   // Bound forced upstream refreshes while ordinary reads reuse the cache.
   if (fresh && !enforceRateLimit(request, response, {
     name: "fresh-insights",
@@ -23,6 +23,9 @@ export default async function handler(request, response) {
 
   try {
     const payload = await getInsights(request.query, undefined, { waitUntil });
+    if (!fresh && !payload.coverage.failedRegions.length) {
+      response.setHeader("Cache-Control", "s-maxage=21600, stale-while-revalidate=86400");
+    }
     response.status(200).json(payload);
   } catch (error) {
     response.status(error.statusCode || 502).json({

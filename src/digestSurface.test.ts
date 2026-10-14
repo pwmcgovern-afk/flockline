@@ -16,7 +16,7 @@ describe("weekly email digest surface", () => {
     expect(app).toContain('variant="header"');
     expect(signup).toContain("Make this your Monday read");
     expect(signup).toContain("Free weekly digest");
-    expect(signup).toContain("10 AM ET every Monday");
+    expect(signup).toContain("usually around 10 AM ET on Mondays");
     expect(signup).toContain("Choose regional editions");
     expect(signup).toContain("/api/digest-subscription");
     expect(signup).toContain("Check your inbox");

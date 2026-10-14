@@ -43,6 +43,7 @@ export type ArchiveRoundup = {
   generatedAt: string;
   summary: string;
   editorialNote?: string;
+  coverage?: { failedRegions?: string[]; limitedRegions?: string[]; retryableRegions?: string[] };
   findings: ArchiveFinding[];
 };
 
@@ -215,6 +216,12 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
         {roundup ? (
           <>
             <p className="newsletter-lede">{roundup.summary}</p>
+            {roundup.coverage?.failedRegions?.length || roundup.coverage?.limitedRegions?.length ? (
+              <p className="archive-meta">
+                Partial source coverage. Some places or dates may be missing from the available
+                eBird feed, and report totals are incomplete.
+              </p>
+            ) : null}
             {roundup.editorialNote ? <p className="archive-meta">{roundup.editorialNote}</p> : null}
             <a className="insight-digest-invitation" href={`/newsletter?region=${scopeId}&src=roundup-issue`}>
               <span><strong>The next edition, straight to your inbox.</strong><small>Get the free Monday digest →</small></span>
@@ -254,7 +261,7 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
 
             <section className="archive-signup">
               <h2>Get the next issue in your inbox</h2>
-              <p>Free, every Monday at 10 AM Eastern, one click to unsubscribe.</p>
+              <p>Free, on Monday mornings, one click to unsubscribe.</p>
               <DigestSignup defaultRegionId={scopeId} src="roundup" />
             </section>
           </>

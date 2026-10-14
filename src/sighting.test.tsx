@@ -133,17 +133,17 @@ describe("sighting pages", () => {
     };
     const html = renderToStaticMarkup(<SightingPage pathname="/sightings/S394925341/corplo" initial={{ ...sighting, reporting }} />);
     expect(html).toContain("1 bird on this checklist");
-    expect(html).toContain("3 reported sightings");
+    expect(html).toContain("3 report groups");
     expect(html).toContain("On 3 eBird checklists");
     expect(html).toContain("7-day window ending September 26, 2026");
-    expect(html).toContain("Each checklist is a separate reported sighting");
-    expect(html).toContain("may still involve the same birds");
+    expect(html).toContain("Each checklist appears separately");
+    expect(html).toContain("not a count of independent sightings or distinct birds");
     expect(html).not.toContain("Shared outing");
     expect(html).toContain("featured checklist is included");
     expect(html).toContain("Present, count not supplied");
     for (const report of reporting.reports) expect(html).toContain(`href="https://ebird.org/checklist/${report.subId}"`);
   });
-  it("counts copies of one shared outing as a single sighting while linking every checklist", () => {
+  it("groups matching place and time without claiming a verified shared outing", () => {
     const shared = { observedAt: "2026-09-21 07:15", locId: "L999", locName: "Pelagic trip", count: "3" };
     const reporting: SightingDetails["reporting"] = {
       timing: "published", scopeLabel: "Northeast", back: 7, asOf: "2026-09-26T20:00:00Z", partial: false,
@@ -158,10 +158,11 @@ describe("sighting pages", () => {
       ],
     };
     const html = renderToStaticMarkup(<SightingPage pathname="/sightings/S394925341/corplo" initial={{ ...sighting, reporting }} />);
-    expect(html).toContain("4 reported sightings");
+    expect(html).toContain("4 report groups");
     expect(html).toContain("On 6 eBird checklists");
-    expect(html).toContain("same location and start time count as one sighting");
-    expect(html.match(/Shared outing/g)).toHaveLength(3);
+    expect(html).toContain("same location and start time are grouped together");
+    expect(html).toContain("this feed does not confirm that");
+    expect(html.match(/Same place and start time/g)).toHaveLength(3);
     for (const report of reporting.reports) expect(html).toContain(`href="https://ebird.org/checklist/${report.subId}"`);
   });
   it("distinguishes recent partial or empty feeds from historical totals and absence", () => {
@@ -171,7 +172,7 @@ describe("sighting pages", () => {
     expect(html).toContain("Partial coverage");
     expect(html).toContain("outside this feed snapshot");
     expect(html).toContain("may be newer than the featured visit");
-    expect(html).toContain("0 reported sightings");
+    expect(html).toContain("0 report groups");
     expect(html).not.toContain("View all 0");
     expect(html).toContain("1 bird on this checklist");
   });
