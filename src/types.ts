@@ -177,6 +177,16 @@ export type ChatMessage = {
   role: ChatRole;
   content: string;
   speciesRefs?: ChatSpeciesRef[];
+  checklistSources?: ChatChecklistSource[];
+};
+
+export type ChatChecklistSource = {
+  subId: string;
+  speciesCode: string;
+  comName: string;
+  locName: string;
+  obsDt: string | null;
+  reviewStatus: string;
 };
 
 // The assistant can drive the map: load a species and optionally zoom to a spot.
@@ -193,6 +203,7 @@ export type ChatMapAction = {
 
 export type ChatResponse = {
   reply: string;
+  checklistSources?: ChatChecklistSource[];
   speciesRefs: ChatSpeciesRef[];
   mapAction: ChatMapAction | null;
   toolsUsed: string[];

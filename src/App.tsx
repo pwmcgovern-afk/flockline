@@ -1,7 +1,7 @@
 import { sightingPath } from "../shared/sightingPath.js";
 import { findingKindLabel } from "../shared/findingKind.js";
 import { reviewStatusLabel } from "../shared/findingCopy.js";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import { requestJson } from "./request";
 import "./mobile.css";
@@ -44,6 +44,7 @@ import Tour, { type TourStep } from "./Tour";
 import DigestSignup from "./DigestSignup";
 import LatestIssuePreview from "./LatestIssuePreview";
 import HistoricalContext from "./HistoricalContext";
+import ChatReply from "./ChatReply";
 import MobileMapHeader from "./MobileMapHeader";
 import { buildAppUrl, parseAppState, type AppState, type AppView, type TimelineMode } from "./appState";
 import {
@@ -1626,7 +1627,7 @@ export default function App() {
         }
         setChatMessages((current) => [
           ...current,
-          { role: "assistant", content: data.reply, speciesRefs: data.speciesRefs ?? [] }
+          { role: "assistant", content: data.reply, speciesRefs: data.speciesRefs ?? [], checklistSources: data.checklistSources ?? [] }
         ]);
         // Only steer the map if the reader is still where they asked from.
         // The reply itself always lands in the transcript.
@@ -3656,7 +3657,7 @@ export default function App() {
                     <div className={`chat-msg ${message.role}`} key={index}>
                       <span className="who">{message.role === "user" ? "You" : "Flockline"}</span>
                       <div className="chat-bubble">
-                        {renderChatText(message.content)}
+                        <ChatReply text={message.content} sources={message.role === "assistant" ? message.checklistSources : undefined} />
                         {message.role === "assistant" && message.speciesRefs?.length ? (
                           <div className="chat-refs">
                             {message.speciesRefs.map((ref) => (
@@ -3945,43 +3946,6 @@ function insightIcon(kind: InsightKind) {
     return <TrendingUp size={16} />;
   }
   return <Feather size={16} />;
-}
-
-// Render the assistant's plain-text reply: paragraphs for prose, and grouped
-// <ul> lists for runs of "- " bullet lines. We never interpret it as HTML, so
-// the model's output can't inject markup.
-function renderChatText(text: string): ReactNode {
-  const lines = text
-    .split(/\n+/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const blocks: ReactNode[] = [];
-  let bullets: string[] = [];
-
-  const flushBullets = () => {
-    if (bullets.length) {
-      blocks.push(
-        <ul key={`ul-${blocks.length}`}>
-          {bullets.map((bullet, index) => (
-            <li key={index}>{bullet}</li>
-          ))}
-        </ul>
-      );
-      bullets = [];
-    }
-  };
-
-  for (const line of lines) {
-    const bullet = line.match(/^[-•*]\s+(.*)/);
-    if (bullet) {
-      bullets.push(bullet[1]);
-    } else {
-      flushBullets();
-      blocks.push(<p key={`p-${blocks.length}`}>{line}</p>);
-    }
-  }
-  flushBullets();
-  return blocks;
 }
 
 function getFeatureColor(feature: SightingFeature, dateKeys: string[]) {

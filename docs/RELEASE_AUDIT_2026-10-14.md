@@ -44,9 +44,9 @@ Production map, Insights, roundup preview, archive, methodology, newsletter, and
 ## Remaining work
 
 - **Risk:** historical coverage is one county and pooled across years. Nationwide denominators, annual recurrence, effort-adjusted count distributions and defensible rarity thresholds remain incomplete. Pat's terms approval for the prepared Cornell EBD/SED request is pending; Cornell access approval and birder validation are separate steps.
-- **Risk:** public Ask rate limiting remains per process, so it is not a global spending ceiling. Shared rate limiting and persistent production error tracking are still open. No load-abuse test or external monitoring test event was performed.
+- **Operational limit:** Ask now has shared private-store admission quotas and bounded sanitized failure samples, documented in `docs/ASK_RELIABILITY.md`. Request quotas are not a dollar ceiling. Samples are best effort, not full error tracking or alerting. No external monitoring test event was performed.
 - **Risk:** the Midwest archive repair is prepared but unapplied. No catch-up email should be inferred or sent. Its exact historical failure cause is unavailable.
-- **Polish:** the local Express server retains duplicate handlers and unused legacy helpers. An invalid Insights scope currently differs locally (502) versus production (400). Production behavior is covered directly; consolidating development handlers is a later maintenance change.
+- Local Express now uses the production handlers. Invalid scopes, cache headers, method guards and Ask disconnect behavior have direct parity tests. Ask citations now link only to retrieved source records and show plain-language review status.
 - Cornell media can challenge automated requests; known embeds and illustrated fallbacks remain. OpenStreetMap public tiles remain best effort. These existing external dependencies are not reliability guarantees.
 
 ## Release proof

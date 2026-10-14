@@ -1,5 +1,7 @@
 import { chatWithBirds } from "../lib/ebirdCore.js";
-import { enforceRateLimit } from "../lib/rateLimit.js";
+import { enforceChatAdmission } from "../lib/chatAdmission.js";
+import { waitUntil } from "@vercel/functions";
+import { recordOperationalEvent } from "../lib/operationalEvents.js";
 
 export default async function handler(request, response) {
   response.setHeader("Cache-Control", "no-store");
@@ -9,13 +11,9 @@ export default async function handler(request, response) {
     return;
   }
 
-  if (!enforceRateLimit(request, response, {
-    name: "chat",
-    limit: 8,
-    windowMs: 10 * 60 * 1000,
-    message: "You have reached the Ask limit for now. Please try again in a few minutes."
-  })) {
-    return;
+  if (!Array.isArray(request.body?.messages) || !request.body.messages.some((message) =>
+    message?.role === "user" && typeof message.content === "string" && message.content.trim())) {
+    return response.status(400).json({ error: "Ask a question to start." });
   }
 
   const controller = new AbortController();
@@ -25,11 +23,19 @@ export default async function handler(request, response) {
   response.once?.("close", onClose);
   if (request.aborted) cancel();
   try {
+    if (controller.signal.aborted) return;
+    if (!await enforceChatAdmission(request, response, { signal: controller.signal })) return;
+    if (controller.signal.aborted) return;
     const payload = await chatWithBirds(request.body || {}, undefined, { signal: controller.signal });
     if (controller.signal.aborted) return;
     response.status(200).json(payload);
   } catch (error) {
     if (controller.signal.aborted) return;
+    if (error.statusCode === 503) response.setHeader("Retry-After", "15");
+    if (!error.statusCode || error.statusCode >= 500) {
+      waitUntil(recordOperationalEvent({ route: "chat", httpStatus: error.statusCode || 502,
+        category: error.code === "admission_unavailable" ? "admission" : error.statusCode === 504 ? "timeout" : "source" }));
+    }
     response.status(error.statusCode || 502).json({
       error: error.message || "Chat failed.",
     });

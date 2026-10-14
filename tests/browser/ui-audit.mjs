@@ -1014,6 +1014,38 @@ test("keyboard skip link and panel close preserve useful focus", async () => {
   await finish(s);
 });
 
+test("Ask source citations stay evidence-backed on desktop and phone", async () => {
+  for (const width of [1280, 390]) {
+    const s = await session({ width, height: 844, touch: width === 390, handlers: {
+      "/api/chat": (route) => json(route, {
+        reply: "Osprey was reported at Riverside Park. See https://ebird.org/checklist/S123456789.\nAn unsupported link stays plain: https://ebird.org/checklist/S999999999.",
+        checklistSources: [{
+          subId: "S123456789", speciesCode: "osprey", comName: "Osprey", locName: "Riverside Park",
+          obsDt: `${day} 09:00`, reviewStatus: "Not reviewed by eBird",
+        }],
+        speciesRefs: [], mapAction: null,
+      }),
+    } });
+    const { page } = s;
+    await openMap(page);
+    await page.locator(".tab-ask").click();
+    await page.getByRole("textbox", { name: "Ask the Flockline assistant" }).fill("Show recent Osprey reports");
+    await page.getByRole("button", { name: "Send", exact: true }).click();
+    const reply = page.locator(".chat-msg.assistant").last();
+    await reply.getByText("Source reports (1)", { exact: true }).waitFor();
+    const citation = reply.getByRole("link", { name: "eBird checklist S123456789", exact: true });
+    assert.equal(await citation.getAttribute("href"), "https://ebird.org/checklist/S123456789");
+    assert.equal(await citation.getAttribute("rel"), "noopener noreferrer");
+    assert.equal(await reply.locator('a[href*="S999999999"]').count(), 0);
+    await reply.getByText("Source reports (1)", { exact: true }).click();
+    await reply.getByRole("link", { name: "Osprey · Riverside Park", exact: true }).waitFor();
+    assert.ok((await reply.innerText()).includes("Not reviewed by eBird"));
+    assert.doesNotMatch(await reply.innerText(), /obsValid|obsReviewed|pending review/i);
+    assert.equal(await reply.locator(".chat-bubble").evaluate((node) => node.scrollWidth <= node.clientWidth + 1), true);
+    await finish(s);
+  }
+});
+
 test("Ask restores failed questions and does not move the map after the reader leaves", async () => {
   let fail = true;
   const s = await session({
