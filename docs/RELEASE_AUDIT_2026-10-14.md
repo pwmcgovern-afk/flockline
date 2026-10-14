@@ -2,6 +2,42 @@
 
 Verdict: **GO-WITH-RISKS** for the public map, factual Insights, and historical-context pilot. This is not certification of biological rarity or a claim that every possible technical failure has been eliminated.
 
+## Latest verified release
+
+The audit below began before the follow-up fixes. The latest verified application release is [PR #71](https://github.com/pwmcgovern-afk/flockline/pull/71), merged main `b81aa3d85b8cb614047108f3b5b9fa645119a4a1`, production `dpl_2LjmMrA9uX4xMfMBGfLsworg6f27`. Vercel reports Ready with the exact SHA and `flockline.app` aliases. Exact-head PR CI `38642631743` and merged-main CI `38643131410` passed: 493 unit tests, TypeScript, client/server builds, dependency audit, 47 Chromium and 27 WebKit cases. Live Chrome verified both western report pages, the monthly evidence selector, source links and 375px layout. The release error/fatal log query returned no entries; this is a bounded observation, not an uptime guarantee.
+
+## Original feedback: disposition
+
+| Concern | Current behavior and evidence | Remaining limit |
+| --- | --- | --- |
+| Common or seasonal birds described as regionally rare | Insights and weekly prose use source facts and recency/geographic sampling, without a computed rarity rank. The methodology explains why the notable feed can contain species expected elsewhere in a region. | Selection is not expert editorial curation or validated rarity classification. |
+| A large flock used to infer widespread food-driven movement | Deterministic prose reports the source count and location without causal or movement claims. Archived web prose and future email rendering use the same policy. | Already-sent emails and the original Reddit post are unchanged. |
+| No local historical baseline | Four counties have official 2016-2025 seasonal frequencies, complete-checklist samples, annual reporting evidence and year-specific source links. Unknown, exported zero and occurrence markers remain distinct. | Coverage is a four-county pilot. County frequency is not hotspot expectedness, encounter probability or count unusualness. |
+| Slow Insights | National selection uses one bounded country feed, coalesces requests and reuses a short browser cache. It uses no language model. | Source latency varies. Measured timings are not an SLA; the capped feed is not exhaustive. |
+| No state filtering | CT filtering existed and is verified in production and desktop/phone tests. Desktop now visibly labels its control Filters. | Discoverability can improve further with user feedback. |
+| Missing Bryant Park Sora photos | Four Cornell photos from Helen Wang's October 12 checklist at the exact hotspot are embedded, with date, observer and source link. The October 14 featured checklist has no photos. | The app explicitly cannot confirm the same individual. General photo discovery remains bounded and best effort. |
+| Sighting pages bury useful facts | Location, date, featured count and original checklist/map actions come first, followed by photos and observer notes. Detailed history and reporting lists expand on demand. Missing public-hotspot names are recovered from exact source IDs. | A missing/private source location stays unknown rather than being inferred. |
+| Unclear purpose or superiority claims | The stated use is a quick map, shareable source-linked reports and a weekly selection. Methodology links the ABA's distinct expert-authored reporting. | Presentation preference and repeat-user demand are not established by technical tests. |
+
+These changes address software behavior and evidence quality. They do not establish that AI-generated art appeals to the birding community or that Flockline replaces eBird or expert rare-bird reporting.
+
+## Source-backed cases for independent birding review
+
+The following are implementation checks, not expert-approved rarity labels. Compare the linked county sources and report pages, then record whether the scope, wording and prominence are useful to a local birder. All figures refer to October 8-14 during 2016-2025. The whole-month column separately considers all four October periods.
+
+| Case and source | Pooled frequency / complete checklists | Matching periods with reports | Whole Octobers with reports |
+| --- | --- | --- | --- |
+| [Mt. Davidson Red Crossbill](https://flockline.app/sightings/S401148419/redcro), San Francisco | 0.28% / 3,511 | 5 of 10 | 9 of 10 |
+| [Gazos Creek Red Crossbill](https://flockline.app/sightings/S401562944/redcro), San Mateo | 0.52% / 3,293 | 6 of 10 | 9 of 10 |
+| Red-breasted Nuthatch, [San Francisco source](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075) | 7.86% / 3,511 | 9 of 10 | 10 of 10 |
+| Red-breasted Nuthatch, [San Mateo source](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-081) | 3.67% / 3,293 | 7 of 10 | 10 of 10 |
+| [Bryant Park Sora](https://flockline.app/sightings/S402323216/sora), New York | 0.49% / 5,306 | 1 reported, 5 zero, 4 unknown | 2 reported, 4 zero, 4 unknown |
+| [Belle Isle Nelson's Sparrow](https://flockline.app/sightings/S401644346/nstspa), Suffolk, Massachusetts | 0.8% / 2,243 | 6 of 10 | 10 of 10 |
+
+Reported-year totals include occurrence markers, which do not establish an exact complete-checklist frequency. Missing rows are not zeros. The San Mateo nuthatch October 2018 and Suffolk sparrow October 8-14, 2024 markers are explicitly identified in the annual tables. None of these figures proves that a particular flock size is unusual.
+
+Before adding any rarity labels, obtain independent local feedback on these examples and test held-out years, habitat specialists, familiar residents, scarce seasonal visitors, genuine local exceptions and under-sampled places. Choose sample/label thresholds from that validation, not from an arbitrary universal percentage. No independent birder sign-off has been obtained as part of this audit.
+
 ## Scope and ground truth
 
 Critical flows: discover reports in Insights; open a species on the map and change its date/region; read a source-linked sighting and its historical context; browse a weekly issue and open regional signup; ask a birding question and navigate to a supported location. Signup verification stops before sending mail. No email, cron delivery, account changes, or data-access agreement was triggered.
@@ -43,12 +79,12 @@ Production map, Insights, roundup preview, archive, methodology, newsletter, and
 
 ## Remaining work
 
-- **Risk:** historical coverage now includes three counties (San Francisco, San Mateo and New York) and remains pooled across years. Nationwide denominators, annual recurrence, effort-adjusted count distributions and defensible rarity thresholds remain incomplete. Separate annual histogram imports can support a small recurrence pilot; the larger prepared Cornell EBD/SED request still awaits Pat's terms approval. Cornell access approval and birder validation are separate steps.
+- **Risk:** historical coverage includes four counties (San Francisco, San Mateo, New York and Suffolk, Massachusetts), each with ten annual exports and pooled seasonal frequencies. Nationwide denominators, effort-adjusted count distributions and defensible rarity thresholds remain incomplete. The prepared Cornell EBD/SED request awaits Pat's terms approval and has not been submitted. Cornell access approval and independent birder validation are separate steps. Original source exports remain outside the repository; provenance and import instructions are in `data/README.md`.
 - **Operational limit:** Ask now has shared private-store admission quotas and bounded sanitized failure samples, documented in `docs/ASK_RELIABILITY.md`. Request quotas are not a dollar ceiling. Samples are best effort, not full error tracking or alerting. No external monitoring test event was performed.
 - **Risk:** the Midwest archive repair is prepared but unapplied. No catch-up email should be inferred or sent. Its exact historical failure cause is unavailable.
 - Local Express now uses the production handlers. Invalid scopes, cache headers, method guards and Ask disconnect behavior have direct parity tests. Ask citations now link only to retrieved source records and show plain-language review status.
 - Cornell media can challenge automated requests; known embeds and illustrated fallbacks remain. OpenStreetMap public tiles remain best effort. These existing external dependencies are not reliability guarantees.
 
-## Release proof
+## Initial audit validation
 
-Local validation: 351 unit tests, TypeScript and client/server builds passed. The browser suite passed 34 Chromium scenarios and 17 WebKit scenarios, including returning to a scope after a transient source failure. Clean installation and audit reported zero vulnerabilities. Final Git SHA, CI, deployment and live smoke verification belong in the release pull request and the dated Flockline project log, so deployment evidence is not inferred from these local results.
+Before the follow-up releases, local validation: 351 unit tests, TypeScript and client/server builds passed. The browser suite passed 34 Chromium scenarios and 17 WebKit scenarios, including returning to a scope after a transient source failure. Clean installation and audit reported zero vulnerabilities. The latest verified release and its CI/production evidence are recorded above; this earlier count is retained as the initial audit record.
