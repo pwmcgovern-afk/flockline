@@ -201,7 +201,7 @@ export default function Methodology() {
             {" "}<a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0255391" target="_blank" rel="noreferrer">Research describing this convention</a>.
           </p>
           <p>
-            For Manhattan and Suffolk County, separate annual exports also show which years contain
+            For all four pilot counties, separate annual exports also show which years contain
             reports in the same seasonal period and across the whole month. These scopes are labelled
             separately: a seven-day window may miss reports elsewhere in the month.
             Each year links to its source chart and checklist sample.
