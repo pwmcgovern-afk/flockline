@@ -223,45 +223,45 @@ function appViewForDrawer(drawer: DrawerId | null): AppView {
   return drawer ?? "map";
 }
 
-// A pool the chat panel samples from on each open, so the starter questions
-// feel fresh and hint at the range of things the assistant can answer.
+// Starter questions should match the recent-report tools. Those tools cannot
+// establish rarity, track individual birds or rank birding activity.
 const CHAT_PROMPTS = [
-  "What rare birds have shown up in my selected states this week?",
-  "Where can I see a Scarlet Tanager right now?",
-  "Are Ospreys still active in the area?",
+  "What notable birds were reported in my selected states this week?",
+  "Where have Scarlet Tanagers been reported recently?",
+  "Any recent Osprey reports in the area?",
   "Show me notable sightings across my region",
-  "What warblers are moving through right now?",
+  "What warblers have been reported this week?",
   "Where have Bald Eagles been seen recently?",
-  "Any good shorebird spots active this week?",
-  "What hummingbirds are around right now?",
-  "What ducks are on the water right now?",
-  "What should I look for this weekend?"
+  "Where have shorebirds been reported this week?",
+  "What hummingbirds have been reported recently?",
+  "Where are the recent duck reports?",
+  "Which birds were reported nearby this week?"
 ];
 const REGIONAL_CHAT_PROMPTS: Record<string, string[]> = {
   nationwide: [
-    "What unusual sightings stand out across the country?",
-    "Where are Ospreys most active nationwide?",
-    "What birds are moving across the U.S. right now?"
+    "Show me recent notable reports across the country",
+    "Where are Ospreys being reported nationwide?",
+    "What birds were reported across the U.S. this week?"
   ],
   northeast: [
     "What's being reported around Boston lately?",
-    "Has anything rare turned up around New York?",
-    "What's active along the New England coast?"
+    "Any recent notable reports around New York?",
+    "What birds were reported along the New England coast?"
   ],
   midwest: [
     "What's being reported around Chicago lately?",
-    "What is moving through the Great Lakes?",
-    "Has anything rare turned up in the Midwest?"
+    "Show me recent reports around the Great Lakes",
+    "Any recent notable reports in the Midwest?"
   ],
   south: [
-    "What's unusual on the Gulf Coast?",
-    "What's the most active birding spot around Austin?",
-    "Has anything rare turned up in Florida?"
+    "What birds were reported on the Gulf Coast?",
+    "Where are the recent bird reports around Austin?",
+    "Any recent notable reports in Florida?"
   ],
   west: [
     "What's being reported around Seattle lately?",
-    "Has anything rare turned up in California?",
-    "What's active along the Pacific Coast?"
+    "Any recent notable reports in California?",
+    "What birds were reported along the Pacific Coast?"
   ]
 };
 
