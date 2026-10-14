@@ -23,16 +23,30 @@ const initial: ArchiveInitial & { status?: number; sighting?: SightingDetails } 
 // bookmarks working alongside the new crawlable /methodology page.
 function Root() {
   const [hash, setHash] = useState(window.location.hash);
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
   useEffect(() => {
     const onHashChange = () => {
       setHash(window.location.hash);
-      window.scrollTo(0, 0);
     };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  useEffect(() => {
+    // The client render replaces the server markup, so native fragment scrolling
+    // can happen before the final target exists. Restore it after React commits.
+    if (path === "/" && (!hash || hash === "#methodology")) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (!hash) return;
+    try {
+      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView();
+    } catch {
+      // A malformed bookmark fragment must not make the page unusable.
+    }
+  }, [hash, path]);
+
   if (initial.status === 404) return <NotFound />;
   if (path === "/methodology") return <Methodology />;
   if (path === "/newsletter") {

@@ -456,6 +456,33 @@ test("desktop and phone distinguish available, missing and ambiguous historical 
   }
 });
 
+test("desktop and phone methodology fragments survive initial rendering and reload", async () => {
+  for (const width of [1280, 390]) {
+    const s = await session({ width, height: 844, touch: width < 600 });
+    await s.page.goto(`${base}/methodology#historical-context`);
+    await s.page.waitForFunction(() => {
+      const section = document.getElementById("historical-context");
+      return section && Math.abs(section.getBoundingClientRect().top) < 3;
+    });
+    await s.page.reload();
+    await s.page.waitForFunction(() => {
+      const section = document.getElementById("historical-context");
+      return section && Math.abs(section.getBoundingClientRect().top) < 3;
+    });
+    await s.page.goto(`${base}/methodology`);
+    await s.page.getByRole("heading", { name: "How Flockline uses eBird sightings", exact: true }).waitFor();
+    await s.page.goto(`${base}/methodology#historical-context`);
+    await s.page.waitForFunction(() => {
+      const section = document.getElementById("historical-context");
+      return section && Math.abs(section.getBoundingClientRect().top) < 3;
+    });
+    await s.page.goto(`${base}/#methodology`);
+    await s.page.getByRole("heading", { name: "How Flockline uses eBird sightings", exact: true }).waitFor();
+    assert.equal(await s.page.evaluate(() => scrollY), 0);
+    await finish(s);
+  }
+});
+
 test("map reported count omits unknown counts while retaining their locations", async () => {
   const s = await session({ handlers: {
     "/api/sightings": async (route, url) => {
