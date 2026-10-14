@@ -1,6 +1,6 @@
 # Preparing broader historical coverage
 
-The four-county histogram pilot is live. Nationwide EBD-based baselines are not yet implemented or published. Cornell shows a data-access request under review; its submitted scope is not visible. Local tools now audit inputs, check taxonomy mapping, select a candidate comparison cohort and aggregate supplied species evidence while access is pending. They do not calculate or publish frequencies.
+The four-county histogram pilot is live. Nationwide EBD-based baselines are not yet published. Cornell shows a data-access request under review; its submitted scope is not visible. Local tools audit inputs, check taxonomy, select a candidate cohort, aggregate supplied species evidence and calculate candidate fractions only after a documented coverage review. No approved regional dataset has passed that review, and these tools have no publication path.
 
 ## Source evidence that changes the design
 
@@ -75,6 +75,35 @@ Every requested county and intersecting seasonal period is present, including pe
 
 `reportingFrequency` remains `null` and `publicationReady` remains false, even when a provisional file is supplied. Confirm original query completeness, sensitive-species coverage, approved use and ecological suitability before deriving and publishing reporting fractions. These aggregates are auditable inputs for that next step, not a substitute for it.
 
+## Coverage review and candidate fractions
+
+`scripts/ebd_frequency.py` consumes the generated species-evidence report and a separate local coverage-review manifest. First create an **unreviewed** template bound to the exact report bytes, source-file hashes, release and taxonomy:
+
+```sh
+python3 scripts/ebd_frequency.py template \
+  --evidence /private/species-evidence.json \
+  --output /private/new-coverage-review.json
+```
+
+Review the original download query before changing `query.status` to `reviewed`. Preserve its supporting capture/document outside the repository, with path, SHA-256, canonical Cornell URL, reviewer, review date and a statement of what it establishes. The original geographic/date scope must cover the selected scope. Confirm that SED contains all matching checklists, including those without the requested species. Either confirm an all-species query, or list the queried parent-species codes and confirm their supported subtaxa are included. A species-filtered EBD can be valid with a full SED; Cornell's [Wood Thrush example](https://ebird.github.io/ebird-best-practices/ebird.html#downloading-ebird-data) demonstrates that distinction. A species-filtered checklist denominator is not valid.
+
+Separately record `sensitivityWindows` for each requested species/county/date range. Each window has `countyCodes`, `speciesCodes`, `startDate`, `endDate` and `status` (`not_withheld`, `withheld` or `unknown`). A positive coverage assertion or known withholding needs its own preserved review evidence and `appliesToRelease` matching the source release. Cornell's [sensitivity policy](https://support.ebird.org/en/support/solutions/articles/48000803210-sensitive-species-in-ebird) includes regional and seasonal treatments; absence from a file cannot establish that it was not withheld. A window must cover every day of a seasonal cell. One withheld day blocks the cell; gaps and overlapping unknowns remain unknown. Do not apply a newer policy to an older release without evidence that it applies.
+
+These fields are **operator assertions supported by preserved evidence**. Hashes detect different or changed bytes; they cannot verify that a document supports the assertion. Never fill a review from assumptions, filenames or the absence of observations. This review also does not grant data-use permission or replace independent ecological validation.
+
+```sh
+python3 scripts/ebd_frequency.py calculate \
+  --evidence /private/species-evidence.json \
+  --coverage /private/coverage-review.json \
+  --output /private/new-candidate-fractions.json
+```
+
+The calculator validates report versions, scope, period/species completeness, source bindings and count reconciliation. It rejects changed review evidence or mismatched report/source/taxonomy hashes. Missing provisional coverage, unknown query/sensitivity coverage, partial bins and zero candidate samples produce unavailable cells. Provisional-only positives withhold the cell, as does any provisional explicit zero because the current aggregate cannot establish that each such row overlaps an accepted positive. Provisional positive copies already backed by an accepted positive do not add a detection or change the denominator. These conservative candidate rules still require validation before public use.
+
+An available cell retains the exact accepted-reporting numerator and candidate complete-checklist-group denominator, plus their ratio. An explicit zero numerator with verified coverage and a nonzero denominator is different from unavailable data; it describes no accepted reports in that dataset, not biological absence. Taxonomic exclusions and exotic flags retain the cohort's stated method. No natural-origin, rarity or unusual-flock conclusion is inferred. Pooling sums numerators and denominators across the explicitly listed years, never averages their percentages. A year with unverified coverage withholds the pooled fraction. A fully covered year with zero eligible effort instead retains known zero counts, no annual percentage, and an explicit `unsampledYears` entry; it contributes zero to the pooled sums without disappearing from the declared window. An entirely unsampled pool has no percentage. Annual results remain available for inspection.
+
+Outputs use `flockline-ebd-candidate-frequency-v1` and always retain `publicationReady: false`. They omit private evidence paths and reviewer names, retaining source URLs, hashes and review dates. No raw records, approval request, registry mutation, email or network call is produced. Output files must be new. The existing app cannot consume this evidence type yet; integration follows approved regional data, independent reconciliation, ecological review and appropriate sampling/label choices.
+
 ## Verified public sample
 
 On October 14, 2026, the public sample contained Tuscaloosa County, Alabama (`US-AL-125`), March 1-31, 2025, release `Mar-2025`:
@@ -102,10 +131,12 @@ An independent CSV parser and rational-number calculation, without application h
 
 The separate species-evidence audit requested all 120 mapped species and reconciled all 480 species/period cells using an independent CSV parser, rational effort calculations and sets of source group IDs. The 3,382 mapped observation rows in selected units collapse to 2,818 species/unit reports. That total sums reporting units across species, not individual birds. Every accepted/provisional/zero/flag statistic and the three input hashes matched. The source sample has no provisional file, so its provisional fields remain unknown and its frequency stays unavailable. Synthetic tests cover the accepted/provisional overlap and explicit-zero cases missing from this sample. Reports remain outside the repo: `~/Downloads/flockline-ebd-species-evidence-2026-10-14.json` and `~/Downloads/flockline-ebd-species-evidence-independent-audit-2026-10-14.json`.
 
+Running the coverage calculator against that sample with its unreviewed template leaves all 480 annual and 480 pooled cells unavailable. Each annual cell records the three genuine gaps: unreviewed query coverage, missing provisional source, and unknown sensitivity coverage. No review was fabricated to obtain a percentage. Both report/manifest hashes were independently checked. The final draft and result remain in Downloads as `flockline-ebd-coverage-review-final-draft-2026-10-14.json` and `flockline-ebd-candidate-frequency-final-2026-10-14.json`. Arithmetic, known zero versus missing samples, shared accepted/provisional positives, source/review mismatches, seasonal withholding and unequal annual denominators are covered by synthetic tests; this is not a real-data validation of available EBD frequencies.
+
 ## Remaining processing stages
 
 1. Confirm approved project scope and request a matched regional EBD/SED/provisional release with complete prior years and explicit query coverage. Read its accompanying metadata, taxonomy and sensitive-species policy.
 2. Validate the implemented taxonomy and cohort rules on approved regional data, including source edition, domestic/exotic status, withheld taxa and shared-copy disagreements. The public-sample reconciliation above is an implementation check, not production approval.
 3. Review coverage losses and the ecological suitability of effort filters and group exclusions. Retain source-specific diagnostics; do not sum observation rows to estimate independent birds.
-4. The species/unit aggregation is implemented above. Next establish a source-backed coverage contract, then calculate descriptive reporting fractions and annual evidence only for covered scopes. Unresolved evidence must remain separate from non-detections. Use a distinct method/version from histogram exports.
+4. The species/unit aggregation and coverage-gated calculator are implemented above. Apply them to an approved regional dataset with a genuinely completed coverage review, then independently reconcile the resulting candidate fractions and their missing-data cases. No real EBD percentage has passed this gate yet.
 5. Independently reconcile candidate results, test held-out years and obtain local birding review. Add the new evidence type to the app only with clear denominator, scope, source, method and missing-data labels. Calibrated rarity or unusual-count labels remain a separate validation task.
