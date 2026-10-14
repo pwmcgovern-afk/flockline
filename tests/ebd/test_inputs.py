@@ -93,14 +93,16 @@ class InputAuditTests(unittest.TestCase):
         self.assertEqual(report["sampling"]["distinctChecklistOrGroupIds"], 2)
         self.assertEqual(report["sharedChecklists"]["additionalCopies"], 1)
 
-    def test_shared_place_or_date_conflict_fails(self):
+    def test_shared_place_or_date_conflict_is_exposed_without_invalidating_other_units(self):
         for field, value in (("COUNTY CODE", "US-CT-001"), ("OBSERVATION DATE", "2025-01-11")):
             with self.subTest(field=field):
                 events = [self.event(**{"GROUP IDENTIFIER": "G1"}),
                           self.event("S2", **{"GROUP IDENTIFIER": "G1", field: value})]
                 report = self.audit(events, [])
-                self.assertEqual(report["errors"]["sharedGroupsWithConflictingPlaceOrDate"], 1)
-                self.assertEqual(report["inputChecks"], "failed")
+                self.assertEqual(report["warnings"]["sharedGroupsWithConflictingPlaceOrDate"], 1)
+                self.assertEqual(report["errors"], {})
+                self.assertEqual(report["inputChecks"], "passed")
+                self.assertIn("Exclude conflicting groups", report["reviewRequired"][-1])
 
     def test_shared_completeness_and_effort_disagreement_is_exposed(self):
         report = self.audit(events=[self.event(**{"GROUP IDENTIFIER": "G1"}),
@@ -109,6 +111,15 @@ class InputAuditTests(unittest.TestCase):
         self.assertEqual(report["sharedChecklists"]["mixedCompleteness"], 1)
         self.assertEqual(report["sharedChecklists"]["mixedProtocolOrEffort"], 1)
         self.assertIn("Shared copies disagree", report["reviewRequired"][-1])
+
+    def test_shared_warning_never_hides_a_broken_observation_join(self):
+        events = [self.event(**{"GROUP IDENTIFIER": "G1"}),
+                  self.event("S2", **{"GROUP IDENTIFIER": "G1", "COUNTY CODE": "US-CT-001"})]
+        observation = self.observation(events[0], **{"DURATION MINUTES": "61"})
+        report = self.audit(events, [observation])
+        self.assertEqual(report["warnings"]["sharedGroupsWithConflictingPlaceOrDate"], 1)
+        self.assertEqual(report["errors"]["observationSamplingMetadataMismatch"], 1)
+        self.assertEqual(report["inputChecks"], "failed")
 
     def test_join_failure_and_changed_metadata_fail(self):
         report = self.audit(observations=[self.observation(self.event("S2")),

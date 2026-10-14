@@ -29,7 +29,9 @@ python3 scripts/ebd_inputs.py \
   --output /private/new-input-audit.json
 ```
 
-The command rejects mismatched subset/release filenames, missing or ambiguous columns, malformed TSV rows, invalid dates/identifiers/completeness, duplicate source IDs, observations without matching SED entries, inconsistent checklist metadata, and invalid review/count/taxonomic-category fields. Shared copies with conflicting geography or dates fail. Differences in completeness or effort remain explicit review items rather than being silently resolved. Existing files are never overwritten.
+The command rejects mismatched subset/release filenames, missing or ambiguous columns, malformed TSV rows, invalid dates/identifiers/completeness, duplicate source IDs, observations without matching SED entries, inconsistent metadata between an observation and its own checklist, and invalid review/count/taxonomic-category fields. Differences between separate shared copies are distinct: conflicting geography, dates, completeness or effort remain explicit warnings and review items. The cohort excludes those groups as a whole without discarding unrelated checklists. Existing files are never overwritten.
+
+The input method is `flockline-ebd-input-audit-v3`. Earlier v2 reports treated shared geography/date disagreement as a whole-file failure, preventing the already implemented group exclusion from running. Regenerate evidence and coverage manifests with v3 rather than changing a saved report's version or approved state by hand. Structural/source-join errors still block cohort selection, and the frequency calculator requires the current input method.
 
 Exit 0 means the implemented input checks passed. Exit 1 means a source/format/join check failed. Neither is publication approval: every report has `publicationReady: false`. Omitting `--provisional` is permitted for inspection, but records `provisionalCoverage: unknown` and explicitly prevents interpreting missing accepted rows as non-detections. Even a supplied empty provisional file requires confirmation against the original source package. The auditor cannot establish that files have not been manually filtered or renamed, that a query includes every species, or that a source package covers every expected month.
 
@@ -132,6 +134,33 @@ An independent CSV parser and rational-number calculation, without application h
 The separate species-evidence audit requested all 120 mapped species and reconciled all 480 species/period cells using an independent CSV parser, rational effort calculations and sets of source group IDs. The 3,382 mapped observation rows in selected units collapse to 2,818 species/unit reports. That total sums reporting units across species, not individual birds. Every accepted/provisional/zero/flag statistic and the three input hashes matched. The source sample has no provisional file, so its provisional fields remain unknown and its frequency stays unavailable. Synthetic tests cover the accepted/provisional overlap and explicit-zero cases missing from this sample. Reports remain outside the repo: `~/Downloads/flockline-ebd-species-evidence-2026-10-14.json` and `~/Downloads/flockline-ebd-species-evidence-independent-audit-2026-10-14.json`.
 
 Running the coverage calculator against that sample with its unreviewed template leaves all 480 annual and 480 pooled cells unavailable. Each annual cell records the three genuine gaps: unreviewed query coverage, missing provisional source, and unknown sensitivity coverage. No review was fabricated to obtain a percentage. Both report/manifest hashes were independently checked. The final draft and result remain in Downloads as `flockline-ebd-coverage-review-final-draft-2026-10-14.json` and `flockline-ebd-candidate-frequency-final-2026-10-14.json`. Arithmetic, known zero versus missing samples, shared accepted/provisional positives, source/review mismatches, seasonal withholding and unequal annual denominators are covered by synthetic tests; this is not a real-data validation of available EBD frequencies.
+
+## Larger official development dataset
+
+On October 14, 2026, the guide's [GitHub data package](https://github.com/ebird/ebird-best-practices/blob/main/data-raw/ebird-best-practices-data.zip), linked from its [setup instructions](https://ebird.github.io/ebird-best-practices/intro.html#data-package), contained the original Georgia Wood Thrush EBD and full SED for release `Oct-2023`. The separate Box link in the data chapter returned a smaller package of prepared modeling tables without those raw files. A successful download therefore does not by itself establish the expected contents. The GitHub archive's 58,413,155 bytes matched Git blob `db0e1c79c1f9c5a5de48a2bec3f39f2ec2beb277` and SHA-256 `eef038c7f24b7e45ad020893e38f25cdd2c216e2600fc501694a72e885a6d001`.
+
+The independent input check used a CSV parser and sets, without importing application code. It reconciled both source hashes, all checklist/group totals and 474,980 observation-to-checklist field comparisons:
+
+| Check | Result |
+| --- | ---: |
+| Accepted Wood Thrush rows | 47,498 |
+| SED checklists | 1,249,905 |
+| Distinct checklist/group units | 1,120,132 |
+| Complete checklists before deduplication | 991,055 |
+| Shared groups with multiple copies | 92,892 |
+| Extra shared copies | 129,773 |
+| Shared groups with differing place/date | 130 (66 place, 64 date) |
+| Shared groups with differing completeness | 233 |
+| Shared groups with differing protocol/effort | 1,793 |
+| Missing county codes | 11 |
+
+The disagreement categories can overlap and must not be summed as independent groups. All observations matched their own SED checklist; no source-join error was found. This exposed the v2 whole-file rejection fixed by v3 above. The 11 missing county codes stay outside an explicitly county-scoped cohort.
+
+For a larger candidate run, the scope was all 159 represented Georgia counties, January 2014 through December 2022, and `woothr`, with the official 2023 taxonomy pinned to `023f3204abf2b5a8845f4c200208c7c0975e2873a8143cfff75c49840e050c99`. The run retained 598,591 candidate units and recorded 2,073 conflicting shared groups across the full input as excluded. The 24,751 accepted observation rows in selected units collapsed to 21,957 reporting units, not birds. An independent parser using rational-number effort comparisons and sets matched every decision total and all 68,688 county/year/seasonal cells, along with the accepted, SED and taxonomy hashes. The candidate command took 23.23 seconds with a measured maximum resident set of 256,245,760 bytes on the development machine. This is one measured workload, not a nationwide performance guarantee.
+
+The source files are pinned to SHA-256 `d3c5cfa66e0a12942b88e0cfb235e8dd0fe929d08c932b201fef140b7ff89030` (accepted) and `c64307ba6f9ebe42a74de1288186279fdb1feb0c4f09cdc185c938b053adf5b9` (SED). Raw files and a provenance manifest remain in `~/Downloads/flockline-wood-thrush-raw-2026-10-14/`. Candidate evidence is `~/Downloads/flockline-wood-thrush-cohort-v3-2026-10-14.json`; independent checks are `flockline-wood-thrush-independent-input-audit-2026-10-14.json` and `flockline-wood-thrush-independent-cohort-audit-2026-10-14.json`, also in Downloads. The independent cohort script is preserved there as `flockline-independent-wood-thrush-cohort-2026-10-14.py`.
+
+This package has no provisional file or completed query/sensitivity review. Running the final coverage stage leaves all 68,688 annual and 7,632 pooled cells unavailable; 26,676 annual cells also have no candidate units. Independent assertions checked both report/manifest hashes and the full missing-data result. The draft, output and audit are in Downloads as `flockline-wood-thrush-coverage-draft-2026-10-14.json`, `flockline-wood-thrush-candidate-frequency-2026-10-14.json` and `flockline-wood-thrush-independent-frequency-audit-2026-10-14.json`. This validates processing and exclusion behavior on a larger real source, not public frequencies, ecological suitability or permission for broader product use. No raw records or new public baseline were published.
 
 ## Remaining processing stages
 
