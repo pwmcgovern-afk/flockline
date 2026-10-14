@@ -16,7 +16,7 @@ The archive API and server renderer correct legacy web descriptions on read from
 
 ## Current schedule and recovery
 
-- Five regional prewarm jobs run at :05, :25, and :40 in the 13, 14, and 15 UTC hours on Monday, staggered by region (Northeast one minute later, West four). Each generates at most three images in one batch. The first job saves the actual edition before generating any artwork; all later preparation, checks, and delivery reuse those exact birds and source records, with descriptions formatted under the factual policy. Jobs stop generating once a campaign exists or the edition is sent.
+- Five regional prewarm jobs run at :05, :25, and :40 in the 13, 14, and 15 UTC hours on Monday, staggered by region (Northeast one minute later, West four). Each generates at most three images in one batch. The first job saves the actual edition before generating any artwork; all later preparation, checks, and delivery reuse those exact birds and source records, with descriptions formatted under the factual policy. Preparation skips existing campaigns, sent editions, and archived `no_recipients` editions without changing their receipts. A later delivery retry can still recheck recipients.
 - Five no-send checks run at 13:45-13:49 UTC. Their dashboard Run buttons are safe for manual verification on any day.
 - Five delivery jobs begin at 10:00-10:04 a.m. Eastern. They retry three times at 15-minute intervals. Both possible UTC hours are scheduled; the Eastern-time guard accepts only the correct hour.
 - Every delivery acquires a conditional Blob lease that outlasts the 300-second function but expires before the next retry.
@@ -32,7 +32,21 @@ The archive API and server renderer correct legacy web descriptions on read from
 4. Open the saved broadcast ID in Resend, verify its recipient delivery metrics, and confirm the corresponding message in Pat's inbox. `sent` is provider acceptance/completion, not proof that every recipient received it.
 5. A retry during Monday's delivery hour resumes the saved broadcast. Do not create a replacement campaign when an earlier request had an uncertain result. Outside the delivery hour, the route skips sends.
 
-Records live at `digest-delivery/YYYY-MM-DD/REGION.json` and `digest-check/YYYY-MM-DD/REGION.json` in the existing Blob store. They contain no recipient addresses, credentials, or raw provider error bodies. Reads used for coordination bypass CDN caches, and updates use ETags.
+Records live at `digest-delivery/YYYY-MM-DD/REGION.json` and `digest-check/YYYY-MM-DD/REGION.json` in the existing Blob store. Preparation and delivery persist the attempt operation, start time, and last phase before external work. Failures record the operation, phase, time, and a sanitized HTTP/timeout/general failure code. A later successful retry retains the last failure for diagnosis; inspect it alongside the current status. Receipts contain no recipient addresses, credentials, or raw provider error bodies. Reads used for coordination bypass CDN caches, and updates use ETags. If the storage write itself fails or a function terminates abruptly, only the last successfully saved phase is available.
+
+## October 12 Midwest archive gap
+
+Read-only investigation on October 14 found a complete Midwest snapshot in `digest-delivery/2026-10-12/midwest.json`, generated at `2026-10-12T13:07:43.360Z`. Its check was `ready` at 13:47 UTC with six findings, six illustrations, and no recipients. The delivery receipt ended at 14:07 UTC as `prepared`, with no archive marker or broadcast ID. Direct Blob listing confirmed that the Midwest web archive stopped at October 5. Vercel rejected the historical runtime-log query because the date was outside the plan's retention window, so the exact missing-delivery cause is not established.
+
+Separately, preparation could overwrite a completed `no_recipients` status with `prepared`. Archived Nationwide, South, and West receipts exhibited this regression. The preparation skip described above prevents it going forward; it does not retroactively rewrite old receipts or prove that an email was sent.
+
+To inspect a missing archive without changing production, run:
+
+```sh
+node --env-file=.env.local scripts/repair-missing-digest-archive.mjs --date 2026-10-12 --region midwest
+```
+
+The command requires a matching saved eBird snapshot, original checklist IDs and observation dates, complete reachable artwork, an expired worker lease, a past edition date, and no existing archive. It prints the exact source facts and validation results. Add `--apply` only when publication of that inspected edition is authorized. Applying conditionally creates the missing web archive through `saveRoundup`, including its linked sighting records and current factual copy. It preserves the original observations, artwork, and edition date. It cannot overwrite an existing archive, refresh birds, generate artwork, or send email. The delivery receipt remains unchanged, so publication must not be described as delivery or a provider confirmation.
 
 ## Sources
 

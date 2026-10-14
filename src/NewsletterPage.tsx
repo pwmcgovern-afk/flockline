@@ -33,7 +33,7 @@ export default function NewsletterPage({ search = typeof window === "undefined" 
           explore the map.
         </p>
 
-        <p className="newsletter-promise">Free · Every Monday at 10 AM ET · Unsubscribe anytime</p>
+        <p className="newsletter-promise">Free · Monday mornings · Unsubscribe anytime</p>
         <a className="newsletter-jump" href="#subscribe">Get the free digest <ArrowRight size={15} aria-hidden="true" /></a>
 
         <div className="newsletter-showcase">

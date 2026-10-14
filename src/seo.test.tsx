@@ -22,6 +22,16 @@ const issue = {
 };
 
 describe("search-visible pages", () => {
+  it("keeps partial source coverage visible in the archived article before JavaScript loads", () => {
+    const url = new URL("https://flockline.app/roundup/northeast/2026-09-07");
+    const partial = renderPage(template, url, {
+      roundup: { ...issue, coverage: { failedRegions: [], limitedRegions: ["US-NY"] } },
+    });
+    expect(partial).toContain("Partial source coverage");
+    expect(partial).toContain("report totals are incomplete");
+    expect(renderPage(template, url, { roundup: issue })).not.toContain("Partial source coverage");
+  });
+
   it("serves the saved article, matching metadata, canonical and structured data without JavaScript", () => {
     const html = renderPage(
       template,

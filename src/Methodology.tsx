@@ -82,6 +82,12 @@ export default function Methodology() {
             start Nationwide, and links that name a region or states open exactly that selection.
             The map, timeline, Insights, and Ask all work at every scale.
           </p>
+          <p>
+            The nationwide map feed sometimes omits a report's state. Its coordinates still place
+            it on the map, but Flockline shows “State not supplied” instead of guessing from a nearby
+            state. State-specific requests provide that context. Ask can also recover a public
+            hotspot's state from eBird's exact location record.
+          </p>
         </section>
 
         <section>
@@ -112,9 +118,9 @@ export default function Methodology() {
               successful states stay on the map and a partial-results notice names what is missing.
             </li>
             <li>
-              <strong>Provisional reports.</strong> Including unconfirmed reports adds recent
-              sightings that have not been validated yet. Toggle it off in Menu to see only confirmed
-              records.
+              <strong>Provisional reports.</strong> Including provisional reports adds sightings
+              that eBird has not marked valid. Toggle it off in Menu to request only records marked
+              valid. Validity does not mean every record was individually reviewed.
             </li>
           </ul>
         </section>
@@ -131,9 +137,10 @@ export default function Methodology() {
           </p>
           <p>
             Report counts come from distinct eBird checklists. Flockline groups reports of the
-            same species at the same place and start time as one outing, so shared checklists do
-            not inflate that figure. Different outings can still report the same birds. A bird
-            count beside a place belongs to the featured checklist.
+            same species at the same place and start time to reduce duplicate copies of shared
+            checklists. This feed does not include eBird's shared-group identifier, so the grouping
+            is an estimate, not a count of independent sightings. Different groups can still report
+            the same birds. A bird count beside a place belongs to the featured checklist.
           </p>
           <p>
             Nationwide Insights uses one bounded country feed so a useful selection loads quickly.

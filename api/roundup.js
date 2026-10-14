@@ -11,10 +11,7 @@ export default async function handler(request, response) {
   const fresh = ["1", "true", "yes", "on"].includes(
     String(request.query.fresh || "").toLowerCase()
   );
-  response.setHeader(
-    "Cache-Control",
-    fresh ? "no-store" : "s-maxage=3600, stale-while-revalidate=21600"
-  );
+  response.setHeader("Cache-Control", "no-store");
 
   if (fresh && !enforceRateLimit(request, response, {
     name: "fresh-roundup",
@@ -26,7 +23,11 @@ export default async function handler(request, response) {
   }
 
   try {
-    response.status(200).json(await getWeeklyRoundup(request.query));
+    const payload = await getWeeklyRoundup(request.query);
+    if (!fresh && !payload.coverage.failedRegions.length && !payload.coverage.retryableRegions?.length) {
+      response.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=21600");
+    }
+    response.status(200).json(payload);
   } catch (error) {
     response.status(error.statusCode || 502).json({
       error: error.statusCode ? error.message : "Unable to build the weekly roundup.",

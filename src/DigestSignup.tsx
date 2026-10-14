@@ -114,7 +114,7 @@ export default function DigestSignup({
           <strong>Check your inbox</strong>
           <p>
             We sent a confirmation to {email}. Confirm your address to receive{" "}
-            {formatList(selectedNames)} every Monday at 10 AM ET.
+            {formatList(selectedNames)} on Monday mornings.
           </p>
           <button type="button" onClick={() => setState("idle")}>
             Use a different email
@@ -157,7 +157,7 @@ export default function DigestSignup({
         <Mail aria-hidden="true" />
         <div>
           <strong>The week's birds. In your inbox.</strong>
-          <p>Free, at 10 AM ET every Monday. Each selected region arrives as a separate email.</p>
+          <p>Free, usually around 10 AM ET on Mondays. Each selected region arrives as a separate email.</p>
         </div>
       </div>
 

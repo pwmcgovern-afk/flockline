@@ -2,7 +2,7 @@
 
 Flockline is a live, eBird-backed map for exploring recent bird reports across the United States. It combines a 1,400+ species national catalog, a Nationwide view plus four U.S. Census region presets with state-level refinement, resilient multi-state data loading, a timeline of the latest reports at each location, region-aware selections from eBird's notable feed, weekly regional email digests, an AI birding assistant with eBird tools, original field-guide artwork, responsive map controls, and a persistent My Birds watchlist with in-app field alerts.
 
-Insights and digests select reports deterministically by recency and geographic variety and describe source facts using templates. They do not rank biological rarity, compare observations with a historical seasonal baseline, or infer movement from separate sightings. eBird notable flags are local and date-specific; reports retain their available review status. The map's reported count sums supplied numeric counts, omitting unknown counts. It is not a count of distinct birds or a population lower bound.
+Insights and digests select reports deterministically by recency and geographic variety and describe source facts using templates. They do not rank biological rarity or infer movement from separate sightings. A historical reporting-frequency pilot adds county and seasonal context where supported, currently San Francisco County using 2016–2025 eBird bar-chart data. Missing coverage is explicit. See [the baseline method and limits](docs/RARITY_BASELINE.md). eBird notable flags are local and date-specific; reports retain their available review status. The map's reported count sums supplied numeric counts, omitting unknown counts. It is not a count of distinct birds or a population lower bound.
 
 Production: [flockline.app](https://flockline.app)
 
@@ -84,10 +84,12 @@ Pull requests and pushes to `main` run the GitHub Actions quality gate in `.gith
 
 `package.json` pins Node.js 22 for local tooling, CI, and Vercel functions. Keeping those environments aligned avoids runtime-only surprises.
 
-Flockline does not currently rely on Vercel Git auto-deployments. After merging to `main`, deploy the exact merged commit manually:
+Vercel's Git integration creates preview deployments for feature branches and deploys merges to `main` to production. Confirm the production deployment's Git SHA matches the merged commit and `flockline.app` points to it before treating the change as shipped. GitHub Actions verifies the same commit, but is a separate pipeline, so wait for its checks before merging.
+
+If the Git deployment fails to appear, the explicit fallback from the clean merged checkout is:
 
 ```bash
 npx vercel deploy --prod --yes
 ```
 
-Confirm that `flockline.app` points to that deployment before treating the change as shipped.
+Then verify the deployment and alias as above. Preview has Blob access but no production eBird, Anthropic, or email secrets. Test source-backed flows in local configuration and verify them on production after deployment; a working preview alone does not prove those integrations.
