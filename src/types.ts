@@ -55,6 +55,7 @@ export type ChecklistDetailsResponse = {
   checklistComments: string | null;
   observation: {
     speciesCode: string;
+    reportAsSpeciesCode?: string;
     count: string | null;
     comments: string | null;
     breedingCode: string | null;

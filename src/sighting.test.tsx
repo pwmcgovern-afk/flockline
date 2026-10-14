@@ -82,6 +82,19 @@ describe("sighting pages", () => {
     expect(html).toContain("Reference photograph from a different report");
     expect(html).not.toContain("Photographed on this checklist");
   });
+  it("identifies a same-location photograph's own date and checklist without claiming the same individual", () => {
+    const data: SightingDetails = { ...sighting, media: { status: "none", photos: [{
+      assetId: "666749436", speciesCode: "sora", subId: "S401810869", credit: "Helen Wang",
+      locId: "L683555", locName: "Bryant Park", observedAt: "2026-10-12", match: "location",
+    }] } };
+    const html = renderToStaticMarkup(<SightingPage pathname="/sightings/S394925341/corplo" initial={data} />);
+    expect(html).toContain("Photographed at this location · Another checklist");
+    expect(html).toContain("Photographed at Bryant Park on October 12, 2026.");
+    expect(html).toContain('href="https://ebird.org/checklist/S401810869"');
+    expect(html).toContain("the same individual is not confirmed");
+    expect(html).not.toContain("Photographed on this checklist");
+    expect(html).toContain("No photos are attached to this species on the featured checklist.");
+  });
   it("shows the checklist count once without mixing in regional report totals or maxima", () => {
     const data = {
       ...sighting,

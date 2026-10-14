@@ -14,9 +14,10 @@ export type SightingPhoto = {
   speciesCode: string;
   subId?: string;
   credit: string;
+  locId?: string;
   locName?: string;
   observedAt?: string;
-  match: "checklist" | "species";
+  match: "checklist" | "location" | "species";
 };
 export type SightingReporting = {
   timing: "published" | "recent";
@@ -198,6 +199,8 @@ function SightingArticle({
           <div className="sighting-photo-label">
             {activePhoto.match === "checklist"
               ? "Photographed on this checklist"
+              : activePhoto.match === "location"
+                ? "Photographed at this location · Another checklist"
               : "Species photo · Different report"}
           </div>
           <iframe
@@ -211,6 +214,13 @@ function SightingArticle({
             © {activePhoto.credit} · Cornell Lab of Ornithology | Macaulay
             Library
           </p>
+          {activePhoto.match === "location" ? (
+            <p className="sighting-photo-context">
+              Photographed at {activePhoto.locName || finding.locName} on {formatDate(activePhoto.observedAt)}.
+              {" "}From <a href={`https://ebird.org/checklist/${activePhoto.subId}`} target="_blank" rel="noopener noreferrer">another checklist</a>;
+              {" "}the same individual is not confirmed.
+            </p>
+          ) : null}
           {activePhoto.match === "species" ? (
             <p className="sighting-photo-context">
               Reference photograph from a different report
@@ -258,7 +268,7 @@ function SightingArticle({
       ) : null}
       {media.status === "none" ? (
         <p className="sighting-small">
-          No photos are attached to this species on the linked checklist.
+          No photos are attached to this species on the featured checklist.
         </p>
       ) : null}
 
