@@ -155,7 +155,7 @@ function SightingArticle({
   return (
     <article>
       <header className="sighting-head">
-        <span className="archive-kind">The field notes · Featured eBird checklist</span>
+        <span className="archive-kind">Featured eBird checklist</span>
         <h1>{finding.comName || "Bird sighting"}</h1>
         {finding.sciName ? (
           <p className="sighting-scientific">{finding.sciName}</p>
@@ -172,7 +172,6 @@ function SightingArticle({
             ? ` · Reported by ${checklist.observerName}`
             : ""}
         </p>
-        <p className="sighting-small">Review status when featured: {reviewStatusLabel(finding)}</p>
       </header>
 
       <aside className="sighting-scope" aria-label="Reported bird count">
@@ -181,18 +180,17 @@ function SightingArticle({
             ? `${count} ${count === "1" ? "bird" : "birds"} on this checklist`
             : "Bird present · Count not supplied"}
         </strong>
-        <p>
-          {finding.comName || "This species"} on the visit described below.
-        </p>
+        <p>Review status when featured: {reviewStatusLabel(finding)}</p>
       </aside>
 
-      <HistoricalContext finding={finding} />
-
-      <ReportingSummary
-        reporting={data.reporting}
-        featuredId={checklist.subId}
-        comName={finding.comName || "This species"}
-      />
+      <div className="sighting-actions">
+        <a className="sighting-action sighting-action-primary" href={checklistUrl} target="_blank" rel="noreferrer">
+          Open featured checklist <ArrowUpRight size={17} />
+        </a>
+        <a className="sighting-action" href={mapUrl}>
+          <Map size={17} /> Explore on the map
+        </a>
+      </div>
 
       {activePhoto ? (
         <section className="sighting-photos" aria-label="Bird photographs">
@@ -272,7 +270,7 @@ function SightingArticle({
         </p>
       ) : null}
 
-      <section className="sighting-notes">
+      {data.observationExcerpt || data.checklistExcerpt ? <section className="sighting-notes">
         <span className="archive-kind">Notes from this checklist</span>
         {data.observationExcerpt ? (
           <blockquote>
@@ -288,19 +286,24 @@ function SightingArticle({
               </a>
             </footer>
           </blockquote>
-        ) : (
-          <p>The observer did not add written notes for this species.</p>
-        )}
+        ) : null}
         {data.checklistExcerpt ? (
           <p className="sighting-checklist-note">
             Checklist excerpt: “{data.checklistExcerpt}”
           </p>
         ) : null}
-      </section>
+      </section> : <p className="sighting-small">No notes are shown for this report.</p>}
+
+      <HistoricalContext finding={finding} />
+
+      <ReportingSummary
+        reporting={data.reporting}
+        featuredId={checklist.subId}
+        comName={finding.comName || "This species"}
+      />
 
       <details className="sighting-checklist-details">
         <summary>Checklist details</summary>
-        <p className="sighting-small">About the observer’s outing.</p>
         <dl className="sighting-facts">
           <div>
             <dt>Survey type</dt>
@@ -333,14 +336,6 @@ function SightingArticle({
         </dl>
       </details>
 
-      <div className="sighting-actions">
-        <a className="sighting-action sighting-action-primary" href={mapUrl}>
-          <Map size={17} /> Explore on the map
-        </a>
-        <a className="sighting-action" href={checklistUrl} target="_blank" rel="noreferrer">
-          Open featured checklist <ArrowUpRight size={17} />
-        </a>
-      </div>
       <footer className="methodology-foot">
         <p className="sighting-small">
           Source: public eBird checklist {checklist.subId}. Notes are short
@@ -369,6 +364,15 @@ function ReportingSummary({ reporting, featuredId, comName }: {
     outingSizes[key] = (outingSizes[key] || 0) + 1;
   }
   const outings = Object.keys(outingSizes).length;
+  const groupingNote = (
+    <p className="sighting-small">
+      {outings < total
+        ? "Checklists with the same location and start time are grouped together. They may be copies from a shared outing, but this feed does not confirm that. "
+        : "Each checklist appears separately because no matching place and start time was found. "}
+      These groups are not a count of independent sightings or distinct birds.
+      {included ? " The featured checklist is included in this total." : " The featured checklist is outside this feed snapshot."}
+    </p>
+  );
   return (
     <section className="sighting-reporting" aria-label="Reporting frequency">
       <span className="archive-kind">
@@ -377,19 +381,13 @@ function ReportingSummary({ reporting, featuredId, comName }: {
       <h2>{outings.toLocaleString()} {outings === 1 ? "report group" : "report groups"}</h2>
       <p className="sighting-reporting-total">On {total.toLocaleString()} eBird {total === 1 ? "checklist" : "checklists"} · {reporting.back}-day window ending {formatDate(reporting.asOf.slice(0, 10))}</p>
       <p className="sighting-small">
-        {outings < total
-          ? "Checklists with the same location and start time are grouped together. They may be copies from a shared outing, but this feed does not confirm that. "
-          : "Each checklist appears separately because no matching place and start time was found. "}
-        These groups are not a count of independent sightings or distinct birds.
-        {included ? " The featured checklist is included in this total." : " The featured checklist is outside this feed snapshot."}
-      </p>
-      <p className="sighting-small">
         {reporting.partial ? "Partial coverage. " : ""}Counts reflect the available eBird notable feed, which may omit other reports.
         {reporting.timing === "recent" ? " This recent snapshot may be newer than the featured visit." : ""}
       </p>
       {total > 0 ? (
         <details className="sighting-report-list">
           <summary>View {total === 1 ? "the reporting checklist" : `all ${total.toLocaleString()} reporting checklists`}</summary>
+          {groupingNote}
           <ul>
             {reporting.reports.map((report) => (
               <li key={report.subId}>
@@ -405,7 +403,7 @@ function ReportingSummary({ reporting, featuredId, comName }: {
             ))}
           </ul>
         </details>
-      ) : null}
+      ) : groupingNote}
     </section>
   );
 }

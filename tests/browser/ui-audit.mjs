@@ -206,6 +206,76 @@ after(async () => {
   console.log(`${checks} browser scenarios verified`);
 });
 
+test("desktop and phone state filters request and show Connecticut only", async () => {
+  for (const width of [1280, 390]) {
+    const requests = [];
+    const s = await session({ width, height: 844, touch: width < 600, handlers: {
+      "/api/sightings": async (route, url) => {
+        const payload = sightings(url);
+        requests.push(payload.regions);
+        const places = {
+          "US-CT": { name: "Connecticut report", coordinates: [-72.95, 41.3] },
+          "US-NY": { name: "New York report", coordinates: [-73.96, 40.78] },
+        };
+        payload.featureCollection.features = payload.regions.filter((code) => places[code]).map((code) => ({
+          ...payload.featureCollection.features[0],
+          geometry: { type: "Point", coordinates: places[code].coordinates },
+          properties: { ...payload.featureCollection.features[0].properties, regionCode: code, locName: places[code].name, locId: code },
+        }));
+        payload.stats.sightings = payload.featureCollection.features.length;
+        return json(route, payload);
+      },
+    } });
+    const { page } = s;
+    await page.goto(`${base}/?bird=osprey&states=US-CT,US-NY`);
+    await page.waitForFunction(() => document.querySelectorAll(".sighting-index button").length === 2);
+    const launch = page.getByRole("button", { name: "States and filters", exact: true });
+    assert.equal(await launch.isVisible(), true);
+    if (width > 600) assert.equal((await launch.innerText()).toLowerCase(), "filters");
+    await launch.click();
+    await page.getByRole("button", { name: "None", exact: true }).click();
+    await page.getByRole("button", { name: "Connecticut", exact: true }).click();
+    assert.equal(await page.getByRole("button", { name: "Connecticut", exact: true }).getAttribute("aria-pressed"), "true");
+    assert.equal(await page.getByRole("button", { name: "New York", exact: true }).getAttribute("aria-pressed"), "false");
+    await page.getByRole("button", { name: "Close Map settings", exact: true }).click();
+    await page.waitForURL((url) => url.searchParams.get("states") === "US-CT");
+    await page.waitForFunction(() => document.querySelectorAll(".sighting-index button").length === 1);
+    assert.deepEqual(requests.at(-1), ["US-CT"], "The source request is restricted to Connecticut");
+    assert.match(await page.locator(".sighting-index").innerText(), /Connecticut report/);
+    assert.doesNotMatch(await page.locator(".sighting-index").innerText(), /New York report/);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await finish(s);
+  }
+});
+
+test("empty editorial selections do not claim that a region has no sightings", async () => {
+  const s = await session({ handlers: {
+    "/api/insights": async (route, url) => {
+      const payload = insights(url);
+      payload.findings = [];
+      payload.coverage.successfulRegions = ["US-CT"];
+      payload.coverage.failedRegions = ["US-NY"];
+      return json(route, payload);
+    },
+    "/api/roundup": async (route, url) => {
+      const payload = roundup(url.searchParams.get("region"));
+      payload.findings = [];
+      return json(route, payload);
+    },
+  } });
+  await openMap(s.page, "?bird=osprey&states=US-CT,US-NY");
+  await s.page.getByRole("button", { name: "Insights", exact: true }).click();
+  await s.page.getByText(/No reports returned in this selection.*over the past/).waitFor();
+  await s.page.getByText(/eBird did not respond for/).waitFor();
+  assert.doesNotMatch(await s.page.locator(".drawer").innerText(), /No notable sightings/);
+  await s.page.getByRole("button", { name: "Weekly roundup", exact: true }).click();
+  await s.page.getByRole("button", { name: "Northeast 9 states", exact: true }).click();
+  await s.page.getByText("No reports were returned from eBird's notable feed for this edition.", { exact: true }).waitFor();
+  assert.doesNotMatch(await s.page.locator(".drawer").innerText(), /No notable sightings/);
+  assert.match(await s.page.locator(".drawer [role=status]").allTextContents().then((values) => values.join(" ")), /No reports included/);
+  await finish(s);
+});
+
 test("source review status remains visible on desktop and phone Insights", async () => {
   for (const width of [1280, 390]) {
     let requests = 0;
@@ -809,7 +879,7 @@ test("history restores defaults, empty states, and the weekly edition", async ()
   await page.locator(".tab-insights").click();
   await page
     .getByText(
-      "Choose a region above or select states in Menu to load Insights.",
+      "Choose a region above or select states in Filters to load Insights.",
     )
     .waitFor();
   await finish(s);

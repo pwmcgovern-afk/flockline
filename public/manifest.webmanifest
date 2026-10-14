@@ -1,7 +1,7 @@
 {
   "name": "Flockline · Live U.S. Bird Sightings",
   "short_name": "Flockline",
-  "description": "Follow recent bird movement across the United States with live eBird sightings, regional filters, and an interactive timeline.",
+  "description": "Explore recent bird reports across the United States with live eBird sightings, regional filters, and an interactive timeline.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

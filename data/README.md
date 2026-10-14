@@ -1,8 +1,14 @@
 # Historical reporting-frequency data
 
-`historical-baselines.json` is a generated registry of county and seasonal frequency summaries. It contains the San Francisco County, California pilot for 2016-2025, downloaded October 14, 2026. Original histogram and taxonomy exports stay outside the repository.
+`historical-baselines.json` is a generated registry of county and seasonal frequency summaries. The pilot covers three counties for 2016-2025, downloaded October 14, 2026. Original histogram and taxonomy exports stay outside the repository.
 
-Source: [eBird's San Francisco bar chart](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075). Attribution: eBird and its contributors, Cornell Lab of Ornithology. These derived summaries are provided for Flockline's noncommercial educational use and remain subject to the [eBird Data Access Terms of Use](https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/). eBird and Cornell do not endorse Flockline.
+| County | Species | Taxon aliases | Official source |
+| --- | ---: | ---: | --- |
+| San Francisco, California | 468 | 498 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075) |
+| San Mateo, California | 437 | 494 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-081) |
+| New York, New York | 343 | 412 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-NY-061) |
+
+Attribution: eBird and its contributors, Cornell Lab of Ornithology. These derived summaries are provided for Flockline's noncommercial educational use and remain subject to the [eBird Data Access Terms of Use](https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/). eBird and Cornell do not endorse Flockline.
 
 Each dataset records its geographic scope, selected historical years, source URL, download date, SHA-256 of the original export, taxonomy version and method version. The frequencies preserve the numeric precision of eBird's export. They are proportions of complete checklists, with eBird's sample sizes as the denominator. The export does not supply exact detection counts, so the importer does not reconstruct an integer numerator.
 

@@ -17,6 +17,23 @@ export default function Methodology() {
         </header>
 
         <section>
+          <h2>What Flockline is for</h2>
+          <p>
+            Flockline is for birders who want a quick map of recent reports, a view they can share,
+            or a short weekly selection to browse. Choose a species, states and dates, then open
+            the original checklist for the observer's account. Where historical data is available,
+            we add local seasonal reporting frequency with its source and sample size.
+          </p>
+          <p>
+            eBird provides the underlying records and a broader set of exploration and recording
+            tools. Flockline's weekly selections are automatically assembled from those records.
+            For editorial interpretation of significant rarities, the{" "}
+            <a href="https://www.aba.org/rba/" target="_blank" rel="noreferrer">ABA Rare Bird Alert</a>{" "}
+            offers a different kind of report.
+          </p>
+        </section>
+
+        <section>
           <h2>Where the data comes from</h2>
           <p>
             Every sighting comes from{" "}
@@ -34,7 +51,7 @@ export default function Methodology() {
           <h2>Reading the map</h2>
           <p>
             Pick a species from the title at the top, a window from the presets at the left, and
-            states from Menu. Each dot is a location where that species was recently reported,
+            states from Filters. Each dot is a location where that species was recently reported,
             colored by how recent the report is: blue for older, gold for mid, red for freshest.
           </p>
           <div className="callout">
@@ -119,7 +136,7 @@ export default function Methodology() {
             </li>
             <li>
               <strong>Provisional reports.</strong> Including provisional reports adds sightings
-              that eBird has not marked valid. Toggle it off in Menu to request only records marked
+              that eBird has not marked valid. Toggle it off in Filters to request only records marked
               valid. Validity does not mean every record was individually reviewed.
             </li>
           </ul>
@@ -160,8 +177,9 @@ export default function Methodology() {
         <section id="historical-context">
           <h2>Historical context</h2>
           <p>
-            The initial pilot covers San Francisco County using eBird's official histogram
-            download for 2016–2025. For each featured report, Flockline looks up that species in
+            The pilot covers San Francisco and San Mateo counties in California, and New York
+            County (Manhattan), using eBird's official histogram downloads for 2016–2025.
+            For each featured report, Flockline looks up that species in
             the county and seasonal period of the observation. The percentage is the share of
             complete checklists reporting the species, with all complete checklists in that
             period supplying the denominator. It is not calculated from the recent notable feed.
@@ -183,7 +201,9 @@ export default function Methodology() {
           </p>
           <p>
             Source data © eBird and its contributors. See the{" "}
-            <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075" target="_blank" rel="noreferrer">pilot source chart</a>,{" "}
+            source charts for <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075" target="_blank" rel="noreferrer">San Francisco</a>,{" "}
+            <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-081" target="_blank" rel="noreferrer">San Mateo</a> and{" "}
+            <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-NY-061" target="_blank" rel="noreferrer">New York County</a>,{" "}
             <a href="https://support.ebird.org/en/support/solutions/articles/48001255130-ebird-bar-charts-and-graphs" target="_blank" rel="noreferrer">eBird's frequency explanation</a>{" "}
             and <a href="https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/" target="_blank" rel="noreferrer">data terms</a>.
           </p>
