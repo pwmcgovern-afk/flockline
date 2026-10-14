@@ -1,4 +1,6 @@
 import { getSightingDetails } from "../lib/sightingDetails.js";
+import { waitUntil } from "@vercel/functions";
+import { recordOperationalEvent } from "../lib/operationalEvents.js";
 export default async function handler(request, response) {
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
@@ -12,6 +14,7 @@ export default async function handler(request, response) {
     );
     return response.status(200).json(sighting);
   } catch (error) {
+    if (!error.statusCode || error.statusCode >= 500) waitUntil(recordOperationalEvent({ route: "sighting", category: "source", httpStatus: error.statusCode || 502 }));
     response.setHeader("Cache-Control", "no-store");
     return response
       .status(error.statusCode || 502)
