@@ -1,6 +1,6 @@
 export type HistoricalBaselineUnavailableReason =
   | "county_missing" | "date_invalid" | "county_not_covered" | "baseline_not_prior"
-  | "species_not_covered" | "sample_unavailable" | "frequency_unavailable";
+  | "species_not_covered" | "sample_unavailable" | "frequency_unavailable" | "frequency_ambiguous";
 
 export interface AvailableHistoricalBaseline {
   status: "available";
@@ -28,6 +28,7 @@ export interface UnavailableHistoricalBaseline {
   reason: HistoricalBaselineUnavailableReason;
   confidence: null;
   annualRecurrence: null;
+  sourceUrl?: string;
 }
 
 export type HistoricalBaseline = AvailableHistoricalBaseline | UnavailableHistoricalBaseline;

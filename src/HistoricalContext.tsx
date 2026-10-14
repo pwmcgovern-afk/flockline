@@ -1,4 +1,5 @@
 import type { HistoricalBaseline, HistoricalBaselineUnavailableReason } from "../lib/historicalBaseline.js";
+import { normalizeHistoricalBaseline } from "../shared/historicalFrequency.js";
 
 const missingContext: Record<HistoricalBaselineUnavailableReason, string> = {
   county_missing: "County context is unavailable for this report.",
@@ -8,6 +9,7 @@ const missingContext: Record<HistoricalBaselineUnavailableReason, string> = {
   species_not_covered: "This species is not covered by the county baseline.",
   sample_unavailable: "No historical checklist sample is available for this period.",
   frequency_unavailable: "Historical reporting frequency is unavailable for this species and period.",
+  frequency_ambiguous: "eBird records this species in this period, but the export does not establish an exact complete-checklist percentage.",
 };
 
 type HistoricalFinding = {
@@ -19,16 +21,19 @@ type HistoricalFinding = {
 };
 
 export default function HistoricalContext({ finding }: { finding: HistoricalFinding }) {
-  const baseline = finding.historicalBaseline;
+  // Browser caches can contain snapshots created before a source interpretation
+  // correction, so apply the same guard at the final display boundary too.
+  const baseline = normalizeHistoricalBaseline(finding.historicalBaseline);
   if (baseline?.status !== "available") {
     const county = /^US-[A-Z]{2}-\d{3}$/.test(finding.countyCode || "") ? finding.countyCode : null;
     const state = /^US-[A-Z]{2}$/.test(finding.regionCode || "") ? finding.regionCode : null;
     const code = county || state;
-    const sourceUrl = code ? `https://ebird.org/barchart?r=${encodeURIComponent(code)}` : null;
+    const sourceUrl = baseline?.sourceUrl || (code ? `https://ebird.org/barchart?r=${encodeURIComponent(code)}` : null);
     return (
       <div className="historical-context unavailable">
         <p>{baseline ? missingContext[baseline.reason] : "Historical baseline not yet available for this report."}</p>
-        {sourceUrl ? <a href={sourceUrl} target="_blank" rel="noreferrer">View eBird's {county ? "county" : "state"} history →</a> : null}
+        {sourceUrl ? <a href={sourceUrl} target="_blank" rel="noreferrer">View eBird's {baseline?.sourceUrl ? "source" : county ? "county" : "state"} history →</a> : null}
+        {baseline?.reason === "frequency_ambiguous" ? <p><a href="/methodology#historical-context">Why this percentage is withheld</a></p> : null}
       </div>
     );
   }

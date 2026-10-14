@@ -180,7 +180,7 @@ export default function Methodology() {
             The pilot covers San Francisco and San Mateo counties in California, and New York
             County (Manhattan), using eBird's official histogram downloads for 2016–2025.
             For each featured report, Flockline looks up that species in
-            the county and seasonal period of the observation. The percentage is the share of
+            the county and seasonal period of the observation. Where available, the percentage is the share of
             complete checklists reporting the species, with all complete checklists in that
             period supplying the denominator. It is not calculated from the recent notable feed.
           </p>
@@ -190,6 +190,14 @@ export default function Methodology() {
             A county average does not describe every habitat or hotspot. Low reporting frequency
             alone does not mean rare: seasonal visitors and habitat specialists may be expected
             despite appearing on a small share of county checklists.
+          </p>
+          <p>
+            Some histogram values can indicate occurrence from incomplete checklists rather than
+            an exact reporting percentage. The export does not distinguish that marker from a
+            genuine frequency of the same value. We withhold the percentage in those cases and
+            link to the original history. This correction also applies when displaying older saved
+            reports. The original downloaded values are preserved.
+            {" "}<a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0255391" target="_blank" rel="noreferrer">Research describing this convention</a>.
           </p>
           <p>
             The pooled export cannot establish recurrence across individual years or whether a

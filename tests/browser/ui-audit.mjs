@@ -384,7 +384,7 @@ test("desktop and phone retry an incomplete Insights scope when revisited", asyn
   }
 });
 
-test("desktop and phone show available and missing historical context in Insights and sighting pages", async () => {
+test("desktop and phone distinguish available, missing and ambiguous historical context", async () => {
   // Synthetic data exercises the UI contract without making a scientific claim
   // about this species or depending on the current imported county registry.
   const baseline = {
@@ -407,6 +407,9 @@ test("desktop and phone show available and missing historical context in Insight
       countyCode: "US-NY-061", countyName: "New York", historicalBaseline: {
         status: "unavailable", reason: "county_not_covered", confidence: null, annualRecurrence: null,
       } },
+    { ...osprey, speciesCode: "sora", comName: "Sora", title: "Sora", kind: "notable", subId: "S123456791",
+      countyCode: "US-CA-075", historicalBaseline: { ...baseline, speciesCode: "sora", comName: "Sora",
+        frequency: 0.0015, methodVersion: "ebird-barchart-48-v1" } },
   ];
   for (const width of [1280, 390]) {
     const s = await session({ width, height: 844, touch: width < 600, handlers: {
@@ -436,6 +439,10 @@ test("desktop and phone show available and missing historical context in Insight
     assert.match(await missing.locator(".historical-context").innerText(), /Historical baseline not yet available for this county/);
     assert.doesNotMatch(await missing.locator(".historical-context").innerText(), /%/);
     assert.equal(await missing.getByRole("link", { name: "View eBird's county history →", exact: true }).getAttribute("href"), "https://ebird.org/barchart?r=US-NY-061");
+    const ambiguous = page.locator(".insight-card").filter({ has: page.getByRole("heading", { name: "Sora", exact: true }) });
+    assert.match(await ambiguous.locator(".historical-context").innerText(), /does not establish an exact complete-checklist percentage/);
+    assert.doesNotMatch(await ambiguous.locator(".historical-context").innerText(), /0\.15%/);
+    assert.equal(await ambiguous.getByRole("link", { name: "View eBird's source history →", exact: true }).getAttribute("href"), baseline.sourceUrl);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
 
     await available.getByRole("link", { name: "Learn more →", exact: true }).click();
