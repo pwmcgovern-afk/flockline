@@ -2,7 +2,7 @@
 
 Flockline is a live, eBird-backed map for exploring recent bird reports across the United States. It combines a 1,400+ species national catalog, a Nationwide view plus four U.S. Census region presets with state-level refinement, resilient multi-state data loading, a timeline of the latest reports at each location, region-aware selections from eBird's notable feed, weekly regional email digests, an AI birding assistant with eBird tools, original field-guide artwork, responsive map controls, and a persistent My Birds watchlist with in-app field alerts.
 
-Insights and digests select reports deterministically by recency and geographic variety and describe source facts using templates. They do not rank biological rarity or infer movement from separate sightings. A historical reporting-frequency pilot adds county and seasonal context where supported, currently San Francisco County using 2016–2025 eBird bar-chart data. Missing coverage is explicit. See [the baseline method and limits](docs/RARITY_BASELINE.md). eBird notable flags are local and date-specific; reports retain their available review status. The map's reported count sums supplied numeric counts, omitting unknown counts. It is not a count of distinct birds or a population lower bound.
+Insights and digests select reports deterministically by recency and geographic variety and describe source facts using templates. They do not rank biological rarity or infer movement from separate sightings. A historical reporting-frequency pilot adds county and seasonal context where supported, covering San Francisco, San Mateo, New York and Suffolk (Massachusetts) counties with 2016-2025 pooled and annual eBird bar-chart data. Missing coverage is explicit. See [the baseline method and limits](docs/RARITY_BASELINE.md). eBird notable flags are local and date-specific; reports retain their available review status. The map's reported count sums supplied numeric counts, omitting unknown counts. It is not a count of distinct birds or a population lower bound.
 
 Production: [flockline.app](https://flockline.app)
 
@@ -68,7 +68,7 @@ The script prints the Segment and Topic IDs to add to Vercel. Configure every di
 npm run check
 ```
 
-This runs the state/share-link tests, TypeScript compilation, and the production Vite build.
+This runs the JavaScript/TypeScript tests, offline EBD input-audit tests, TypeScript compilation, and client/server production builds. The offline tests require Python 3.10+ (`python3`), using only its standard library. Python is not used by the deployed app. Run those tests separately with `npm run test:ebd`; see [the EBD preparation workflow](docs/EBD_PROCESSING.md).
 
 `npm run test:ui` runs Chrome regressions for mobile signup, history, search,
 map and Insights request races, keyboard navigation, and archive recovery. It

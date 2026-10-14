@@ -35,6 +35,8 @@ Sources: [eBird bar-chart documentation](https://support.ebird.org/en/support/so
 
 For sustained coverage, request an eBird Basic Dataset regional subset with Sampling Event Data and preprocess it offline. The companion checklist records establish non-detections and effort. Apply shared-checklist deduplication using group identifiers, consistent effort filters, taxonomic rollup, and attention to spatial and temporal sampling bias. Do not reconstruct history through thousands of recent-API calls. [Cornell analytical guidance](https://ebird.github.io/ebird-best-practices/ebird.html)
 
+The current EBD metadata also requires considering companion provisional records and sensitive-species withholding before inferring non-detections. The [offline input-audit workflow](EBD_PROCESSING.md) checks matched source files and exposes these coverage gaps. It does not generate or publish a baseline; approved coverage, taxonomy, analytical filters and independent validation still precede that step.
+
 The EBD has a project-access request and monthly releases. Its raw data remains outside the public app/repository. The current free educational pilot publishes attributed derived summaries under the applicable terms. The access request discloses the intended use and asks about classification and any permission needed for future sponsorship or commercial use. [Download guide](https://support.ebird.org/en/support/solutions/articles/48000838205-download-ebird-data), [data access terms](https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/).
 
 ## Pilot actually verified
