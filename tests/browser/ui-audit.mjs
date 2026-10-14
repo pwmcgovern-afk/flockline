@@ -1197,6 +1197,58 @@ test("phone sighting pages open from titles and Learn more, show photos and note
     await finish(s);
   }
 });
+test("desktop and phone related-location photos preserve their source checklist and attribution", async () => {
+  const featuredId = "S402323216";
+  const photoSourceId = "S401810869";
+  const related = {
+    ...sightingFixture,
+    reporting: null,
+    finding: {
+      kind: "notable", speciesCode: "sora", comName: "Sora", sciName: "Porzana carolina",
+      subId: featuredId, locId: "L683555", locName: "Bryant Park", region: "New York",
+    },
+    checklist: {
+      ...sightingFixture.checklist, subId: featuredId, observedAt: "2026-10-14 09:00",
+      observerName: "Featured observer", observation: { count: "1", media: { photos: 0 } },
+    },
+    observationExcerpt: "Sora reported at Bryant Park.",
+    media: { status: "ready", photos: ["666749436", "666749437"].map(assetId => ({
+      assetId, speciesCode: "sora", subId: photoSourceId, credit: "Helen Wang",
+      locId: "L683555", locName: "Bryant Park", observedAt: "2026-10-12 15:35", match: "location",
+    })) },
+  };
+  for (const [width, touch] of [[1280, false], [320, true]]) {
+    const s = await session({ width, height: 844, touch, handlers: {
+      "/api/sighting": (route, url) => {
+        assert.equal(url.searchParams.get("subId"), featuredId);
+        assert.equal(url.searchParams.get("species"), "sora");
+        return json(route, related);
+      },
+    } });
+    const { page } = s;
+    await page.goto(base + `/sightings/${featuredId}/sora`);
+    await page.getByRole("heading", { name: "Sora", exact: true }).waitFor();
+    const gallery = page.getByRole("region", { name: "Bird photographs", exact: true });
+    await gallery.getByText("Photographed at this location · Another checklist", { exact: true }).waitFor();
+    assert.match(await gallery.innerText(), /© Helen Wang/);
+    assert.equal(await gallery.locator(".sighting-photo-context").innerText(),
+      "Photographed at Bryant Park on October 12, 2026 · 3:35 PM local time. From another checklist; the same individual is not confirmed.");
+    const source = gallery.getByRole("link", { name: "another checklist", exact: true });
+    assert.equal(await source.getAttribute("href"), `https://ebird.org/checklist/${photoSourceId}`);
+    assert.equal(await source.getAttribute("rel"), "noopener noreferrer");
+    assert.equal(await page.getByRole("link", { name: "Open featured checklist", exact: true }).getAttribute("href"), `https://ebird.org/checklist/${featuredId}`);
+    assert.equal(await gallery.getByText("Photographed on this checklist", { exact: true }).count(), 0);
+    assert.equal(await gallery.locator("iframe").getAttribute("title"), "Sora photograph by Helen Wang");
+    assert.equal(await gallery.locator("iframe").getAttribute("src"), "https://macaulaylibrary.org/asset/666749436/embed");
+    await gallery.getByRole("button", { name: "Photo 2", exact: true }).click();
+    assert.equal(await gallery.getByRole("button", { name: "Photo 2", exact: true }).getAttribute("aria-pressed"), "true");
+    assert.equal(await gallery.locator("iframe").getAttribute("src"), "https://macaulaylibrary.org/asset/666749437/embed");
+    assert.equal(await source.getAttribute("href"), `https://ebird.org/checklist/${photoSourceId}`);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, "Related photo, date and source caption fit the viewport");
+    await finish(s);
+  }
+});
+
 test("sighting failure can retry without leaving the detail page", async () => {
   let available = false;
   const s = await session({ handlers: { "/api/sighting": (route) => available ? json(route, sightingFixture) : json(route, {}, 502) } });

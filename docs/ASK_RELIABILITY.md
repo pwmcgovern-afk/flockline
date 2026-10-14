@@ -30,6 +30,8 @@ The browser constructs links only to canonical `https://ebird.org/checklist/S...
 
 These controls establish where a linked report came from. They do not certify every interpretation in a generated answer or that a cited source supports every nearby sentence.
 
+For a named bird at a named place, Ask resolves the species code and uses eBird's species-specific nearby endpoint. The broad nearby feed can omit the bird even when a matching report exists. Tool evidence distinguishes records returned by eBird from the 30 records shown to the model, preserves the upstream 200-record cap, and states that nearby results include accepted reports only. A missing record in a broad sample triggers a targeted lookup; an empty targeted result still cannot establish absence. The species endpoint returns the latest report per location, not full checklist history. Endpoint semantics: [official eBird API documentation](https://documenter.getpostman.com/view/664302/S1ENwy59#20fb2c3b-ee7f-49ae-a912-9c3f16a40397).
+
 ## Durable diagnostic samples
 
 Chat, Insights, roundup, and sighting handlers schedule sanitized failure samples through `waitUntil`. Partial upstream coverage failures in Insights and roundups are also sampled. Expected validation failures, quota denials, and visitor disconnects are not reported as incidents. In Ask, the source category covers either upstream service, eBird or Anthropic; it is not proof that eBird failed.
