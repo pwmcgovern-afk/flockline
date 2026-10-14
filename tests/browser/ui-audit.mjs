@@ -206,6 +206,49 @@ after(async () => {
   console.log(`${checks} browser scenarios verified`);
 });
 
+test("source review status remains visible on desktop and phone Insights", async () => {
+  for (const width of [1280, 390]) {
+    let requests = 0;
+    const s = await session({ width, height: 844, handlers: {
+      "/api/insights": async (route, url) => {
+        requests++;
+        const payload = insights(url);
+        payload.findings = [
+          { ...payload.findings[0], kind: "notable", title: "Osprey", obsValid: true, obsReviewed: false },
+          { ...payload.findings[0], kind: "notable", title: "Bald Eagle", speciesCode: "baleag", obsValid: false, obsReviewed: false },
+        ];
+        return json(route, payload);
+      },
+    } });
+    await openMap(s.page);
+    await s.page.getByRole("button", { name: "Insights", exact: true }).click();
+    await s.page.getByText("Accepted by eBird", { exact: true }).waitFor();
+    await s.page.getByText("Not yet reviewed", { exact: true }).waitFor();
+    assert.equal(await s.page.getByText("eBird notable report", { exact: true }).count(), 2);
+    assert.equal(requests, 1, "No second model-phrasing request is made");
+    await finish(s);
+  }
+});
+
+test("map reported count omits unknown counts while retaining their locations", async () => {
+  const s = await session({ handlers: {
+    "/api/sightings": async (route, url) => {
+      const payload = sightings(url);
+      const source = payload.featureCollection.features[0];
+      payload.featureCollection.features = [
+        { ...source, properties: { ...source.properties, howMany: 60 } },
+        { ...source, properties: { ...source.properties, locId: "L2", howMany: null } },
+      ];
+      return json(route, payload);
+    },
+  } });
+  await s.page.goto(base + "?bird=osprey&states=US-CT");
+  await s.page.getByText("60 reported count", { exact: true }).waitFor();
+  assert.match(await s.page.locator(".masthead-meta").innerText(), /2 locations/i);
+  assert.equal(await s.page.getByText("61 reported count", { exact: true }).count(), 0);
+  await finish(s);
+});
+
 test("signup fits mobile and short landscape screens, traps focus, and closes with Escape", async () => {
   for (const [width, height] of [
     [375, 812],

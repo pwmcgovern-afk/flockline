@@ -24,13 +24,13 @@ export default function NewsletterPage({ search = typeof window === "undefined" 
 
         <header className="methodology-head">
           <span className="script">the Flockline weekly digest</span>
-          <h1>Six remarkable birds.<br />One Monday email.</h1>
+          <h1>Six birds to explore.<br />One Monday email.</h1>
         </header>
 
         <p className="newsletter-lede">
-          Find out what showed up, where it was seen, and why it caught our attention.
-          Six notable species from verified eBird reports in your region, with illustrations,
-          original checklists, and links to explore the map.
+          See what birders reported and where they saw it. Six species selected from eBird's
+          notable feed in your region, with illustrations, original checklists, and links to
+          explore the map.
         </p>
 
         <p className="newsletter-promise">Free · Every Monday at 10 AM ET · Unsubscribe anytime</p>
@@ -55,12 +55,12 @@ export default function NewsletterPage({ search = typeof window === "undefined" 
           <h2>What's inside</h2>
           <ul>
             <li>
-              <strong>Six notable species</strong> for your chosen region: rarities, birds far out
-              of range, and unusual runs, each with the location, date, and count as reported.
+              <strong>Six selected species</strong> for your chosen region, with the location,
+              date, count, and available review status from each featured report.
             </li>
             <li>
-              <strong>A live map link for every bird</strong>, so one click shows everywhere it has
-              been reported in the past week.
+              <strong>A live map link for every bird</strong>, showing the latest reports at
+              locations in the past week.
             </li>
             <li>
               <strong>The eBird checklist behind each report</strong>, because the original record
@@ -88,9 +88,10 @@ export default function NewsletterPage({ search = typeof window === "undefined" 
           <h2>The honest fine print</h2>
           <p>
             Sightings come from eBird, the Cornell Lab of Ornithology's citizen-science database,
-            and reflect what birders reported, not a population survey. Flockline only phrases what
-            the verified records already say; it never invents a sighting. The{" "}
-            <a href="/methodology">methodology page</a> spells out how to read the data. Signup is
+            and reflect observations, not a population survey. An eBird notable report is flagged
+            for its place and date; it may be an expected migrant or familiar elsewhere. Flockline
+            selects by recency and geographic variety, without ranking rarity, and uses factual
+            templates for summaries. The <a href="/methodology">methodology page</a> explains more. Signup is
             double opt-in, every email has a one-click unsubscribe, and your address is used for
             nothing else.
           </p>

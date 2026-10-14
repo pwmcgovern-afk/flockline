@@ -2493,6 +2493,13 @@ button.pill:hover {
   color: var(--ink-2);
 }
 
+.insight-card .finding-review-status {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--ink-2);
+}
+
 .insight-meta {
   display: flex;
   align-items: center;

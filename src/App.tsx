@@ -1,5 +1,6 @@
 import { sightingPath } from "../shared/sightingPath.js";
 import { findingKindLabel } from "../shared/findingKind.js";
+import { reviewStatusLabel } from "../shared/findingCopy.js";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import L from "leaflet";
 import { requestJson } from "./request";
@@ -90,8 +91,7 @@ const groupOrder = [
   "Woodpeckers", "Corvids", "Aerial", "Upland", "Owls", "Backyard", "Other"
 ];
 
-// Ubiquitous species birders routinely don't bother logging, so eBird shows
-// far fewer locations than where they actually are. We flag these in the UI.
+// Show a coverage reminder for familiar species readers may expect everywhere.
 const underreportedCommon = new Set([
   "amecro", "fiscro", "blujay", "amerob", "eursta", "houspa", "rocpig", "cangoo",
   "moudov", "rewbla", "comgra", "bnhcow", "mallar3", "dowwoo", "rebwoo", "bcchic",
@@ -298,19 +298,19 @@ const TOUR_STEPS: TourStep[] = [
     target: ".window-pills",
     side: "bottom",
     title: "Choose how far back",
-    body: "One day for what is happening right now, thirty for the shape of a migration. Everything on screen follows this window."
+    body: "Choose one to thirty days of recent reports. The timeline groups locations by their latest report date; it does not track individual birds."
   },
   {
     target: ".tab-insights",
     side: "top",
     title: "Insights",
-    body: "Rare and notable birds, written up from eBird's notable feed. Insights carry their own region and window, so you can share a link to one exact view."
+    body: "Selected reports from eBird's notable feed, with the reported place, date and count. Insights carry their own region and window, so you can share that view."
   },
   {
     target: ".tab-ask",
     side: "top",
     title: "Ask anything",
-    body: "Ask about recent sightings in plain language. Every answer is built from live eBird data, and it can drive the map for you."
+    body: "Ask about recent sightings in plain language. The assistant can query eBird and open reports on the map. Check factual claims against the linked records."
   },
   {
     target: ".menu-pill",
@@ -321,7 +321,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     side: "center",
     title: "One honest caveat",
-    body: "eBird returns one record per location, and common birds go under-reported because birders skip logging them. Read the counts as floors, not totals. Methodology has the full story."
+    body: "eBird returns the latest report at each location. Counts can overlap and coverage varies with observer effort. Methodology explains how to read the map."
   }
 ];
 
@@ -509,7 +509,7 @@ export default function App() {
   // Identity for a scope, used to tell "we already tried this and it failed"
   // from "the reader moved to a new scope".
   const insightScopeKey = `${effectiveInsightBack}|${[...effectiveInsightRegions].sort().join(",")}`;
-  // Read inside the in-flight fast request, where the captured value is stale.
+  // Read after a request so a previous region cannot replace the current view.
   const insightScopeKeyRef = useRef(insightScopeKey);
   insightScopeKeyRef.current = insightScopeKey;
 
@@ -537,23 +537,7 @@ export default function App() {
           params.set("_t", String(Date.now()));
         }
 
-        // The eBird pull is ~270ms and the model is ~5s. Show the ranked
-        // findings as soon as the data lands so the drawer fills with real
-        // content, then replace them in place with the written phrasing. The
-        // reader gets something to read almost immediately either way.
-        const fastParams = new URLSearchParams(params);
-        fastParams.set("phrasing", "fast");
-        void requestJson<InsightsResponse>(`/api/insights?${fastParams.toString()}`, { signal: controller.signal })
-          .then(({ response, body }) => response.ok ? body : null)
-          .then((fast) => {
-            // Only fill an empty panel, and only if the reader has not moved on.
-            if (controller.signal.aborted || !fast?.findings?.length || insightScopeKeyRef.current !== scopeAtStart) {
-              return;
-            }
-            setInsights((current) => (current ? current : { ...fast, provisionalPhrasing: true }));
-          })
-          .catch(() => undefined);
-
+        // Editorial copy now comes from the source facts in a single request.
         const { response, body: data } = await requestJson<InsightsResponse & { error?: string }>(`/api/insights?${params.toString()}`, { signal: controller.signal });
         if (controller.signal.aborted || insightScopeKeyRef.current !== scopeAtStart) return;
         if (!response.ok) {
@@ -889,11 +873,11 @@ export default function App() {
   // map and with the scrubber's own caption. It used to total the whole window
   // regardless of the scrubber, so dragging back a few days left the masthead
   // claiming 2,467 locations over a map showing a few hundred, and the caption
-  // underneath quoting a third number. Birds sums each location's reported
-  // count (a report with no number, "X", counts as at least 1).
+  // underneath quoting a third number. Missing counts contribute no numeric
+  // value; the location stays visible. This sum can include repeat individuals.
   const windowStats = useMemo(() => {
     const birds = visibleFeatures.reduce(
-      (sum, feature) => sum + Math.max(1, Number(feature.properties.howMany) || 0),
+      (sum, feature) => sum + Math.max(0, Number(feature.properties.howMany) || 0),
       0
     );
     return { locations: visibleFeatures.length, birds };
@@ -1814,7 +1798,7 @@ export default function App() {
           target: isWide ? ".scrubber" : ".timeline-toggle",
           side: "top",
           title: "Scrub through the days",
-          body: "Drag the rail or press play to watch movement unfold. Bars count locations by their latest report date, and dot color runs blue for older to red for freshest."
+          body: "Drag the rail or press play to see locations by their latest report date. Dot color runs blue for older reports to red for freshest. This is not a track of individual birds."
         }
       : {
           side: "center",
@@ -2150,7 +2134,7 @@ export default function App() {
     ? "Recent bird sightings"
     : loading
       ? "Counting reports…"
-      : `${windowStats.locations.toLocaleString()} ${pluralize("location", windowStats.locations)}${windowStats.birds > windowStats.locations ? ` · ${windowStats.birds.toLocaleString()} birds` : ""}`;
+      : `${windowStats.locations.toLocaleString()} ${pluralize("location", windowStats.locations)}${windowStats.birds > windowStats.locations ? ` · ${windowStats.birds.toLocaleString()} reported count` : ""}`;
 
   const panelNavigation = (
     <nav className="tab-bar" aria-label="Panels">
@@ -2298,8 +2282,8 @@ export default function App() {
                         identical to a report of one. */}
                     {!loading && windowStats.birds > windowStats.locations ? (
                       <>
-                        <span title="Sum of the counts birders entered, where they gave a number">
-                          {windowStats.birds.toLocaleString()} birds
+                        <span title="Sum of supplied counts on each location's latest report. The same birds may appear in more than one report.">
+                          {windowStats.birds.toLocaleString()} reported count
                         </span>
                         <span className="sep">·</span>
                       </>
@@ -2332,8 +2316,7 @@ export default function App() {
               </p>
               {selectedSpecies && underreportedCommon.has(selectedSpecies.speciesCode) ? (
                 <p className="masthead-note">
-                  {selectedSpecies.comName} is heavily under-reported on eBird. Birders skip logging
-                  common species, so this map shows far fewer spots than where they really are.
+                  This map shows submitted reports, not every place {selectedSpecies.comName} occurs.
                 </p>
               ) : null}
               <div className="masthead-actions">
@@ -3235,7 +3218,7 @@ export default function App() {
                     ) : roundup ? (
                       <>
                         <div className="roundup-deck">
-                          <span className="script">The week in rare birds</span>
+                          <span className="script">This week's sightings</span>
                           <p>{roundup.summary}</p>
                         </div>
 
@@ -3257,6 +3240,7 @@ export default function App() {
                                 </span>
                                 <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                                 <p>{finding.detail}</p>
+                                <p className="finding-review-status">{reviewStatusLabel(finding)}</p>
                                 {sightingPath(finding) ? <a className="sighting-learn-more" href={sightingPath(finding)!}>Learn more →</a> : null}
                                 <div className="insight-meta roundup-facts">
                                   {finding.locName ? (
@@ -3298,7 +3282,7 @@ export default function App() {
                           </div>
                         ) : (
                           <p className="drawer-status">
-                            No rare or locally notable sightings were returned for this edition.
+                            No reports were returned from eBird's notable feed for this edition.
                           </p>
                         )}
                       </>
@@ -3308,7 +3292,7 @@ export default function App() {
               </div>
               {roundup ? (
                 <footer className="drawer-foot">
-                  Generated by Flockline · updated {formatShortDateTime(roundup.generatedAt)}
+                  From eBird reports · updated {formatShortDateTime(roundup.generatedAt)}
                   <br /><a href="/roundup">Browse past weekly issues</a>
                 </footer>
               ) : null}
@@ -3453,7 +3437,7 @@ export default function App() {
             <>
               <div className="drawer-body">
                 <div className="insights-scope">
-                  <p className="insights-intro">A few sightings worth a closer look. Open any finding on the map to explore where it was reported.</p>
+                  <p className="insights-intro">Selected reports from eBird's notable feed, chosen by recency and location. A species may be expected elsewhere in the region. <a href="/methodology">How these are selected</a></p>
                   <div className="insights-regions" role="group" aria-label="Insights region">
                       {US_REGION_PRESETS.map((region) => (
                         <button
@@ -3549,10 +3533,7 @@ export default function App() {
                     debounced request starting. Without it that window fell
                     through to the empty state, so the panel announced "no
                     notable sightings" before it had looked. */}
-                {/* Only hold the spinner while there is genuinely nothing to
-                    read. Once the fast pass has landed, show those findings and
-                    let the written phrasing replace them in place, rather than
-                    sitting on five seconds of "Reading recent checklists". */}
+                {/* Keep previous findings visible while refreshing their source data. */}
                 {!effectiveInsightRegions.length ? (
                   <p className="drawer-status">Choose a region above or select states in Menu to load Insights.</p>
                 ) : (insightsLoading && !insights?.findings.length) || (!insights && !insightsError) ? (
@@ -3572,6 +3553,7 @@ export default function App() {
                           </span>
                           <h3>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h3>
                           <p>{finding.detail}</p>
+                          <p className="finding-review-status">{reviewStatusLabel(finding)}</p>
                           {sightingPath(finding) ? <a className="sighting-learn-more" href={sightingPath(finding)!}>Learn more →</a> : null}
                           <div className="insight-meta">
                             {finding.region ? (
@@ -3620,7 +3602,7 @@ export default function App() {
               </div>
               {insights ? (
                 <footer className="drawer-foot">
-                  Generated by Flockline · updated {formatShortDateTime(insights.generatedAt)}
+                  From eBird reports · updated {formatShortDateTime(insights.generatedAt)}
                 </footer>
               ) : null}
             </>
@@ -3632,8 +3614,8 @@ export default function App() {
               <div className="chat-scroll" ref={chatScrollRef}>
                 {chatMessages.length === 0 ? (
                   <p className="chat-intro">
-                    Ask about recent sightings, rare birds, or what is active near you. Answers come
-                    live from eBird checklists, and the assistant can move the map for you.
+                    Ask about recent sightings or birds near you. The AI assistant can query
+                    eBird and move the map. Check its claims against the linked source records.
                   </p>
                 ) : (
                   chatMessages.map((message, index) => (

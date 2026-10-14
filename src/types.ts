@@ -97,7 +97,7 @@ export type ConfigResponse = {
   maxBackDays: number;
 };
 
-export type InsightKind = "rarity" | "wide" | "surge";
+export type InsightKind = "notable" | "rarity" | "wide" | "surge";
 
 export type Insight = {
   kind: InsightKind;
@@ -115,6 +115,8 @@ export type Insight = {
   lat?: number | null;
   lng?: number | null;
   howMany?: number | null;
+  obsValid?: boolean | null;
+  obsReviewed?: boolean | null;
   generatedBy?: "llm" | "template";
 };
 

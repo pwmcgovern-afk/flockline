@@ -22,7 +22,8 @@ export default async function handler(request, response) {
     return;
   }
 
-  // Issues never change after publication, so let the CDN carry the load.
+  // Cache the rendered edition briefly. Saved observations stay fixed, while
+  // factual copy corrections can change the representation returned on read.
   response.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=3600");
 
   try {

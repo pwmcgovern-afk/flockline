@@ -10,10 +10,7 @@ export default async function handler(request, response) {
 
   const fresh = ["1", "true", "yes", "on"].includes(String(request.query.fresh || "").toLowerCase());
   response.setHeader("Cache-Control", fresh ? "no-store" : "s-maxage=21600, stale-while-revalidate=86400");
-  // Three an hour is well inside what one curious reader does in a single
-  // sitting: change the region, change the window, re-run a couple of times and
-  // the panel starts refusing. This ceiling is only here to stop a script from
-  // running up the model bill, so put it where no human will ever reach it.
+  // Bound forced upstream refreshes while ordinary reads reuse the cache.
   if (fresh && !enforceRateLimit(request, response, {
     name: "fresh-insights",
     limit: 40,

@@ -68,7 +68,7 @@ export default function MobileMapHeader(props: Props) {
       {props.underreported ? (
         <details className="mobile-data-note">
           <summary>About these reports</summary>
-          <p>This common bird is under-reported on eBird. The map shows fewer locations than where it really occurs.</p>
+          <p>The map shows submitted reports, not every place this bird occurs. Coverage varies with observer effort.</p>
         </details>
       ) : null}
     </div>

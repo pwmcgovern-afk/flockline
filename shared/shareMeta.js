@@ -12,7 +12,7 @@ const STATE_NAMES = new Map(US_STATES.map((state) => [state.code, state.name]));
 const SITE = "Flockline";
 const DEFAULT_TITLE = "Flockline · Live U.S. Bird Sightings";
 const DEFAULT_DESCRIPTION =
-  "Follow recent bird movement anywhere in the United States with live eBird sightings, regional filters, an interactive timeline, and field-ready insights.";
+  "Explore recent bird reports across the United States with live eBird sightings, regional filters, and an interactive timeline of the latest reports at each location.";
 
 export function escapeHtml(value) {
   return String(value)
@@ -29,7 +29,7 @@ function buildPageMeta(pathname) {
     return {
       title: `Weekly bird insights by email · ${SITE}`,
       description:
-        "Six verified notable birds in your region, from live eBird reports, every Monday at 10 AM ET. Free from Flockline."
+        "Six species selected from your region's eBird notable reports, with source checklists, every Monday at 10 AM ET. Free from Flockline."
     };
   }
 
@@ -37,7 +37,7 @@ function buildPageMeta(pathname) {
     return {
       title: `Weekly birding roundups · ${SITE}`,
       description:
-        "Flockline's archive of weekly notable-bird roundups across the United States, built from verified eBird reports."
+        "Flockline's weekly selections from eBird notable reports across the United States, with original source checklists."
     };
   }
 
@@ -48,7 +48,7 @@ function buildPageMeta(pathname) {
     const dated = issue[2] ? ` · week ending ${issue[2]}` : "";
     return {
       title: `${scopeLabel} birding roundup${dated} · ${SITE}`,
-      description: `The most notable verified bird sightings across the ${scopeLabel === "U.S." ? "United States" : scopeLabel} this week, from live eBird reports.`
+      description: `Selected eBird notable reports across the ${scopeLabel === "U.S." ? "United States" : scopeLabel} this week, with source checklists.`
     };
   }
 

@@ -4,6 +4,7 @@ import type { ChecklistDetailsResponse, Insight } from "./types";
 import { requestJson } from "./request";
 import { parseSightingPath } from "../shared/sightingPath.js";
 import { outingKey } from "../shared/reportingOutings.js";
+import { reviewStatusLabel } from "../shared/findingCopy.js";
 import NotFound from "./NotFound";
 import "./sighting.css";
 
@@ -28,6 +29,8 @@ export type SightingReporting = {
     locId?: string | null;
     locName: string;
     count: string | null;
+    obsValid?: boolean | null;
+    obsReviewed?: boolean | null;
   }[];
 };
 export type SightingDetails = {
@@ -167,6 +170,7 @@ function SightingArticle({
             ? ` · Reported by ${checklist.observerName}`
             : ""}
         </p>
+        <p className="sighting-small">Review status when featured: {reviewStatusLabel(finding)}</p>
       </header>
 
       <aside className="sighting-scope" aria-label="Reported bird count">

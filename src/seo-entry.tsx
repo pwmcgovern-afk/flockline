@@ -6,6 +6,7 @@ import SightingPage, { type SightingDetails } from "./SightingPage";
 import RoundupArchive, { type ArchiveInitial } from "./RoundupArchive";
 import { parseArchivePath } from "./archivePath";
 import { buildMeta, escapeHtml } from "../shared/shareMeta.js";
+import { factualEditorialPayload } from "../shared/findingCopy.js";
 
 export { parseArchivePath };
 const ORIGIN = "https://flockline.app";
@@ -18,6 +19,11 @@ export function renderPage(
   initial: ArchiveInitial & { sighting?: SightingDetails } = {},
   status = 200,
 ) {
+  // Apply the same source-only descriptions to visible copy, metadata and the
+  // hydration payload, including issues saved before the editorial correction.
+  if (initial.roundup) {
+    initial = { ...initial, roundup: factualEditorialPayload(initial.roundup, { correctLegacy: true }) };
+  }
   const path = url.pathname.replace(/\/+$/, "") || "/";
   const canonical = `${ORIGIN}${path}`;
   const meta =
