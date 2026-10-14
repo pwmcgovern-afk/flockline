@@ -50,7 +50,9 @@ On October 14, 2026, the public sample contained Tuscaloosa County, Alabama (`US
 | SED checklists without a row in the supplied observations | 4 |
 | Accepted/SED metadata mismatches | 0 |
 
-The archive supplies no provisional file. The four unmatched checklists are **not classified as non-detections**. Neither these counts nor this one-month sample become a production baseline. The current four-county registry is unchanged.
+The archive supplies no provisional file. The four unmatched checklists are **not classified as non-detections**. The count of provisional-only checklists is `null` (unknown), not zero. A supplied empty provisional file can instead produce zero, subject to the source-coverage review above. Neither these counts nor this one-month sample become a production baseline. The current four-county registry is unchanged.
+
+Audit method v2 corrects this count's missing-file representation. Earlier v1 reports may contain zero for this field even when `provisionalCoverage` is `unknown`; that value must not be interpreted as evidence of no provisional-only checklists. Re-run the audit to a new report path.
 
 The accepted file SHA-256 is `a82a632acc61c95fdbe6f8f1d3ea8fcb4beafd3f3ff909b37406ca473b2625db`; SED is `e9d81b6d20b02b508e91e491d116988b43bb4eefd055a852bd57c52639e242d6`. Original files, supporting metadata and the aggregate audit remain in Downloads, outside the repository. Re-fetching the public sample may produce a later edition; compare hashes rather than assuming these anchors still apply.
 

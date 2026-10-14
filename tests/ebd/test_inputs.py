@@ -57,6 +57,7 @@ class InputAuditTests(unittest.TestCase):
         self.assertEqual(report["inputChecks"], "passed")
         self.assertFalse(report["publicationReady"])
         self.assertEqual(report["provisionalCoverage"], "unknown")
+        self.assertIsNone(report["sampling"]["checklistsWithOnlyProvisionalRows"])
         self.assertIn("Do not infer non-detections", report["reviewRequired"][0])
         self.assertEqual(report["sources"]["accepted"]["sha256"], hashlib.sha256(self.ebd.read_bytes()).hexdigest())
 
@@ -70,6 +71,7 @@ class InputAuditTests(unittest.TestCase):
         report = self.audit(pending=[])
         self.assertEqual(report["provisionalCoverage"], "file_supplied")
         self.assertEqual(report["sources"]["provisional"]["rows"], 0)
+        self.assertEqual(report["sampling"]["checklistsWithOnlyProvisionalRows"], 0)
         self.assertFalse(report["publicationReady"])
 
     def test_complete_checklist_with_no_observations_is_retained(self):
