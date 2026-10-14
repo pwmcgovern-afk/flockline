@@ -43,7 +43,7 @@ Production map, Insights, roundup preview, archive, methodology, newsletter, and
 
 ## Remaining work
 
-- **Risk:** historical coverage is one county and pooled across years. Nationwide denominators, annual recurrence, effort-adjusted count distributions and defensible rarity thresholds remain incomplete. Pat's terms approval for the prepared Cornell EBD/SED request is pending; Cornell access approval and birder validation are separate steps.
+- **Risk:** historical coverage now includes three counties (San Francisco, San Mateo and New York) and remains pooled across years. Nationwide denominators, annual recurrence, effort-adjusted count distributions and defensible rarity thresholds remain incomplete. Separate annual histogram imports can support a small recurrence pilot; the larger prepared Cornell EBD/SED request still awaits Pat's terms approval. Cornell access approval and birder validation are separate steps.
 - **Operational limit:** Ask now has shared private-store admission quotas and bounded sanitized failure samples, documented in `docs/ASK_RELIABILITY.md`. Request quotas are not a dollar ceiling. Samples are best effort, not full error tracking or alerting. No external monitoring test event was performed.
 - **Risk:** the Midwest archive repair is prepared but unapplied. No catch-up email should be inferred or sent. Its exact historical failure cause is unavailable.
 - Local Express now uses the production handlers. Invalid scopes, cache headers, method guards and Ask disconnect behavior have direct parity tests. Ask citations now link only to retrieved source records and show plain-language review status.

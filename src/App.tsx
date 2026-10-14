@@ -318,7 +318,7 @@ const TOUR_STEPS: TourStep[] = [
     target: ".menu-pill",
     side: "left",
     title: "States and filters",
-    body: "Menu is where you pick states or a whole region, and where the provisional and hotspot filters live."
+    body: "Filters is where you pick states or a whole region, and where the provisional and hotspot filters live."
   },
   {
     side: "center",
@@ -1703,7 +1703,7 @@ export default function App() {
     }
     return insights.findings.length
       ? `${insights.findings.length} ${insights.findings.length === 1 ? "finding" : "findings"} in ${insightsScopeLabel}.`
-      : `No notable sightings in ${insightsScopeLabel}.`;
+      : `No reports returned in this selection for ${insightsScopeLabel}.`;
   }, [insights, insightsError, insightsLoading, insightsScopeLabel]);
 
   const roundupAnnouncement = useMemo(() => {
@@ -1718,7 +1718,7 @@ export default function App() {
     }
     return roundup.findings.length
       ? `${roundup.findings.length} weekly findings for ${roundup.scopeLabel}.`
-      : `No notable sightings in ${roundup.scopeLabel} this week.`;
+      : `No reports included in this week's ${roundup.scopeLabel} edition.`;
   }, [roundup, roundupError, roundupLoading]);
 
   // Apply a map action the chat requested: load the species and, if it named a
@@ -2432,11 +2432,12 @@ export default function App() {
                 type="button"
                 id="map-controls"
                 className={`pill lower tip menu-pill ${drawer === "menu" ? "active" : ""}`}
-              data-tip="States and filters"
+                data-tip="States and filters"
+                aria-label="States and filters"
                 onClick={() => openDrawer("menu")}
                 aria-expanded={drawer === "menu"}
               >
-                menu
+                Filters
               </button>
             </div>
           </div>
@@ -3375,7 +3376,7 @@ export default function App() {
                   </div>
                   <p className="field-hint">
                     {selectedRegions.length
-                      ? `${selectedRegions.length} ${selectedRegions.length === 1 ? "state" : "states"} selected.`
+                      ? `${selectedRegions.length} ${selectedRegions.length === 1 ? "state" : "states"} selected. To choose a single state, select None, then its button.`
                       : "Select at least one state to load sightings."}
                   </p>
                 </div>
@@ -3569,7 +3570,7 @@ export default function App() {
                     notable sightings" before it had looked. */}
                 {/* Keep previous findings visible while refreshing their source data. */}
                 {!effectiveInsightRegions.length ? (
-                  <p className="drawer-status">Choose a region above or select states in Menu to load Insights.</p>
+                  <p className="drawer-status">Choose a region above or select states in Filters to load Insights.</p>
                 ) : (insightsLoading && !insights?.findings.length) || (!insights && !insightsError) ? (
                   <p className="drawer-status">Reading recent checklists…</p>
                 ) : insightsError && !insights?.findings.length ? (
@@ -3625,7 +3626,7 @@ export default function App() {
                   </div>
                 ) : (
                   <p className="drawer-status">
-                    No notable sightings in {insightsScopeLabel} over the past {effectiveInsightBack}{" "}
+                    No reports returned in this selection for {insightsScopeLabel} over the past {effectiveInsightBack}{" "}
                     {effectiveInsightBack === 1 ? "day" : "days"}.
                   </p>
                 )}

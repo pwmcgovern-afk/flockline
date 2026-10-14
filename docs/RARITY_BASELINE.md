@@ -4,7 +4,7 @@ Historical-context pilot, October 14, 2026. The app now supports a county and se
 
 ## Implemented pilot
 
-The bundled registry contains 468 species and 498 taxon aliases for San Francisco County, 2016-2025. Live Insights and future roundups retain eBird's county metadata and attach the matching seasonal frequency. Sighting pages can recover legacy county metadata through the official hotspot-info endpoint when the checklist identifies a public hotspot. Existing available historical snapshots are preserved; missing county coverage remains unavailable, with a link to eBird's history. No model or new request is needed for the baseline lookup itself.
+The bundled registry covers San Francisco County (468 species, 498 taxon aliases), San Mateo County (437 species, 494 aliases), and New York County (343 species, 412 aliases), all for 2016-2025. Live Insights and future roundups retain eBird's county metadata and attach the matching seasonal frequency. Sighting pages can recover legacy county metadata through the official hotspot-info endpoint when the checklist identifies a public hotspot. Existing available historical snapshots are preserved; missing county coverage remains unavailable, with a link to eBird's history. No model or new request is needed for the baseline lookup itself.
 
 The public UI shows frequency, sample size, years, county, attribution, source chart and limitations. It does not infer annual recurrence, a detection numerator from rounded percentages, unusual flock size, movement, or a cause. The importer and lookup explicitly distinguish absent data from an exported zero.
 
@@ -40,6 +40,8 @@ The EBD has a project-access request and monthly releases. Its raw data remains 
 Downloaded San Francisco county's official histogram through Chrome, selecting 2016-2025 and the full year. The export has 48 sample-size columns and species frequency rows. For October 8-14, the sample size is 3,511 complete checklists; Red-breasted Nuthatch frequency is 0.0786101 (about 7.86%) and Red Crossbill is 0.0028482 (about 0.285%). These are county-wide historical reporting frequencies, not Mt. Davidson frequencies, annual recurrence, population estimates, or evidence that a flock of 60 is exceptional.
 
 Source: [San Francisco bar charts, 2016-2025](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075), downloaded October 14, 2026. The original export remains local and is not committed to this repository.
+
+The same official download action and year selection were verified for [San Mateo County](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-081) and [New York County](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-NY-061) on October 14, 2026. For October 8-14, San Mateo has 3,293 complete checklists, Red Crossbill frequency 0.0051625 (about 0.516%) and Red-breasted Nuthatch 0.0367446 (about 3.67%). New York has 5,306 complete checklists and Sora frequency 0.0049001 (about 0.490%). Bryant Park can now show the New York county baseline; Gazos Creek uses San Mateo, never neighboring San Francisco. These remain county averages, not hotspot or individual-bird probabilities.
 
 ## Implementation shape
 

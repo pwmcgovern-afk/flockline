@@ -29,7 +29,7 @@ function buildPageMeta(pathname) {
     return {
       title: `Weekly bird insights by email · ${SITE}`,
       description:
-        "Six species selected from your region's eBird notable reports, with source checklists, every Monday at 10 AM ET. Free from Flockline."
+        "Six species selected from your region's eBird notable reports, with source checklists, on Monday mornings. Free from Flockline."
     };
   }
 
