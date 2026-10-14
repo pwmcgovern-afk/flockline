@@ -13,7 +13,7 @@ import sqlite3
 import tempfile
 
 
-METHOD = "flockline-ebd-input-audit-v1"
+METHOD = "flockline-ebd-input-audit-v2"
 EVENT_FIELDS = (
     "SAMPLING EVENT IDENTIFIER", "COUNTRY CODE", "STATE CODE", "COUNTY CODE",
     "OBSERVATION DATE", "GROUP IDENTIFIER", "ALL SPECIES REPORTED",
