@@ -41,7 +41,7 @@ def source_identity(path, suffix):
     return stem, match[1]
 
 
-def source_rows(path, observation, source):
+def source_rows(path, observation, source, extra_fields=()):
     """EBD is unquoted TSV. Do not let free-text quotes change field boundaries."""
     digest = hashlib.sha256()
     source["rows"] = 0
@@ -52,7 +52,7 @@ def source_rows(path, observation, source):
         named = [name for name in header if name]
         if len(named) != len(set(named)) or any(not name for name in header[:-1]):
             raise InputError("Duplicate or empty interior source column.")
-        required = EVENT_FIELDS + (OBSERVATION_FIELDS if observation else ())
+        required = EVENT_FIELDS + (OBSERVATION_FIELDS if observation else ()) + tuple(extra_fields)
         if set(required) - set(header):
             raise InputError("Required EBD/SED columns are missing.")
         # Metadata v1.16 renamed PROTOCOL TYPE to OBSERVATION TYPE in 2025.

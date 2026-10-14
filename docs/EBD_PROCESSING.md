@@ -1,6 +1,6 @@
 # Preparing broader historical coverage
 
-The four-county histogram pilot is live. Nationwide EBD-based baselines are not yet implemented or published. Cornell shows a data-access request under review; its submitted scope is not visible. This workflow prepares the first processing gate while access is pending.
+The four-county histogram pilot is live. Nationwide EBD-based baselines are not yet implemented or published. Cornell shows a data-access request under review; its submitted scope is not visible. Local tools now audit inputs, check taxonomy mapping and select a candidate comparison cohort while access is pending. They do not calculate or publish frequencies.
 
 ## Source evidence that changes the design
 
@@ -13,7 +13,7 @@ Cornell's public [sample download](https://ebird.org/downloads/samples/ebd-dataf
 - The 2025 metadata renamed `PROTOCOL TYPE` to `OBSERVATION TYPE`. Match fields by header, never by a fixed column number.
 - Sensitive species can be withheld by geography and season. A missing observation cannot automatically establish non-detection for a withheld taxon.
 
-Cornell's [analytical guide](https://ebird.github.io/ebird-best-practices/ebird.html) and [`auk_unique`](https://cornelllabofornithology.github.io/auk/reference/auk_unique.html) describe shared-checklist handling and effort filters. [`auk_zerofill`](https://cornelllabofornithology.github.io/auk/reference/auk_zerofill.html) requires complete checklists and matching taxonomy. These sources guide the next stage; passing an input audit does not substitute for those analytical choices.
+Cornell's [analytical guide](https://ebird.github.io/ebird-best-practices/ebird.html) and [`auk_unique`](https://cornelllabofornithology.github.io/auk/reference/auk_unique.html) describe shared-checklist handling and effort filters. [`auk_zerofill`](https://cornelllabofornithology.github.io/auk/reference/auk_zerofill.html) requires complete checklists and matching taxonomy. [`auk_rollup`](https://cornelllabofornithology.github.io/auk/reference/auk_rollup.html) documents taxonomic categories and species relationships. Passing an input audit does not substitute for those analytical choices.
 
 ## Local input audit
 
@@ -34,6 +34,32 @@ The command rejects mismatched subset/release filenames, missing or ambiguous co
 Exit 0 means the implemented input checks passed. Exit 1 means a source/format/join check failed. Neither is publication approval: every report has `publicationReady: false`. Omitting `--provisional` is permitted for inspection, but records `provisionalCoverage: unknown` and explicitly prevents interpreting missing accepted rows as non-detections. Even a supplied empty provisional file requires confirmation against the original source package. The auditor cannot establish that files have not been manually filtered or renamed, that a query includes every species, or that a source package covers every expected month.
 
 Run synthetic regression tests with `npm run test:ebd`. They are also part of `npm run check` and CI. Original Cornell records are not test fixtures or committed files.
+
+## Candidate taxonomy and checklist selection
+
+`scripts/ebd_cohort.py` reruns the input audit, loads a pinned official taxonomy export, then produces aggregate mapping and selection diagnostics. It uses temporary SQLite storage and no network access. It rechecks source hashes after selection, rejecting files changed between passes. Output paths must be new.
+
+Obtain the English taxonomy for the **source release's taxonomy year**, requesting `species,issf,form,intergrade,domestic` through the official eBird API. Preserve its original JSON and SHA-256 outside the repository. Verify the year against the release metadata: a pinned hash establishes which bytes were used, not that the operator chose the right edition.
+
+```sh
+python3 scripts/ebd_cohort.py \
+  --ebd /private/ebd_REGION_smp_relMon-YYYY.txt \
+  --sampling /private/ebd_REGION_smp_relMon-YYYY_sampling.txt \
+  --provisional /private/ebd_REGION_smp_relMon-YYYY_provisional.txt \
+  --taxonomy /private/ebird-taxonomy-2024.json \
+  --taxonomy-version 2024 --taxonomy-sha256 ORIGINAL_FILE_SHA256 \
+  --counties US-CT-009 \
+  --start-date 2016-01-01 --end-date 2025-12-31 \
+  --output /private/new-candidate-cohort.json
+```
+
+Species map by exact scientific name. Subspecies, intergrades and forms additionally require an official `reportAs` species and agreement with the EBD parent name. Unknown names or missing relationships remain unresolved; common names and fuzzy matching are never substitutes. Domestic, hybrid, slash and unidentified higher taxa have explicit exclusion counts. They are not species absences. Exotic flags (`N`, `P`, `X`, or unflagged) remain separate from accepted/provisional review states, with no natural-origin inference. Observation `X`, explicit zero and positive counts also remain distinct. Taxonomy coverage counts rows, including shared copies, not birds or independent detections.
+
+Candidate selection uses complete Stationary or Traveling checklists in the exact requested counties and completed prior years. Cornell's modeling example supplies provisional effort limits: at most 360 minutes, 10 km, 100 km/h and 10 observers, with positive duration and a whole positive observer count. Missing or invalid effort is excluded. Stationary blank distance becomes zero; an explicitly positive stationary distance is excluded for review. These filters do not correct every effort, habitat or observer bias and are not validated rarity thresholds.
+
+One exact group ID contributes at most one candidate unit. Unshared checklist IDs remain separate even when place and date match. Shared copies must agree on country/state/county/date, completeness, protocol and numeric effort. Equivalent numeric representations agree; any substantive difference excludes the entire group. This conservative candidate rule differs from `auk_unique`'s representative-checklist selection and needs ecological review before production use. Species-level evidence merging is not yet implemented.
+
+The report includes exclusions and retained counts by county/year/month/seasonal bin (0-3: days 1-7, 8-14, 15-21, 22 through month end). Units with no supplied observations remain in the selection diagnostics. Counts for a missing provisional file are `null`, not zero. No non-detection, denominator for a published frequency, or rarity conclusion follows from these diagnostics. Exit 0 means input and taxonomy checks passed; unresolved taxa produce a diagnostic report and exit 1. All reports remain `publicationReady: false`.
 
 ## Verified public sample
 
@@ -56,10 +82,14 @@ Audit method v2 corrects this count's missing-file representation. Earlier v1 re
 
 The accepted file SHA-256 is `a82a632acc61c95fdbe6f8f1d3ea8fcb4beafd3f3ff909b37406ca473b2625db`; SED is `e9d81b6d20b02b508e91e491d116988b43bb4eefd055a852bd57c52639e242d6`. Original files, supporting metadata and the aggregate audit remain in Downloads, outside the repository. Re-fetching the public sample may produce a later edition; compare hashes rather than assuming these anchors still apply.
 
+The October 14 candidate audit uses official taxonomy 2024 (15,013 records), SHA-256 `6fe5107f00615b3b48f2736f762c2e5c514db1ee03c0a73719e5d4b3df98464b`. All 4,817 species/subspecies rows map to 120 species; 38 domestic and eight unidentified higher-taxon rows are excluded. There are no unresolved mappings. Among 270 checklist/group units, 189 pass the candidate filters, 68 are incomplete, 11 exceed the distance limit, one exceeds the observer limit and one exceeds the speed limit. Retained counts across March's four seasonal bins are 38, 36, 40 and 75. Selected units contain 3,382 mapped observation rows, still including shared copies.
+
+An independent CSV parser and rational-number calculation, without application helpers, reconciled all 317 checklists, 4,863 observation rows, 270 units, selection bins, mapping/exotic/count diagnostics and three source hashes. Aggregate reports are `~/Downloads/flockline-ebd-cohort-reviewed-2026-10-14.json` and `~/Downloads/flockline-ebd-cohort-independent-audit-2026-10-14.json`. Missing provisional coverage remains unknown. This verifies implementation against the sample, not the ecological suitability of the filters.
+
 ## Remaining processing stages
 
 1. Confirm approved project scope and request a matched regional EBD/SED/provisional release with complete prior years and explicit query coverage. Read its accompanying metadata, taxonomy and sensitive-species policy.
-2. Pin taxonomy; roll species-level occurrences up using source-supported relationships. Exclude ambiguous higher taxa and account explicitly for domestic/exotic status and withheld taxa. Do not sum observations to estimate independent birds.
-3. Choose a documented shared-checklist rule and effort filters. Validate the chosen rule against disagreements in complete status, dates, geography and effort. Report exclusion counts and retained coverage by county/year/period.
+2. Validate the implemented taxonomy and cohort rules on approved regional data, including source edition, domestic/exotic status, withheld taxa and shared-copy disagreements. The public-sample reconciliation above is an implementation check, not production approval.
+3. Review coverage losses and the ecological suitability of effort filters and group exclusions. Retain source-specific diagnostics; do not sum observation rows to estimate independent birds.
 4. Join all eligible complete checklist/group units to accepted and provisional occurrences. Preserve unresolved evidence separately instead of filling it with zero. Calculate descriptive reporting fractions and annual evidence only for covered scopes. Use a distinct method/version from histogram exports.
 5. Independently reconcile candidate results, test held-out years and obtain local birding review. Add the new evidence type to the app only with clear denominator, scope, source, method and missing-data labels. Calibrated rarity or unusual-count labels remain a separate validation task.

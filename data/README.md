@@ -36,7 +36,7 @@ node scripts/import-barchart-baseline.mjs \
 
 The script validates the export's 48 columns, frequency bounds, whole checklist sample sizes, declared taxon total, metadata and source scope. It preserves other counties and year windows, replacing only the matching county/year edition. Review the imported and skipped row counts, and run `npx vitest run lib/barchartImport.test.js lib/historicalBaseline.test.js` before using the result. A new historical period or taxonomy needs deliberate review; the app does not scrape or refresh data automatically.
 
-For larger coverage, use an approved eBird Basic Dataset and Sampling Event Data workflow with explicit effort and shared-checklist handling. See [the baseline design](../docs/RARITY_BASELINE.md).
+For larger coverage, use an approved eBird Basic Dataset and Sampling Event Data workflow with explicit effort and shared-checklist handling. The [offline processing runbook](../docs/EBD_PROCESSING.md) now includes source auditing, pinned taxonomy mapping and candidate checklist selection. Those tools produce review diagnostics, not a new production registry. See [the baseline design](../docs/RARITY_BASELINE.md).
 
 ## Annual evidence
 
