@@ -10,7 +10,7 @@ The public UI shows frequency, sample size, years, county, attribution, source c
 
 The histogram occurrence-marker exception below is corrected at lookup, saved-sighting/archive reads, and the final browser display boundary. Ambiguous values retain a source link but do not appear as an exact complete-checklist percentage.
 
-See [data provenance and import instructions](../data/README.md). The original histogram and taxonomy files remain outside the repository. Nationwide EBD plus Sampling Event Data access is a separate [prepared request](EBIRD_ACCESS_REQUEST.md); broader coverage is not yet available.
+See [data provenance and import instructions](../data/README.md). The original histogram and taxonomy files remain outside the repository. Nationwide EBD plus Sampling Event Data access is separate. Cornell now shows an existing request under review; its submitted contents are not visible. The [local draft and observed status](EBIRD_ACCESS_REQUEST.md) are documented separately. Broader coverage is not yet available.
 
 ## Recommended approach
 
