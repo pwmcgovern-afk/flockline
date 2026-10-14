@@ -14,7 +14,8 @@
     "test": "vitest run",
     "og": "node scripts/render-og.mjs",
     "setup:digest": "node scripts/setup-digest-mailing-list.mjs",
-    "check": "npm run test && npm run build",
+    "check": "npm run test && npm run test:ebd && npm run build",
+    "test:ebd": "python3 -m unittest discover -s tests/ebd -v",
     "preview": "vite preview --host 127.0.0.1",
     "test:ui": "node --test tests/browser/ui-audit.mjs",
     "test:ui:webkit": "UI_TEST_ENGINE=webkit node --test --test-name-pattern=\"touch|phone \" tests/browser/ui-audit.mjs"
