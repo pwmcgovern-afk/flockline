@@ -2543,6 +2543,8 @@ button.pill:hover {
 .historical-context summary { cursor: pointer; }
 .historical-context a { text-decoration: underline; text-underline-offset: 3px; }
 .annual-history { margin: 12px 0; }
+.annual-history-period { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0; }
+.annual-history-period select { max-width: 100%; padding: 6px; color: var(--ink); background: var(--paper-raised); border: 1px solid var(--rule); font: inherit; }
 .annual-history table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .annual-history caption { text-align: left; margin: 10px 0; }
 .annual-history th, .annual-history td { padding: 7px 4px; text-align: left; border-bottom: 1px solid var(--rule); overflow-wrap: anywhere; }

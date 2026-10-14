@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { HistoricalBaseline, HistoricalBaselineUnavailableReason } from "../lib/historicalBaseline.js";
 import { normalizeHistoricalBaseline } from "../shared/historicalFrequency.js";
 import type { AnnualHistory } from "../lib/annualHistory.js";
@@ -7,6 +8,9 @@ const annualStatus: Record<AnnualHistory["entries"][number]["status"], string> =
 };
 
 function AnnualEvidence({ history, season }: { history: AnnualHistory; season: string }) {
+  const [wholeMonth, setWholeMonth] = useState(false);
+  const evidence = wholeMonth && history.month ? history.month : history;
+  const periodLabel = wholeMonth && history.month ? history.month.label : season;
   return (
     <div className="annual-history">
       <p>
@@ -14,6 +18,10 @@ function AnnualEvidence({ history, season }: { history: AnnualHistory; season: s
           ? `Reports documented in ${history.reportedYears} of ${history.entries.length} years during ${season}; ${history.unknownYears} years have unknown results.`
           : `Reports in ${history.reportedYears} of ${history.entries.length} years during ${season}.`}
       </p>
+      {history.month ? <p>
+        {history.month.label}: reports in {history.month.reportedYears} of {history.month.entries.length} years.
+        {history.month.unknownYears > 0 ? ` ${history.month.unknownYears} years have unknown results.` : ""}
+      </p> : null}
       <details>
         <summary>Year-by-year evidence</summary>
         <p>
@@ -21,10 +29,17 @@ function AnnualEvidence({ history, season }: { history: AnnualHistory; season: s
           Unknown means the species row, frequency or checklist sample is unavailable.
           These records do not estimate your chance of finding the bird or establish rarity.
         </p>
+        {history.month ? <label className="annual-history-period">
+          Compare years for
+          <select value={wholeMonth ? "month" : "period"} onChange={(event) => setWholeMonth(event.target.value === "month")}>
+            <option value="period">{season}</option>
+            <option value="month">{history.month.label}</option>
+          </select>
+        </label> : null}
         <table>
-          <caption>Annual eBird exports for {season}</caption>
+          <caption>Annual eBird exports for {periodLabel}</caption>
           <thead><tr><th scope="col">Year / source</th><th scope="col">Result</th><th scope="col">Complete checklists</th></tr></thead>
-          <tbody>{history.entries.map((entry) => (
+          <tbody>{evidence.entries.map((entry) => (
             <tr key={entry.year}>
               <th scope="row"><a href={entry.sourceUrl} target="_blank" rel="noreferrer" title={`Downloaded ${entry.downloadedAt}`}>{entry.year}</a></th>
               <td>{annualStatus[entry.status]}</td>
@@ -32,7 +47,7 @@ function AnnualEvidence({ history, season }: { history: AnnualHistory; season: s
             </tr>
           ))}</tbody>
         </table>
-        {history.entries.some((entry) => entry.status === "occurrence") ? <p>*Occurrence is recorded, but the export does not establish an exact complete-checklist percentage.</p> : null}
+        {evidence.entries.some((entry) => entry.status === "occurrence") ? <p>*Occurrence is recorded, but the export does not establish an exact complete-checklist percentage.</p> : null}
       </details>
     </div>
   );
