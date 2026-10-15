@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "counties": {
+    "US-CA-075": {
+      "file": "US-CA-075.07bf8fe7de2e.json.gz",
+      "sha256": "07bf8fe7de2ed33f7eb916c22ea86da0750dd4dd5a857e0d4d775bdaea119585",
+      "compressedBytes": 317003
+    },
+    "US-CA-081": {
+      "file": "US-CA-081.5010441e38e7.json.gz",
+      "sha256": "5010441e38e777e83312da3605f5e94a76df5535726cffc3620bde651dfb1a2e",
+      "compressedBytes": 339930
+    },
+    "US-CT-001": {
+      "file": "US-CT-001.726d0bb4331f.json.gz",
+      "sha256": "726d0bb4331f8e9c16f1b51336a3ff4ce13c506e4a369ae9feecc2db4448c575",
+      "compressedBytes": 276045
+    },
+    "US-CT-003": {
+      "file": "US-CT-003.390c349e9d4f.json.gz",
+      "sha256": "390c349e9d4fb276fa1b622cd2ca6fb5ff4b4da4efbb1fc8e63c1f2d37201ec8",
+      "compressedBytes": 200752
+    },
+    "US-CT-005": {
+      "file": "US-CT-005.1e234544ac73.json.gz",
+      "sha256": "1e234544ac736e5cfa5035fe522f049ad696a9c69866d2b2d739cb4226cdcf4b",
+      "compressedBytes": 193201
+    },
+    "US-CT-007": {
+      "file": "US-CT-007.4c6c69421069.json.gz",
+      "sha256": "4c6c694210692c1895947abea52d51fd103cf81eeb78cff0209fc3a63e77930e",
+      "compressedBytes": 170831
+    },
+    "US-CT-009": {
+      "file": "US-CT-009.33499da0c802.json.gz",
+      "sha256": "33499da0c8028f8d31236417818ae18e167d8a6d6a75ab349b5fe2968c0240bd",
+      "compressedBytes": 282624
+    },
+    "US-CT-011": {
+      "file": "US-CT-011.f094c4ea315d.json.gz",
+      "sha256": "f094c4ea315d6c52edc606ad473a55d9113e60b631860d2fee7a48960a12c299",
+      "compressedBytes": 216523
+    },
+    "US-CT-013": {
+      "file": "US-CT-013.0bd62a2931d3.json.gz",
+      "sha256": "0bd62a2931d31949f92c82e50018ef7e95291c58cdeb0ef127bd144079ac12ec",
+      "compressedBytes": 146922
+    },
+    "US-CT-015": {
+      "file": "US-CT-015.947033ea6c26.json.gz",
+      "sha256": "947033ea6c265340b30cea18fea4c047b21da14e7be6b1ca7387e72236c75240",
+      "compressedBytes": 128954
+    },
+    "US-MA-025": {
+      "file": "US-MA-025.1121d30d7e80.json.gz",
+      "sha256": "1121d30d7e806768398addd04802af41e6cb42a7ec7920643d7b33543ff7018a",
+      "compressedBytes": 220446
+    },
+    "US-NY-061": {
+      "file": "US-NY-061.089a4e845a8f.json.gz",
+      "sha256": "089a4e845a8f513b4c965f7abf1da9d28b0521d7fa5e4a06c7ba4402c1831362",
+      "compressedBytes": 226812
+    }
+  }
+}

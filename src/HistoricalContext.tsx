@@ -62,6 +62,7 @@ const missingContext: Record<HistoricalBaselineUnavailableReason, string> = {
   sample_unavailable: "No historical checklist sample is available for this period.",
   frequency_unavailable: "Historical reporting frequency is unavailable for this species and period.",
   frequency_ambiguous: "eBird records this species in this period, but the export does not establish an exact complete-checklist percentage.",
+  source_unavailable: "Historical context could not be loaded. The source chart is available below.",
 };
 
 type HistoricalFinding = {
