@@ -2,6 +2,8 @@
 
 `historical-baselines.json` is a generated registry of county and seasonal frequency summaries. The pilot covers twelve counties for 2016-2025, downloaded October 14, 2026. Original histogram and taxonomy exports stay outside the repository.
 
+Runtime reads now use the small `historical-index.json` and one compressed county file at a time in `historical-counties/`. Rebuild them with `node scripts/build-historical-shards.mjs` after changing the source registries. The generated files preserve all original values and versions. [Nationwide acquisition, resumable imports and storage](../docs/NATIONAL_BASELINE.md) are prepared, but live coverage remains twelve counties; missing county data is not replaced with a state or national average.
+
 | County | Species | Taxon aliases | Official source |
 | --- | ---: | ---: | --- |
 | San Francisco, California | 468 | 498 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075) |

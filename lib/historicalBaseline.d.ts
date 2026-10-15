@@ -1,7 +1,7 @@
 import type { AnnualHistory } from "./annualHistory.js";
 export type HistoricalBaselineUnavailableReason =
   | "county_missing" | "date_invalid" | "county_not_covered" | "baseline_not_prior"
-  | "species_not_covered" | "sample_unavailable" | "frequency_unavailable" | "frequency_ambiguous";
+  | "species_not_covered" | "sample_unavailable" | "frequency_unavailable" | "frequency_ambiguous" | "source_unavailable";
 
 export interface AvailableHistoricalBaseline {
   status: "available";
@@ -41,6 +41,13 @@ export function getHistoricalBaseline(finding: {
   subnational2Code?: string;
   obsDt?: string;
 }): HistoricalBaseline;
+
+export function loadHistoricalBaseline(finding: {
+  speciesCode?: string;
+  countyCode?: string;
+  subnational2Code?: string;
+  obsDt?: string;
+}): Promise<HistoricalBaseline>;
 
 export function baselineSeason(value: string): {
   year: number; month: number; startDay: number; endDay: number; index: number; label: string;

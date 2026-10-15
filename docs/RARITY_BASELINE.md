@@ -2,6 +2,8 @@
 
 Historical-context pilot, October 14, 2026. The app now supports a county and seasonal reporting baseline. It is not a rarity score.
 
+October 15: [nationwide expansion work](NATIONAL_BASELINE.md) inventories all 3,143 eBird U.S. county regions and adds resumable batch imports and county-specific storage. The existing twelve counties are unchanged; the other 3,131 are still missing. The storage change prepares for broader data without claiming national historical coverage.
+
 ## Implemented pilot
 
 The bundled registry covers San Francisco County (468 species, 498 taxon aliases), San Mateo County (437 species, 494 aliases), New York County (343 species, 412 aliases), and Suffolk County, Massachusetts (344 species, 420 aliases), plus all eight Connecticut counties, all for 2016-2025. Live Insights and future roundups retain eBird's county metadata and attach the matching seasonal frequency. Sighting pages can recover legacy county metadata through the official hotspot-info endpoint when the checklist identifies a public hotspot. Existing available historical snapshots are preserved; missing county coverage remains unavailable, with a link to eBird's history. No model or new request is needed for the baseline lookup itself.

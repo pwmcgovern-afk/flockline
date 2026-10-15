@@ -17,3 +17,4 @@ export interface AnnualHistory extends AnnualPeriodEvidence {
   month?: AnnualPeriodEvidence & { label: string };
 }
 export function withAnnualHistory(baseline: HistoricalBaseline): HistoricalBaseline;
+export function loadAnnualHistory(baseline: HistoricalBaseline): Promise<HistoricalBaseline>;
