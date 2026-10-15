@@ -1,6 +1,6 @@
 # Historical reporting-frequency data
 
-`historical-baselines.json` is a generated registry of county and seasonal frequency summaries. The pilot covers four counties for 2016-2025, downloaded October 14, 2026. Original histogram and taxonomy exports stay outside the repository.
+`historical-baselines.json` is a generated registry of county and seasonal frequency summaries. The pilot covers twelve counties for 2016-2025, downloaded October 14, 2026. Original histogram and taxonomy exports stay outside the repository.
 
 | County | Species | Taxon aliases | Official source |
 | --- | ---: | ---: | --- |
@@ -8,6 +8,14 @@
 | San Mateo, California | 437 | 494 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-081) |
 | New York, New York | 343 | 412 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-NY-061) |
 | Suffolk, Massachusetts | 344 | 420 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-MA-025) |
+| Fairfield, Connecticut | 371 | 424 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CT-001) |
+| Hartford, Connecticut | 299 | 374 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CT-003) |
+| Litchfield, Connecticut | 288 | 385 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CT-005) |
+| Middlesex, Connecticut | 318 | 411 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CT-007) |
+| New Haven, Connecticut | 376 | 439 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CT-009) |
+| New London, Connecticut | 351 | 434 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CT-011) |
+| Tolland, Connecticut | 282 | 379 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CT-013) |
+| Windham, Connecticut | 278 | 366 | [2016-2025 histogram](https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CT-015) |
 
 Attribution: eBird and its contributors, Cornell Lab of Ornithology. These derived summaries are provided for Flockline's noncommercial educational use and remain subject to the [eBird Data Access Terms of Use](https://www.birds.cornell.edu/home/ebird-data-access-terms-of-use/). eBird and Cornell do not endorse Flockline.
 
@@ -17,7 +25,7 @@ There are four seasonal bins per month: days 1-7, 8-14, 15-21 and 22 through mon
 
 Species rows match the official English eBird taxonomy exactly. Subspecies and form query codes use the taxonomy's `reportAs` parent species when that parent has a frequency row. The importer excludes ambiguous taxa, hybrids and other non-species rows. It never adds their frequencies to species rows, because their reporting can overlap.
 
-This pooled frequency is descriptive historical context. It does not measure population size, count unusualness, the reason for a sighting, or whether a species is rare. A small checklist sample can make the percentage unstable, and a large sample does not remove observer, habitat or effort bias. The pooled file cannot establish how many separate years a species occurred. Separate annual evidence is available for all four pilot counties as described below; calibrated confidence and return probabilities remain unavailable. Current report review flags must remain independent of this history.
+This pooled frequency is descriptive historical context. It does not measure population size, count unusualness, the reason for a sighting, or whether a species is rare. A small checklist sample can make the percentage unstable, and a large sample does not remove observer, habitat or effort bias. The pooled file cannot establish how many separate years a species occurred. Separate annual evidence is available for all twelve covered counties as described below; calibrated confidence and return probabilities remain unavailable. Current report review flags must remain independent of this history.
 
 ## Reproduce or add a county export
 
@@ -40,7 +48,7 @@ For larger coverage, use an approved eBird Basic Dataset and Sampling Event Data
 
 ## Annual evidence
 
-`annual-history.json` contains separate 2016-2025 exports for all four pilot counties downloaded October 14, 2026. It is bound to the exact pooled dataset version, county, taxonomy and year window. The runtime sends only the featured species's ten annual results for each of the seasonal period and whole month, not this entire registry. It makes no new network requests. New findings retain the annual version; matching older pooled snapshots gain supplementary annual evidence on read without changing their pooled facts or stored source record. Existing annual snapshots stay pinned. Older snapshots without whole-month evidence retain their original scope.
+`annual-history.json` contains separate 2016-2025 exports for all twelve covered counties downloaded October 14, 2026. It is bound to the exact pooled dataset version, county, taxonomy and year window. The runtime sends only the featured species's ten annual results for each of the seasonal period and whole month, not this entire registry. It makes no new network requests. New findings retain the annual version; matching older pooled snapshots gain supplementary annual evidence on read without changing their pooled facts or stored source record. Existing annual snapshots stay pinned. Older snapshots without whole-month evidence retain their original scope.
 
 An annual value above zero documents reporting. Exact `0.0015` also documents occurrence under either interpretation, but is separately labelled and never turned into an exact percentage. An explicit zero stays zero. Missing species rows, missing frequencies and missing/zero checklist samples are unknown. Each year exposes its own source chart and checklist sample. No detection count, recurrence probability, confidence or rarity classification is inferred. `annualRecurrence` remains null; descriptive evidence lives in `annualHistory`.
 
@@ -71,3 +79,11 @@ Independent October 14 western audit: San Francisco has 165,744 annual frequency
 | San Mateo | Red-breasted Nuthatch | 7 / 10 | 10 / 10 |
 
 All remaining years in these comparisons are explicit exported zeros, not unknowns. San Mateo nuthatch's October 2018 evidence is an ambiguous occurrence marker and remains labelled as such; it does not establish an exact percentage. These county histories do not assess a flock's size or explain movements.
+
+## Connecticut expansion
+
+All eight county codes and names were verified on eBird’s Connecticut subregions page. The normal chart download control supplied eight pooled and eighty annual full-year exports, with each visible chart and download link checked for county and year scope. This bounded expansion uses the existing supported histogram workflow; it does not depend on the separate EBD access request or establish statewide rarity classifications.
+
+A separate Python CSV parser, without application imports, reconciled all 1,099,296 imported frequency cells, 4,224 sample values, 3,212 taxonomy aliases, 88 original-file hashes and 384 annual-to-pooled sample sums. Existing pooled and annual datasets were unchanged. The official taxonomy 2025 snapshot has SHA-256 `0d5b0e4f70a4eb413499c571af9bde3e4fe1f7ecc704c5b4be3819e215c13349`. Raw exports, eight annual manifests, `flockline-connecticut-independent-audit-2026-10-14.json` and the independent parser remain in Downloads.
+
+For October 8-14, New Haven has 3,009 complete checklists: Osprey frequency 0.1977401 with reports in all ten matching periods and whole Octobers; Sora frequency 0.001994 with reports in five matching periods and eight whole Octobers. New Haven Red Crossbill exports zero in the pooled period, but four annual species rows are missing and remain unknown. Windham has 306 complete checklists for the period, illustrating why county identity and sample size must remain visible. These are reporting descriptions, not rarity or encounter-probability estimates.

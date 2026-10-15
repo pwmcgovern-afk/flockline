@@ -519,6 +519,31 @@ test("desktop and phone distinguish the original Suffolk report's seven-day and 
   }
 });
 
+test("desktop and phone show Connecticut county history with distinct seasonal and monthly evidence", async () => {
+  const finding = { speciesCode: "willet1", comName: "Willet", title: "Willet", kind: "notable",
+    subId: "S401798051", countyCode: "US-CT-009", obsDt: "2026-10-12", regionCode: "US-CT" };
+  finding.historicalBaseline = getHistoricalBaseline(finding);
+  for (const width of [1280, 375]) {
+    const s = await session({ width, height: 844, touch: width < 600, handlers: {
+      "/api/sighting": (route) => json(route, { ...sightingFixture, finding, media: { status: "unavailable", photos: [] } }),
+    } });
+    await s.page.goto(base + "/sightings/S401798051/willet1");
+    await s.page.getByRole("heading", { name: "Willet", exact: true }).waitFor();
+    assert.match(await s.page.locator(".historical-context").innerText(), /0.1%.*New Haven County, Connecticut.*3,009/s);
+    assert.match(await s.page.locator(".annual-history").innerText(), /1 of 10 years during October 8-14.*October \(whole month\): reports in 9 of 10 years/s);
+    await s.page.getByText("Year-by-year evidence", { exact: true }).click();
+    const rows = s.page.locator(".annual-history tbody tr");
+    assert.equal(await rows.count(), 10);
+    assert.match(await rows.filter({ hasText: "2016" }).innerText(), /Exported zero.*168/s);
+    await s.page.getByLabel("Compare years for").selectOption("month");
+    assert.match(await rows.filter({ hasText: "2016" }).innerText(), /Reported.*772/s);
+    assert.equal(await s.page.getByRole("link", { name: "2016", exact: true }).getAttribute("href"),
+      "https://ebird.org/barchart?byr=2016&eyr=2016&bmo=1&emo=12&r=US-CT-009");
+    assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await finish(s);
+  }
+});
+
 test("desktop and phone methodology fragments survive initial rendering and reload", async () => {
   for (const width of [1280, 390]) {
     const s = await session({ width, height: 844, touch: width < 600 });

@@ -1,6 +1,6 @@
 # Preparing broader historical coverage
 
-The four-county histogram pilot is live. Nationwide EBD-based baselines are not yet published. Cornell shows a data-access request under review; its submitted scope is not visible. Local tools audit inputs, check taxonomy, select a candidate cohort, aggregate supplied species evidence and calculate candidate fractions only after a documented coverage review. No approved regional dataset has passed that review, and these tools have no publication path.
+The histogram pilot covers twelve counties, including all eight Connecticut counties. Nationwide EBD-based baselines are not yet published. Cornell shows a data-access request under review; its submitted scope is not visible. Local tools audit inputs, check taxonomy, select a candidate cohort, aggregate supplied species evidence and calculate candidate fractions only after a documented coverage review. No approved regional dataset has passed that review, and these tools have no publication path.
 
 ## Source evidence that changes the design
 

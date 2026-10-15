@@ -177,8 +177,9 @@ export default function Methodology() {
         <section id="historical-context">
           <h2>Historical context</h2>
           <p>
-            The pilot covers San Francisco and San Mateo counties in California, New York
-            County (Manhattan), and Suffolk County in Massachusetts, using eBird's official
+            Historical context covers all eight Connecticut counties, San Francisco and San Mateo
+            counties in California, New York County (Manhattan), and Suffolk County in
+            Massachusetts, using eBird's official
             histogram downloads for 2016–2025.
             For each featured report, Flockline looks up that species in
             the county and seasonal period of the observation. Where available, the percentage is the share of
@@ -201,7 +202,7 @@ export default function Methodology() {
             {" "}<a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0255391" target="_blank" rel="noreferrer">Research describing this convention</a>.
           </p>
           <p>
-            For all four pilot counties, separate annual exports also show which years contain
+            For all twelve covered counties, separate annual exports also show which years contain
             reports in the same seasonal period and across the whole month. These scopes are labelled
             separately: a seven-day window may miss reports elsewhere in the month.
             Each year links to its source chart and checklist sample.
@@ -219,7 +220,7 @@ export default function Methodology() {
             interpretation require additional historical imports and validation.
           </p>
           <p>
-            Source data © eBird and its contributors. See the{" "}
+            Source data © eBird and its contributors. Each report links to its county source. See the{" "}
             source charts for <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-075" target="_blank" rel="noreferrer">San Francisco</a>,{" "}
             <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-CA-081" target="_blank" rel="noreferrer">San Mateo</a>,{" "}
             <a href="https://ebird.org/barchart?byr=2016&eyr=2025&bmo=1&emo=12&r=US-NY-061" target="_blank" rel="noreferrer">New York County</a> and{" "}
