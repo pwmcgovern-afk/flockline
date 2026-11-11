@@ -77,12 +77,12 @@ function renderStatusPage(title, message, appUrl) {
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>${escapeHtml(title)} · Flockline</title>
   </head>
-  <body style="margin:0;background:#f0eee8;color:#252722;font-family:Arial,sans-serif;">
+  <body style="margin:0;background:#f4f5f5;color:#14171a;font-family:Helvetica,Arial,sans-serif;">
     <main style="max-width:560px;margin:12vh auto;padding:28px;">
-      <p style="font-family:Georgia,serif;letter-spacing:.16em;text-transform:uppercase;">Flockline</p>
-      <h1 style="font-family:Georgia,serif;font-size:38px;font-weight:400;line-height:1.15;">${escapeHtml(title)}</h1>
-      <p style="color:#565950;font-size:17px;line-height:1.65;">${escapeHtml(message)}</p>
-      <a href="${escapeHtml(appUrl)}" style="display:inline-block;margin-top:16px;background:#384c3e;color:#fff;text-decoration:none;border-radius:999px;padding:13px 20px;font-weight:700;">Return to Flockline</a>
+      <p style="font-family:Helvetica,Arial,sans-serif;font-weight:700;letter-spacing:-.01em;">Flockline</p>
+      <h1 style="font-family:Helvetica,Arial,sans-serif;font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1.15;">${escapeHtml(title)}</h1>
+      <p style="color:#454b51;font-size:17px;line-height:1.65;">${escapeHtml(message)}</p>
+      <a href="${escapeHtml(appUrl)}" style="display:inline-block;margin-top:16px;background:#14171a;color:#fff;text-decoration:none;border-radius:999px;padding:13px 20px;font-weight:700;">Return to Flockline</a>
     </main>
   </body>
 </html>`;

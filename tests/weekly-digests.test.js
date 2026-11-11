@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isWeeklyDigestDeliveryTime } from "../api/cron/weekly-digests.js";
+import { isFinalDigestAttempt, isWeeklyDigestDeliveryTime } from "../api/cron/weekly-digests.js";
 
 describe("weekly digest delivery time", () => {
   it("sends at 10 a.m. Eastern during daylight-saving time", () => {
@@ -21,5 +21,13 @@ describe("weekly digest delivery time", () => {
     expect(isWeeklyDigestDeliveryTime(new Date("2026-08-31T14:59:59.000Z"))).toBe(true);
     expect(isWeeklyDigestDeliveryTime(new Date("2026-08-31T15:00:00.000Z"))).toBe(false);
     expect(isWeeklyDigestDeliveryTime(new Date("2026-01-05T15:04:00.000Z"))).toBe(true);
+  });
+
+  it("treats the second half of the delivery hour as the fallback window", () => {
+    expect(isFinalDigestAttempt(new Date("2026-08-31T14:16:00.000Z"))).toBe(false);
+    expect(isFinalDigestAttempt(new Date("2026-08-31T14:31:00.000Z"))).toBe(true);
+    expect(isFinalDigestAttempt(new Date("2026-08-31T14:46:00.000Z"))).toBe(true);
+    expect(isFinalDigestAttempt(new Date("2026-01-05T15:49:00.000Z"))).toBe(true);
+    expect(isFinalDigestAttempt(new Date("2026-01-05T14:49:00.000Z"))).toBe(false);
   });
 });

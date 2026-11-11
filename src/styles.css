@@ -1,54 +1,54 @@
 /* ============================================================================
-   Flockline — "paper atlas"
+   Flockline: "field instrument"
 
-   One idea drives the whole surface: the map is the artwork, and every control
-   is quiet chrome floating on paper around it. That means exactly two type
-   families (a serif for display, a mono for every label and control), an almost
-   colorless interface, and generous empty space. Color belongs to the data —
-   the recency ramp on the map dots — and nowhere else.
+   The map is the subject and every control is quiet chrome around it. One sans
+   family for everything, neutral surfaces, sentence case labels, and a single
+   accent. Saturated color belongs to the data (the recency ramp on the map
+   dots) and to the one primary action on a surface.
    ========================================================================== */
 
 :root {
-  /* Paper: warm off-white, a shade darker for recessed surfaces. */
-  --paper: #f4f2ed;
-  --paper-raised: #fbfaf7;
-  --paper-sunk: #e9e7e0;
+  /* Surfaces: neutral, with white reserved for raised panels. */
+  --paper: #f4f5f5;
+  --paper-raised: #ffffff;
+  --paper-sunk: #e9ebec;
 
-  /* Ink: near-black warm grey, stepping down to label grey. */
-  --ink: #1c1b18;
-  --ink-2: #56534c;
-  --ink-3: #6d6961;
-  --ink-4: #8b877e;
+  /* Ink: near-black neutral, stepping down to label grey. */
+  --ink: #14171a;
+  --ink-2: #454b51;
+  --ink-3: #5c636a;
+  --ink-4: #747c83;
+  --ink-rgb: 20, 23, 26;
 
-  --rule: rgba(28, 27, 24, 0.11);
-  --rule-soft: rgba(28, 27, 24, 0.06);
+  --rule: rgba(20, 23, 26, 0.12);
+  --rule-soft: rgba(20, 23, 26, 0.07);
+  --rule-strong: rgba(20, 23, 26, 0.22);
 
-  /* The single accent, borrowed from the house finch in the reference plate.
-     Used for the live dot, alerts, and the rarity marker. Never for large
-     fills, and never for ordinary buttons. */
+  /* The single accent, borrowed from the house finch. Used for the live dot,
+     alerts, links, and the one primary action on a surface. */
   --accent: #b0543a;
-  --accent-soft: rgba(176, 84, 58, 0.12);
+  --accent-strong: #96432c;
+  --accent-soft: rgba(176, 84, 58, 0.1);
 
-  /* Data ramp: old -> mid -> fresh. These are the only saturated colors in the
-     product, and they only ever appear on map markers and the histogram. */
+  /* Data ramp: old -> mid -> fresh. These only ever appear on map markers and
+     the histogram. */
   --ramp-old: #5c7a99;
   --ramp-mid: #c99a3f;
   --ramp-new: #b0543a;
 
-  --shadow-pill: 0 1px 2px rgba(28, 27, 24, 0.07), 0 2px 10px rgba(28, 27, 24, 0.05);
-  --shadow-raised: 0 1px 2px rgba(28, 27, 24, 0.05), 0 8px 30px rgba(28, 27, 24, 0.09);
-  --shadow-drawer: -1px 0 0 var(--rule), -18px 0 44px rgba(28, 27, 24, 0.08);
+  --shadow-pill: 0 1px 2px rgba(20, 23, 26, 0.08), 0 2px 8px rgba(20, 23, 26, 0.05);
+  --shadow-raised: 0 1px 2px rgba(20, 23, 26, 0.06), 0 10px 32px rgba(20, 23, 26, 0.1);
+  --shadow-drawer: -1px 0 0 var(--rule), -18px 0 44px rgba(20, 23, 26, 0.08);
 
-  --serif: "Newsreader", Georgia, "Times New Roman", serif;
-  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --drawer-w: 400px;
   --dock: 0px;
 
   /* Mute the terrain while preserving legible place names. */
-  --map-filter: grayscale(0.8) sepia(0.12) saturate(0.55);
+  --map-filter: grayscale(0.9) saturate(0.6) contrast(0.96);
 
-  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   color-scheme: light;
   font-synthesis: none;
@@ -75,11 +75,20 @@ body {
   overflow: hidden;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 16px;
   line-height: 1.55;
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 button,
@@ -137,10 +146,9 @@ p {
   box-shadow: var(--shadow-raised);
   border-radius: 999px;
   text-decoration: none;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: 0;
   transition: top 160ms var(--ease);
 }
 
@@ -150,24 +158,35 @@ p {
 
 /* --------------------------------------------------------------------------
    Type primitives
-   Every label, number, and control in the product uses the mono voice. Every
-   headline uses the serif. There is no third voice.
+   One sans family throughout. Labels and controls sit at 12 to 13px medium,
+   headlines at semibold with slightly tight tracking.
    -------------------------------------------------------------------------- */
 
 .mono-label {
-  font-family: var(--mono);
-  font-size: 11px;
+  font-family: var(--sans);
+  font-size: 13px;
   font-weight: 400;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
+}
+
+/* Eyebrow above a page or panel title. */
+.script {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-3);
+}
+
+.script::first-letter {
   text-transform: uppercase;
 }
 
-.script {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 300;
-  letter-spacing: 0.01em;
-  text-transform: none;
+/* The drawer receives programmatic focus when it opens; a ring around the
+   whole panel reads as a stray accent edge. Controls inside keep theirs. */
+.drawer:focus-visible {
+  outline: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -240,7 +259,7 @@ p {
 
 .leaflet-container {
   background: var(--paper) !important;
-  font-family: var(--mono);
+  font-family: var(--sans);
 }
 
 .leaflet-control-zoom {
@@ -274,7 +293,7 @@ p {
 .leaflet-control-attribution {
   background: transparent !important;
   color: var(--ink-3) !important;
-  font-family: var(--mono) !important;
+  font-family: var(--sans) !important;
   font-size: 9px !important;
   letter-spacing: 0.06em;
   padding: 0 8px 4px !important;
@@ -387,11 +406,10 @@ p {
   color: var(--ink-2);
   box-shadow: var(--shadow-pill);
   white-space: nowrap;
-  font-family: var(--mono);
-  font-size: 11px;
+  font-family: var(--sans);
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   transition: color 140ms var(--ease), background 140ms var(--ease);
 }
 
@@ -407,8 +425,7 @@ button.pill:hover {
 
 /* "menu" is set lowercase, exactly as in the reference. */
 .pill.lower {
-  text-transform: lowercase;
-  letter-spacing: 0.16em;
+  text-transform: none;
 }
 
 .pill.icon-only {
@@ -465,11 +482,10 @@ button.pill:hover {
   border-radius: 999px;
   color: var(--ink-3);
   background: transparent;
-  font-family: var(--mono);
-  font-size: 11px;
+  font-family: var(--sans);
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   transition: color 140ms var(--ease), background 140ms var(--ease), box-shadow 140ms var(--ease);
 }
 
@@ -488,10 +504,10 @@ button.pill:hover {
    contrast than secondary segmented controls. A deeper paper tone defines the
    track while the raised active option stays within the atlas palette. */
 .segmented.window-pills.on-paper {
-  background: #ddd9d0;
+  background: #dde0e2;
   box-shadow:
-    inset 0 0 0 1px rgba(28, 27, 24, 0.09),
-    0 3px 14px rgba(28, 27, 24, 0.09);
+    inset 0 0 0 1px rgba(20, 23, 26, 0.09),
+    0 3px 14px rgba(20, 23, 26, 0.09);
 }
 
 .window-pills button {
@@ -504,8 +520,8 @@ button.pill:hover {
 
 .window-pills button.active {
   box-shadow:
-    0 1px 2px rgba(28, 27, 24, 0.12),
-    0 3px 9px rgba(28, 27, 24, 0.09);
+    0 1px 2px rgba(20, 23, 26, 0.12),
+    0 3px 9px rgba(20, 23, 26, 0.09);
 }
 
 .segmented button[disabled] {
@@ -535,10 +551,9 @@ button.pill:hover {
   border-radius: 8px;
   background: var(--ink);
   color: var(--paper);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -590,12 +605,11 @@ button.pill:hover {
   background: none;
   pointer-events: auto;
   cursor: pointer;
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 300;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 0.95rem;
   color: var(--ink-2);
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   text-decoration-color: transparent;
   text-underline-offset: 3px;
   transition: color 160ms var(--ease), text-decoration-color 160ms var(--ease);
@@ -611,11 +625,10 @@ button.pill:hover {
 .masthead-title {
   display: block;
   pointer-events: auto;
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: clamp(1.45rem, 2.7vw, 2.3rem);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   line-height: 1.08;
   text-wrap: balance;
   color: var(--ink);
@@ -650,10 +663,9 @@ button.pill:hover {
 
 .masthead-meta {
   margin-top: 6px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   display: flex;
   align-items: center;
@@ -683,8 +695,7 @@ button.pill:hover {
 .masthead-note {
   margin-top: 8px;
   max-width: 42ch;
-  font-family: var(--serif);
-  font-style: italic;
+  font-family: var(--sans);
   font-size: 0.86rem;
   line-height: 1.45;
   color: var(--ink-3);
@@ -725,9 +736,9 @@ button.pill:hover {
 }
 
 .scrubber-date {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 1.02rem;
-  letter-spacing: 0.03em;
+  letter-spacing: 0;
   color: var(--ink);
   white-space: nowrap;
 }
@@ -836,10 +847,9 @@ button.pill:hover {
   align-items: center;
   gap: 10px;
   width: 100%;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -853,10 +863,9 @@ button.pill:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-color: var(--ink-4);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
 }
 
 .scrubber-foot .link:hover {
@@ -912,11 +921,10 @@ button.pill:hover {
   padding: 0 15px;
   border-radius: 999px;
   color: var(--ink-3);
-  font-family: var(--mono);
-  font-size: 11px;
+  font-family: var(--sans);
+  font-size: 13px;
   font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   transition: color 140ms var(--ease), background 140ms var(--ease);
 }
 
@@ -960,8 +968,8 @@ button.pill:hover {
   border-radius: 999px;
   background: var(--accent-soft);
   color: var(--accent);
-  font-size: 9px;
-  letter-spacing: 0.04em;
+  font-size: 11px;
+  letter-spacing: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1010,10 +1018,9 @@ button.pill:hover {
 
 .sighting-index h2,
 .sighting-index p {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -1030,8 +1037,8 @@ button.pill:hover {
 }
 
 .sighting-index button {
-  font-family: var(--mono);
-  font-size: 11px;
+  font-family: var(--sans);
+  font-size: 12px;
   line-height: 1.5;
   text-align: left;
   color: var(--ink-2);
@@ -1053,10 +1060,9 @@ button.pill:hover {
   border-radius: 999px;
   background: var(--paper-raised);
   box-shadow: var(--shadow-raised);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-2);
   text-align: center;
 }
@@ -1071,10 +1077,9 @@ button.pill:hover {
 }
 
 .map-note button {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -1119,11 +1124,10 @@ button.pill:hover {
 }
 
 .map-empty h2 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 1.5rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   line-height: 1.15;
 }
 
@@ -1165,24 +1169,22 @@ button.pill:hover {
 }
 
 .sighting-kicker {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
 .sighting-sheet h2 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 1.35rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   line-height: 1.15;
 }
 
 .sighting-science {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-style: italic;
   font-size: 0.92rem;
   color: var(--ink-3);
@@ -1208,7 +1210,7 @@ button.pill:hover {
 
 .sighting-place strong {
   display: block;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-weight: 400;
   font-size: 0.98rem;
   line-height: 1.35;
@@ -1217,10 +1219,9 @@ button.pill:hover {
 .sighting-place small {
   display: block;
   margin-top: 2px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -1238,18 +1239,17 @@ button.pill:hover {
 }
 
 .sighting-facts strong {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 1.2rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   line-height: 1.1;
 }
 
 .sighting-facts small {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -1270,10 +1270,9 @@ button.pill:hover {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -1322,15 +1321,14 @@ button.pill:hover {
 
 .detail-observer small {
   display: block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
 .detail-observer strong {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-weight: 400;
   font-size: 0.95rem;
 }
@@ -1354,10 +1352,9 @@ button.pill:hover {
   padding: 4px 9px;
   border-radius: 999px;
   background: var(--paper-sunk);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-2);
 }
 
@@ -1369,10 +1366,9 @@ button.pill:hover {
 }
 
 .detail-media small {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -1384,10 +1380,9 @@ button.pill:hover {
 
 .detail-note span {
   display: block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   margin-bottom: 2px;
 }
@@ -1420,10 +1415,9 @@ button.pill:hover {
   padding: 7px 12px;
   border-radius: 999px;
   background: var(--paper-sunk);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-2);
   text-decoration: none;
   transition: color 140ms var(--ease), background 140ms var(--ease);
@@ -1489,20 +1483,18 @@ button.pill:hover {
 
 .drawer-kicker {
   display: block;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   margin-bottom: 5px;
 }
 
 .drawer-head h2 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 1.5rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
@@ -1557,10 +1549,9 @@ button.pill:hover {
 .drawer-foot {
   padding: 13px 22px;
   border-top: 1px solid var(--rule-soft);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   line-height: 1.8;
 }
@@ -1576,11 +1567,11 @@ button.pill:hover {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-2);
 }
 
 .field-label .spacer {
@@ -1588,10 +1579,9 @@ button.pill:hover {
 }
 
 .field-label button {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -1630,10 +1620,9 @@ button.pill:hover {
   border-radius: 999px;
   background: var(--paper-sunk);
   color: var(--ink-2);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   transition: color 140ms var(--ease), background 140ms var(--ease);
 }
 
@@ -1655,7 +1644,18 @@ button.pill:hover {
 .chips.states button {
   padding: 7px 0;
   text-align: center;
-  letter-spacing: 0.08em;
+  background: transparent;
+  color: var(--ink-3);
+  box-shadow: inset 0 0 0 1px var(--rule);
+}
+
+/* All 51 are selected by default, so the selected state stays quiet: a solid
+   ink wall here outweighed everything else in the drawer. */
+.chips.states button.active {
+  background: var(--paper-sunk);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px var(--rule-strong);
 }
 
 .menu-actions {
@@ -1699,13 +1699,12 @@ button.pill:hover {
   border: none;
   background: none;
   outline: none;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 1rem;
 }
 
 .search input::placeholder {
   color: var(--ink-3);
-  font-style: italic;
 }
 
 .search .icon-btn {
@@ -1731,11 +1730,10 @@ button.pill:hover {
 
 .toggle-row strong {
   display: block;
-  font-family: var(--mono);
-  font-size: 10px;
+  font-family: var(--sans);
+  font-size: 12px;
   font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--ink);
   margin-bottom: 3px;
 }
@@ -1810,19 +1808,17 @@ button.pill:hover {
 .roundup-intro .script,
 .roundup-deck .script {
   display: block;
-  font-family: var(--serif);
-  font-style: italic;
+  font-family: var(--sans);
   font-size: 0.94rem;
   color: var(--ink-3);
 }
 
 .roundup-intro h3 {
   margin: 2px 0 10px;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 1.45rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .roundup-intro > p {
@@ -1866,17 +1862,16 @@ button.pill:hover {
 }
 
 .roundup-region-grid strong {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 1rem;
   font-weight: 400;
 }
 
 .roundup-region-grid small {
   margin-top: 4px;
-  font-family: var(--mono);
-  font-size: 8px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -1890,10 +1885,9 @@ button.pill:hover {
 
 .roundup-controls > span {
   flex: none;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -1904,7 +1898,7 @@ button.pill:hover {
 
 .roundup-deck > p {
   margin-top: 5px;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 1.06rem;
   line-height: 1.55;
   color: var(--ink-2);
@@ -1941,7 +1935,6 @@ button.pill:hover {
 
 .roundup-loading p {
   color: var(--ink-3);
-  font-style: italic;
 }
 
 .digest-signup {
@@ -1991,11 +1984,10 @@ button.pill:hover {
 
 .digest-header .digest-cta strong {
   color: currentColor;
-  font-family: var(--mono);
-  font-size: 9px;
+  font-family: var(--sans);
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 /* A viewport-level dialog keeps the form clear of the masthead and timeline,
@@ -2007,7 +1999,7 @@ button.pill:hover {
   display: grid;
   place-items: center;
   padding: 12px;
-  background: rgba(28, 27, 24, 0.35);
+  background: rgba(20, 23, 26, 0.35);
 }
 
 .digest-modal {
@@ -2085,7 +2077,7 @@ button.pill:hover {
 .digest-cta strong,
 .digest-form-heading strong,
 .digest-signup.success strong {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 1rem;
   font-weight: 500;
 }
@@ -2093,11 +2085,10 @@ button.pill:hover {
 .digest-cta small {
   margin-top: 4px;
   color: var(--ink-3);
-  font-family: var(--mono);
-  font-size: 8px;
-  letter-spacing: 0.08em;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   line-height: 1.4;
-  text-transform: uppercase;
 }
 
 .digest-signup form {
@@ -2133,10 +2124,9 @@ button.pill:hover {
   display: block;
   margin-bottom: 8px;
   color: var(--ink-3);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
 }
 
 .digest-region-options {
@@ -2216,10 +2206,9 @@ button.pill:hover {
   border-radius: 999px;
   background: var(--accent);
   color: #fff;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
 }
 
 .digest-submit:disabled {
@@ -2367,7 +2356,7 @@ button.pill:hover {
   border-radius: 7px;
   background: var(--paper-sunk);
   color: var(--ink-2);
-  font-family: Arial, sans-serif;
+  font-family: var(--sans);
   font-size: 12px;
   font-weight: 600;
 }
@@ -2377,13 +2366,13 @@ button.pill:hover {
 }
 
 .insights-regions button:hover {
-  border-color: #384c3e;
+  border-color: var(--ink);
   color: var(--ink);
 }
 
 .insights-regions button[aria-pressed="true"] {
-  background: #384c3e;
-  border-color: #384c3e;
+  background: var(--ink);
+  border-color: var(--ink);
   color: white;
 }
 
@@ -2406,10 +2395,9 @@ button.pill:hover {
   border-radius: 999px;
   background-color: var(--paper-sunk);
   color: var(--ink);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
@@ -2425,18 +2413,16 @@ button.pill:hover {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
 .scope-note button {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -2460,10 +2446,9 @@ button.pill:hover {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   margin-bottom: 7px;
 }
@@ -2479,11 +2464,11 @@ button.pill:hover {
 }
 
 .insight-card h3 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 1.15rem;
   line-height: 1.3;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   margin-bottom: 6px;
 }
 
@@ -2495,7 +2480,7 @@ button.pill:hover {
 
 .insight-card .finding-review-status {
   margin-top: 8px;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 0.76rem;
   color: var(--ink-2);
 }
@@ -2520,10 +2505,9 @@ button.pill:hover {
 .historical-context .historical-context-label {
   display: block;
   margin-bottom: 5px;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: 0;
 }
 
 .historical-context p,
@@ -2560,10 +2544,9 @@ button.pill:hover {
   min-height: 32px;
   padding: 0 9px;
   border-radius: 999px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   text-decoration: none;
 }
@@ -2589,7 +2572,6 @@ button.pill:hover {
   font-size: 0.94rem;
   line-height: 1.55;
   color: var(--ink-3);
-  font-style: italic;
 }
 
 .drawer-status.error {
@@ -2614,7 +2596,6 @@ button.pill:hover {
   font-size: 0.96rem;
   line-height: 1.6;
   color: var(--ink-3);
-  font-style: italic;
 }
 
 .chat-msg {
@@ -2630,10 +2611,9 @@ button.pill:hover {
 }
 
 .chat-msg .who {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -2706,10 +2686,9 @@ button.pill:hover {
   border-radius: 999px;
   background: var(--paper-raised);
   box-shadow: var(--shadow-pill);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-2);
 }
 
@@ -2764,7 +2743,7 @@ button.pill:hover {
   border-radius: 12px;
   background: var(--paper-sunk);
   text-align: left;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 0.91rem;
   line-height: 1.35;
   color: var(--ink-2);
@@ -2794,13 +2773,12 @@ button.pill:hover {
   border-radius: 999px;
   background: var(--paper-sunk);
   outline: none;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 0.97rem;
 }
 
 .chat-composer input::placeholder {
   color: var(--ink-3);
-  font-style: italic;
 }
 
 .chat-composer input:focus {
@@ -2854,11 +2832,10 @@ button.pill:hover {
 
 .watch-alert strong {
   display: block;
-  font-family: var(--mono);
-  font-size: 10px;
+  font-family: var(--sans);
+  font-size: 12px;
   font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: var(--accent);
   margin-bottom: 3px;
 }
@@ -2904,7 +2881,7 @@ button.pill:hover {
 
 .watch-row .pick strong {
   display: block;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-weight: 400;
   font-size: 1rem;
   line-height: 1.25;
@@ -2912,10 +2889,9 @@ button.pill:hover {
 
 .watch-row .pick small {
   display: block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   margin-top: 2px;
   overflow: hidden;
@@ -2940,11 +2916,10 @@ button.pill:hover {
 }
 
 .watch-empty h3 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 1.25rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
 }
 
 .watch-empty p {
@@ -3027,11 +3002,10 @@ button.pill:hover {
 }
 
 .picker-head h2 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 1.7rem;
-  letter-spacing: 0.055em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
@@ -3062,10 +3036,9 @@ button.pill:hover {
   flex: none;
   padding: 6px 11px;
   border-radius: 999px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   transition: color 140ms var(--ease), background 140ms var(--ease);
 }
@@ -3110,16 +3083,16 @@ button.pill:hover {
 }
 
 .picker-results strong {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-weight: 400;
   font-size: 0.98rem;
   line-height: 1.25;
 }
 
 .picker-results small {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.08em;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
@@ -3128,7 +3101,6 @@ button.pill:hover {
      mid-sentence down a narrow strip while the card collapsed around it. */
   grid-column: 1 / -1;
   padding: 26px 4px;
-  font-style: italic;
   color: var(--ink-3);
   font-size: 0.94rem;
 }
@@ -3141,18 +3113,16 @@ button.pill:hover {
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid var(--rule-soft);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
 .picker-foot button {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -3200,19 +3170,18 @@ button.pill:hover {
 
 .tour-count {
   display: block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   margin-bottom: 7px;
 }
 
 .tour-tip h3 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 1.28rem;
-  letter-spacing: 0.03em;
+  letter-spacing: 0;
   line-height: 1.2;
   margin-bottom: 7px;
   padding-right: 20px;
@@ -3266,10 +3235,9 @@ button.pill:hover {
 
 .tour-skip,
 .tour-back {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   padding: 7px 10px;
   border-radius: 999px;
@@ -3282,10 +3250,9 @@ button.pill:hover {
 }
 
 .tour-next {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--paper);
   background: var(--ink);
   padding: 7px 15px;
@@ -3313,7 +3280,7 @@ button.pill:hover {
 
 .tour-invite strong {
   display: block;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-weight: 400;
   font-size: 0.98rem;
   line-height: 1.25;
@@ -3321,18 +3288,16 @@ button.pill:hover {
 
 .tour-invite small {
   display: block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
 .tour-invite .start {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--paper);
   background: var(--ink);
   padding: 8px 15px;
@@ -3363,10 +3328,9 @@ button.pill:hover {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   text-decoration: none;
   margin-bottom: 46px;
@@ -3383,8 +3347,8 @@ button.pill:hover {
 }
 
 .methodology-head {
-  text-align: center;
-  margin-bottom: 54px;
+  text-align: left;
+  margin-bottom: 48px;
 }
 
 .methodology-head .script {
@@ -3395,11 +3359,10 @@ button.pill:hover {
 }
 
 .methodology-head h1 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: clamp(2rem, 5vw, 2.9rem);
-  letter-spacing: 0.055em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   line-height: 1.05;
 }
 
@@ -3408,22 +3371,22 @@ button.pill:hover {
 }
 
 .methodology h2 {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  padding-bottom: 9px;
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  padding-bottom: 8px;
   margin-bottom: 16px;
-  border-bottom: 1px solid var(--rule-soft);
+  border-bottom: 1px solid var(--rule);
 }
 
 .methodology h3 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: 1.18rem;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   margin: 22px 0 6px;
 }
 
@@ -3472,10 +3435,9 @@ button.pill:hover {
 .methodology-foot {
   padding-top: 26px;
   border-top: 1px solid var(--rule-soft);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   line-height: 1.8;
 }
@@ -3534,10 +3496,9 @@ button.pill:hover {
 
 .archive-kind {
   display: block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0;
   color: var(--ink-3);
   margin-bottom: 7px;
 }
@@ -3545,9 +3506,9 @@ button.pill:hover {
 /* A bird headline, not a section label: undo the methodology h2 styling. */
 .archive-finding h2 {
   margin: 0 0 8px;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 24px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.25;
   letter-spacing: 0;
   text-transform: none;
@@ -3571,7 +3532,7 @@ button.pill:hover {
 }
 
 .archive-links a {
-  color: #9d452d;
+  color: var(--accent-strong);
   font-weight: 600;
   text-decoration: none;
 }
@@ -3596,7 +3557,7 @@ button.pill:hover {
 
 .archive-illustration figcaption {
   padding: 7px 11px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--ink-2);
 }
 
@@ -3706,8 +3667,8 @@ button.pill:hover {
   .tab-bar button {
     gap: 5px;
     padding: 0 8px;
-    font-size: 9px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    letter-spacing: 0;
   }
 
   .tab-bar button svg {
@@ -3741,15 +3702,15 @@ button.pill:hover {
   }
 
   .scrubber-foot {
-    font-size: 9px;
+    font-size: 12px;
     gap: 8px;
   }
 
   /* font-size: 0 hid the label outright, leaving the ramp as three unexplained
      dots. Tighten the tracking instead so the meaning survives at 9px. */
   .ramp-key {
-    font-size: 9px;
-    letter-spacing: 0.06em;
+    font-size: 12px;
+    letter-spacing: 0;
     gap: 3px;
   }
 
@@ -3768,7 +3729,7 @@ button.pill:hover {
     height: 76dvh;
     max-height: calc(100dvh - 74px - env(safe-area-inset-bottom, 0px));
     border-radius: 24px;
-    box-shadow: 0 -8px 40px rgba(28, 27, 24, 0.16);
+    box-shadow: 0 -8px 40px rgba(20, 23, 26, 0.16);
     animation: sheet-in 260ms var(--ease);
   }
 
@@ -3802,15 +3763,15 @@ button.pill:hover {
 
 @media (max-width: 520px) {
   .masthead-meta {
-    font-size: 9px;
+    font-size: 12px;
     gap: 6px;
     /* 0.15em tracking pushed this line to a second row on a 375px screen, and
        the header is already the thing squeezing the map. Tighter tracking keeps
        all four facts on one line. */
-    letter-spacing: 0.06em;
+    letter-spacing: 0;
   }
 
-  /* Three lines of serif italic cost ~110px of a 667px phone, and the header
+  /* Three lines of intro copy cost ~110px of a 667px phone, and the header
      was already taking 85% of the screen from the map. Two lines still carry
      the warning itself; the ellipsis signals there is more, and Methodology
      has the full story. */
@@ -4110,24 +4071,22 @@ button.pill:hover {
 }
 
 .app-error-mark {
-  font-family: var(--serif);
-  font-style: italic;
+  font-family: var(--sans);
   font-size: 1.05rem;
   color: var(--ink-4);
 }
 
 .app-error h1 {
-  font-family: var(--serif);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: clamp(1.5rem, 4vw, 2.1rem);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   color: var(--ink);
 }
 
 .app-error p {
   max-width: 46ch;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 1rem;
   line-height: 1.5;
   color: var(--ink-2);

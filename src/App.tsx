@@ -31,7 +31,7 @@ import {
   Search,
   Send,
   Share2,
-  Sparkles,
+  Binoculars,
   Star,
   Feather,
   TrendingUp,
@@ -285,10 +285,9 @@ const TOUR_STEPS: TourStep[] = [
   {
     side: "center",
     title: "Welcome to Flockline",
-    // Says "starting in" rather than a flat claim about coverage: the app
-    // covers all fifty states but opens scoped to one region, and the old copy
-    // promised the whole country while the map showed the Northeast.
-    body: "A live map of where birds are being reported, drawn from eBird checklists. All fifty states are here; you are starting in one region. Here is the 30-second tour."
+    // The map opens nationwide, so the copy no longer says the reader is
+    // starting in one region.
+    body: "A live map of where birds are being reported across all fifty states, drawn from eBird checklists. Here is the 30-second tour."
   },
   {
     target: ".masthead-title",
@@ -1397,7 +1396,7 @@ export default function App() {
       // reading as a second color.
       const marker = L.circleMarker([lat, lng], {
         radius: Math.min(9, 3.2 + Math.sqrt(count) * 1.4),
-        color: "#f4f2ed",
+        color: "#f4f5f5",
         fillColor: color,
         fillOpacity: feature.properties.obsReviewed ? 0.92 : 0.58,
         opacity: 0.9,
@@ -2182,7 +2181,7 @@ export default function App() {
         onClick={() => openDrawer("insights")}
         aria-expanded={drawer === "insights"}
       >
-        <Sparkles />
+        <Binoculars />
         <span className="label">Insights</span>
       </button>
       <button
@@ -2276,7 +2275,7 @@ export default function App() {
                 onClick={startOver}
                 title="Back to the start: all states, no bird"
               >
-                flockline
+                Flockline
               </button>
               <button
                 type="button"
@@ -2544,7 +2543,7 @@ export default function App() {
           </div>
         ) : null}
 
-        {!selectedSpecies && !emptyCardHidden && !drawer ? (
+        {!selectedSpecies && !emptyCardHidden && !drawer && !tourOpen ? (
           <div className="map-empty" role="status">
             {/* Sits over the middle of the map, which is exactly where you want
                 to look once Insights is open. Let it be dismissed; it comes

@@ -29,7 +29,6 @@
   width: 100%;
   padding: 20px;
   border: 1px solid var(--rule);
-  border-top: 3px solid var(--accent);
   border-radius: 14px;
   background: var(--paper-raised);
   text-align: left;
@@ -39,12 +38,11 @@
   align-items: center;
   gap: 7px;
   color: var(--ink-2);
-  font-family: var(--mono);
-  font-size: 10px;
+  font-family: var(--sans);
+  font-size: 12px;
   font-weight: 400;
-  letter-spacing: .08em;
+  letter-spacing: 0;
   line-height: 1.5;
-  text-transform: uppercase;
 }
 .issue-preview-label svg { flex-shrink: 0; color: var(--accent); }
 .issue-preview figure { margin: 16px 0; }
@@ -56,9 +54,9 @@
   border-radius: 8px;
   background: var(--paper);
 }
-.issue-preview figcaption { margin-top: 6px; font: 10px/1.5 var(--mono); color: var(--ink-3); }
-.issue-preview .issue-preview-date { margin: 12px 0 8px; font: 10px/1.5 var(--mono); color: var(--ink-2); }
-.issue-preview .issue-preview-title { margin: 0 0 8px; font: 400 26px/1.15 var(--serif); letter-spacing: 0; text-transform: none; padding: 0; border: 0; color: var(--ink); }
+.issue-preview figcaption { margin-top: 6px; font: 12px/1.5 var(--sans); color: var(--ink-3); }
+.issue-preview .issue-preview-date { margin: 12px 0 8px; font: 12px/1.5 var(--sans); color: var(--ink-2); }
+.issue-preview .issue-preview-title { margin: 0 0 8px; font: 600 24px/1.2 var(--sans); letter-spacing: -0.02em; text-transform: none; padding: 0; border: 0; color: var(--ink); }
 .issue-preview .issue-preview-location { margin: 0 0 10px; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
 .issue-preview .issue-preview-more { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
 .issue-preview .issue-preview-link {
@@ -70,7 +68,7 @@
   padding-top: 8px;
   border-top: 1px solid var(--rule);
   color: var(--accent);
-  font: 500 13px/1.5 var(--mono);
+  font: 500 14px/1.5 var(--sans);
   text-decoration: none;
 }
 .issue-preview .issue-preview-link:hover { color: var(--ink); }
@@ -80,7 +78,7 @@
 .issue-preview-compact .issue-preview-body { display: flex; align-items: center; gap: 14px; margin: 12px 0; }
 .issue-preview-compact figure { width: 100px; flex-shrink: 0; margin: 0; }
 .issue-preview-compact img { height: 100px; }
-.issue-preview-compact figcaption { font-size: 9px; }
+.issue-preview-compact figcaption { font-size: 12px; }
 .issue-preview-compact .issue-preview-title { font-size: 21px; }
 .issue-preview-compact .issue-preview-date { margin-top: 0; }
 .issue-preview-compact .issue-preview-location { font-size: 13px; margin-bottom: 0; }
@@ -96,7 +94,6 @@
   margin-top: 0;
   padding: 18px;
   border: 1px solid var(--rule);
-  border-top: 3px solid var(--accent);
   border-radius: 12px;
   background: var(--paper-raised);
 }
@@ -112,8 +109,8 @@
   color: var(--accent);
 }
 .insight-digest-invitation svg { flex-shrink: 0; }
-.insight-digest-invitation strong { display: block; color: var(--ink); font: 500 17px/1.3 var(--serif); }
-.insight-digest-invitation small { display: block; margin-top: 5px; color: var(--accent); font: 11px/1.5 var(--mono); }
+.insight-digest-invitation strong { display: block; color: var(--ink); font: 600 16px/1.35 var(--sans); }
+.insight-digest-invitation small { display: block; margin-top: 5px; color: var(--accent); font: 13px/1.5 var(--sans); }
 .insight-digest-invitation:hover small { text-decoration: underline; text-underline-offset: 3px; }
 .archive-page .insight-digest-invitation { text-decoration: none; }
 .digest-signup:not(.digest-header) { border-color: color-mix(in srgb, var(--accent) 35%, var(--rule)); }
@@ -124,10 +121,10 @@
 .newsletter-page .methodology-inner { max-width: 1000px; padding-top: 32px; }
 .newsletter-page .methodology-head { margin-bottom: 18px; }
 .newsletter-page .newsletter-lede { max-width: 660px; margin-bottom: 14px; }
-.newsletter-page .newsletter-promise { color: var(--accent); font: 11px/1.8 var(--mono); margin-bottom: 28px; }
+.newsletter-page .newsletter-promise { color: var(--accent); font: 500 14px/1.6 var(--sans); margin-bottom: 28px; }
 .newsletter-showcase { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 28px; margin-bottom: 44px; }
 .newsletter-edition { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-.newsletter-edition select { min-width: 0; max-width: 55%; min-height: 44px; padding: 0 8px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper-raised); font: 13px var(--mono); }
+.newsletter-edition select { min-width: 0; max-width: 55%; min-height: 44px; padding: 0 8px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper-raised); font: 13px var(--sans); }
 .newsletter-form { scroll-margin-top: 20px; }
 .newsletter-form .digest-signup { margin-bottom: 0; }
 .newsletter-form .digest-signup form { padding: 24px; gap: 16px; }
@@ -140,7 +137,7 @@
 
 @media (max-width: 700px) {
   .newsletter-showcase { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-  .newsletter-page .newsletter-jump { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--accent); color: #fff; font: 12px var(--mono); text-decoration: none; margin-bottom: 28px; }
+  .newsletter-page .newsletter-jump { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--accent); color: #fff; font: 12px var(--sans); text-decoration: none; margin-bottom: 28px; }
   .newsletter-page .newsletter-promise { margin-bottom: 14px; }
   .newsletter-page .methodology-head h1 { font-size: clamp(28px, 7vw, 40px); }
   .newsletter-form .digest-signup form { padding: 18px; }
@@ -156,5 +153,5 @@
   .newsletter-sample .issue-preview-body, .issue-preview-compact .issue-preview-body { gap: 10px; }
   .newsletter-sample .issue-preview figure, .issue-preview-compact figure { width: 72px; }
   .newsletter-sample .issue-preview img, .issue-preview-compact img { height: 80px; }
-  .issue-preview .issue-preview-link { font-size: 11px; }
+  .issue-preview .issue-preview-link { font-size: 12px; }
 }

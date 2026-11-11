@@ -13,9 +13,9 @@
   margin: 0;
 }
 .sighting-head h1 {
-  font-family: var(--font-serif, Georgia, serif);
+  font-family: var(--sans);
   font-size: clamp(38px, 6vw, 64px);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.06;
   margin: 12px 0 8px;
   letter-spacing: -1.6px;
@@ -23,7 +23,7 @@
 .sighting-page .sighting-scientific {
   font-style: italic;
   font-size: 19px;
-  color: #78776e;
+  color: var(--ink-3);
   margin: 0 0 16px;
 }
 .sighting-page .sighting-location {
@@ -35,11 +35,13 @@
 .sighting-page .sighting-byline {
   font-size: 13px;
   line-height: 1.7;
-  color: #78776e;
+  color: var(--ink-3);
 }
 .sighting-scope {
-  border-left: 3px solid #384c3e;
-  padding: 4px 0 4px 16px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper-raised);
+  padding: 12px 16px;
   margin: 20px 0 16px;
   font-size: 14px;
 }
@@ -50,20 +52,19 @@
   margin: 6px 0 0;
   font-size: 13px;
   line-height: 1.6;
-  color: #60655b;
+  color: var(--ink-3);
 }
 .sighting-page .sighting-photos {
   margin: 24px 0;
-  background: #ebe9e2;
-  border: 1px solid #d8d6cc;
+  background: var(--paper-sunk);
+  border: 1px solid var(--rule-strong);
   border-radius: 8px;
   overflow: hidden;
 }
 .sighting-photo-label {
   padding: 13px 18px;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
-  font-size: 11px;
+  letter-spacing: 0;
+  font-size: 13px;
 }
 .sighting-photos iframe {
   display: block;
@@ -74,7 +75,7 @@
   /* Cornell caps the photo at 460px and supplies a 552px large embed. Scaling
      its full height with our wider article added blank space below the credit. */
   max-height: 552px;
-  background: #f4f3ed;
+  background: var(--paper);
 }
 .sighting-page .sighting-photo-credit,
 .sighting-page .sighting-photo-context {
@@ -87,7 +88,7 @@
 }
 .sighting-page .sighting-photo-context {
   margin: 0 0 16px;
-  color: #67695f;
+  color: var(--ink-3);
 }
 .sighting-photo-picker {
   display: flex;
@@ -97,7 +98,7 @@
 }
 .sighting-photo-picker button[aria-pressed="true"] {
   color: white;
-  background: #384c3e;
+  background: var(--ink);
 }
 .sighting-page .sighting-illustration {
   margin: 32px 0;
@@ -107,7 +108,7 @@
   object-fit: contain;
 }
 .sighting-page .sighting-notes {
-  border-block: 1px solid #d8d6cc;
+  border-block: 1px solid var(--rule-strong);
   padding: 22px 0;
   margin-top: 24px;
 }
@@ -115,14 +116,14 @@
   margin: 15px 0 0;
 }
 .sighting-notes blockquote p {
-  font-family: Georgia, serif;
+  font-family: var(--sans);
   font-size: clamp(23px, 4vw, 31px);
   line-height: 1.45;
-  color: #384c3e;
+  color: var(--ink);
 }
 .sighting-notes blockquote footer {
   font-size: 13px;
-  color: #78776e;
+  color: var(--ink-3);
 }
 .sighting-notes a {
   display: inline-flex;
@@ -131,18 +132,18 @@
 }
 .sighting-checklist-details {
   margin: 0 0 24px;
-  border-bottom: 1px solid #d8d6cc;
+  border-bottom: 1px solid var(--rule-strong);
   padding-bottom: 16px;
 }
 .sighting-checklist-details summary {
   padding: 12px 0;
   cursor: pointer;
-  color: #384c3e;
+  color: var(--ink);
   font-size: 15px;
   font-weight: 600;
 }
 .sighting-checklist-details summary:focus-visible {
-  outline: 2px solid #384c3e;
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 .sighting-facts {
@@ -151,21 +152,20 @@
   gap: 24px 28px;
 }
 .sighting-facts dt {
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: #78776e;
-  font-size: 10px;
+  letter-spacing: 0;
+  color: var(--ink-3);
+  font-size: 12px;
   margin-bottom: 7px;
 }
 .sighting-facts dd {
   margin: 0;
   font-size: 18px;
-  color: #303d31;
+  color: var(--ink);
 }
 .sighting-page .sighting-small {
   font-size: 13px;
   line-height: 1.7;
-  color: #78776e;
+  color: var(--ink-3);
 }
 .sighting-actions {
   display: flex;
@@ -182,31 +182,31 @@
   gap: 9px;
   min-height: 46px;
   padding: 11px 18px;
-  border: 1px solid #a7aea4;
+  border: 1px solid var(--rule-strong);
   border-radius: 8px;
-  color: #384c3e;
-  font-family: Arial, sans-serif;
+  color: var(--ink);
+  font-family: var(--sans);
   font-size: 14px;
   font-weight: 600;
   line-height: 1.4;
   text-decoration: none;
 }
 .sighting-page .sighting-action:hover {
-  background: #e7eae3;
-  border-color: #384c3e;
+  background: var(--paper-sunk);
+  border-color: var(--ink);
   text-decoration: none;
 }
 .sighting-page .sighting-action:focus-visible {
-  outline: 2px solid #384c3e;
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 .sighting-page .sighting-action-primary {
-  background: #384c3e;
-  border-color: #384c3e;
+  background: var(--ink);
+  border-color: var(--ink);
   color: #fff;
 }
 .sighting-page .sighting-action-primary:hover {
-  background: #283d30;
+  background: var(--ink);
   color: #fff;
 }
 .insight-card h3 a,
@@ -242,7 +242,7 @@
   align-items: center;
   min-height: 38px;
   margin-top: 7px;
-  color: #384c3e;
+  color: var(--ink);
   font-size: 13px;
   font-weight: 600;
   text-underline-offset: 3px;
@@ -252,20 +252,20 @@
 .sighting-reporting {
   margin: 24px 0;
   padding: 20px;
-  border: 1px solid #d8d6cc;
+  border: 1px solid var(--rule-strong);
   border-radius: 8px;
-  background: #eeede6;
+  background: var(--paper-sunk);
 }
 .sighting-page .sighting-reporting h2 {
   margin: 12px 0 5px;
   font-size: clamp(24px, 4vw, 32px);
-  font-family: var(--font-serif, Georgia, serif);
+  font-family: var(--sans);
   text-transform: none;
   letter-spacing: normal;
   border: 0;
   padding: 0;
-  font-weight: 400;
-  color: #384c3e;
+  font-weight: 600;
+  color: var(--ink);
 }
 .sighting-page .sighting-reporting-total {
   margin: 0 0 12px;
@@ -274,17 +274,17 @@
 }
 .sighting-page .sighting-reporting .sighting-small {
   margin: 8px 0;
-  color: #60655b;
+  color: var(--ink-3);
 }
 .sighting-report-list summary {
   cursor: pointer;
   padding: 12px 0 4px;
-  color: #384c3e;
+  color: var(--ink);
   font-size: 14px;
   font-weight: 600;
 }
 .sighting-report-list summary:focus-visible {
-  outline: 2px solid #384c3e;
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 .sighting-report-list ul {
@@ -295,7 +295,7 @@
   overflow-y: auto;
 }
 .sighting-report-list li {
-  border-top: 1px solid #d8d6cc;
+  border-top: 1px solid var(--rule-strong);
   padding: 12px 0;
 }
 .sighting-page .sighting-report-list a {
@@ -304,7 +304,7 @@
   gap: 8px;
   font-size: 15px;
   line-height: 1.5;
-  color: #384c3e;
+  color: var(--ink);
   text-decoration: none;
   overflow-wrap: anywhere;
 }
@@ -314,12 +314,12 @@
   margin-top: 4px;
   font-size: 12px;
   line-height: 1.6;
-  color: #60655b;
+  color: var(--ink-3);
 }
 
 /* The source and "may not still be present" caveat must be readable. */
 .sighting-page .methodology-foot p {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 13px;
   letter-spacing: 0;
   text-transform: none;

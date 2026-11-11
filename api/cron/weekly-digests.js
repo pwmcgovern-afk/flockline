@@ -25,6 +25,14 @@ export function isWeeklyDigestDeliveryTime(now = new Date()) {
   return parts.weekday === "Mon" && parts.hour === "10";
 }
 
+// Delivery runs four times across the hour (:00, :15, :30, :45, plus a small
+// per-region offset). The first two attempts wait for complete artwork. The
+// last two send with whatever art exists, so an image outage cannot cancel
+// the week and one missed or busy attempt still leaves another.
+export function isFinalDigestAttempt(now = new Date()) {
+  return isWeeklyDigestDeliveryTime(now) && now.getUTCMinutes() >= 30;
+}
+
 export default async function handler(request, response) {
   response.setHeader("Cache-Control", "no-store");
   if (request.method !== "GET") {
@@ -64,12 +72,18 @@ export default async function handler(request, response) {
   console.info(JSON.stringify({ event: "weekly_digest_started", region: region.id, mode }));
   try {
     const result = await runDigestEdition({
-      configuration, region, date: new Date().toISOString().slice(0, 10), checkOnly: mode === "check"
+      configuration, region, date: new Date().toISOString().slice(0, 10), checkOnly: mode === "check",
+      allowPartialArtwork: mode === "send" && isFinalDigestAttempt()
     });
     // Return the operational receipt, not the full saved edition.
     const { roundup: _roundup, ...receipt } = result;
     console.info(JSON.stringify({ event: "weekly_digest_completed", mode, durationMs: Date.now() - startedAt, ...receipt }));
     const ok = result.status !== "awaiting_illustrations";
+    // A lease still held during the fallback window means this attempt did
+    // nothing. Say so: a quiet 200 here is how a missed week goes unnoticed.
+    if (mode === "send" && result.status === "busy" && isFinalDigestAttempt()) {
+      console.error(JSON.stringify({ event: "weekly_digest_final_attempt_busy", region: region.id }));
+    }
     response.status(ok ? 200 : 503).json({ ok, ...receipt });
   } catch (error) {
     console.error(JSON.stringify({ event: "weekly_digest_failed", region: region.id, mode, message: error?.message }));
