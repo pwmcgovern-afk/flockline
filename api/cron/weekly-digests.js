@@ -26,10 +26,11 @@ export function isWeeklyDigestDeliveryTime(now = new Date()) {
 }
 
 // Delivery runs four times across the hour (:00, :15, :30, :45, plus a small
-// per-region offset). Earlier attempts wait for complete artwork; the last one
-// sends with whatever art exists so an image outage cannot cancel the week.
+// per-region offset). The first two attempts wait for complete artwork. The
+// last two send with whatever art exists, so an image outage cannot cancel
+// the week and one missed or busy attempt still leaves another.
 export function isFinalDigestAttempt(now = new Date()) {
-  return isWeeklyDigestDeliveryTime(now) && now.getUTCMinutes() >= 45;
+  return isWeeklyDigestDeliveryTime(now) && now.getUTCMinutes() >= 30;
 }
 
 export default async function handler(request, response) {
@@ -78,8 +79,10 @@ export default async function handler(request, response) {
     const { roundup: _roundup, ...receipt } = result;
     console.info(JSON.stringify({ event: "weekly_digest_completed", mode, durationMs: Date.now() - startedAt, ...receipt }));
     const ok = result.status !== "awaiting_illustrations";
-    if (!ok && mode === "send") {
-      console.error(JSON.stringify({ event: "weekly_digest_waiting_for_artwork", region: region.id, unresolved: result.unresolved }));
+    // A lease still held during the fallback window means this attempt did
+    // nothing. Say so: a quiet 200 here is how a missed week goes unnoticed.
+    if (mode === "send" && result.status === "busy" && isFinalDigestAttempt()) {
+      console.error(JSON.stringify({ event: "weekly_digest_final_attempt_busy", region: region.id }));
     }
     response.status(ok ? 200 : 503).json({ ok, ...receipt });
   } catch (error) {

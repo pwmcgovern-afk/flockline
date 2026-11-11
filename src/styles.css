@@ -158,8 +158,8 @@ p {
 
 /* --------------------------------------------------------------------------
    Type primitives
-   Every label, number, and control in the product uses the mono voice. Every
-   headline uses the serif. There is no third voice.
+   One sans family throughout. Labels and controls sit at 12 to 13px medium,
+   headlines at semibold with slightly tight tracking.
    -------------------------------------------------------------------------- */
 
 .mono-label {
@@ -183,8 +183,9 @@ p {
   text-transform: uppercase;
 }
 
-/* Panels that only receive programmatic focus do not need a ring. */
-[tabindex="-1"]:focus-visible {
+/* The drawer receives programmatic focus when it opens; a ring around the
+   whole panel reads as a stray accent edge. Controls inside keep theirs. */
+.drawer:focus-visible {
   outline: none;
 }
 
@@ -3770,7 +3771,7 @@ button.pill:hover {
     letter-spacing: 0;
   }
 
-  /* Three lines of serif italic cost ~110px of a 667px phone, and the header
+  /* Three lines of intro copy cost ~110px of a 667px phone, and the header
      was already taking 85% of the screen from the map. Two lines still carry
      the warning itself; the ellipsis signals there is more, and Methodology
      has the full story. */

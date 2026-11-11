@@ -23,8 +23,9 @@ describe("weekly digest delivery time", () => {
     expect(isWeeklyDigestDeliveryTime(new Date("2026-01-05T15:04:00.000Z"))).toBe(true);
   });
 
-  it("treats only the last quarter of the delivery hour as the final attempt", () => {
-    expect(isFinalDigestAttempt(new Date("2026-08-31T14:31:00.000Z"))).toBe(false);
+  it("treats the second half of the delivery hour as the fallback window", () => {
+    expect(isFinalDigestAttempt(new Date("2026-08-31T14:16:00.000Z"))).toBe(false);
+    expect(isFinalDigestAttempt(new Date("2026-08-31T14:31:00.000Z"))).toBe(true);
     expect(isFinalDigestAttempt(new Date("2026-08-31T14:46:00.000Z"))).toBe(true);
     expect(isFinalDigestAttempt(new Date("2026-01-05T15:49:00.000Z"))).toBe(true);
     expect(isFinalDigestAttempt(new Date("2026-01-05T14:49:00.000Z"))).toBe(false);
