@@ -62,7 +62,7 @@
     },
     {
       "path": "/api/cron/digest-alert",
-      "schedule": "15 16 * * 1"
+      "schedule": "15 16,17 * * 1"
     }
   ],
   "functions": {
