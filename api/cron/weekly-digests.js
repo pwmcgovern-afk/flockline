@@ -25,6 +25,13 @@ export function isWeeklyDigestDeliveryTime(now = new Date()) {
   return parts.weekday === "Mon" && parts.hour === "10";
 }
 
+// Delivery runs four times across the hour (:00, :15, :30, :45, plus a small
+// per-region offset). Earlier attempts wait for complete artwork; the last one
+// sends with whatever art exists so an image outage cannot cancel the week.
+export function isFinalDigestAttempt(now = new Date()) {
+  return isWeeklyDigestDeliveryTime(now) && now.getUTCMinutes() >= 45;
+}
+
 export default async function handler(request, response) {
   response.setHeader("Cache-Control", "no-store");
   if (request.method !== "GET") {
@@ -64,12 +71,16 @@ export default async function handler(request, response) {
   console.info(JSON.stringify({ event: "weekly_digest_started", region: region.id, mode }));
   try {
     const result = await runDigestEdition({
-      configuration, region, date: new Date().toISOString().slice(0, 10), checkOnly: mode === "check"
+      configuration, region, date: new Date().toISOString().slice(0, 10), checkOnly: mode === "check",
+      allowPartialArtwork: mode === "send" && isFinalDigestAttempt()
     });
     // Return the operational receipt, not the full saved edition.
     const { roundup: _roundup, ...receipt } = result;
     console.info(JSON.stringify({ event: "weekly_digest_completed", mode, durationMs: Date.now() - startedAt, ...receipt }));
     const ok = result.status !== "awaiting_illustrations";
+    if (!ok && mode === "send") {
+      console.error(JSON.stringify({ event: "weekly_digest_waiting_for_artwork", region: region.id, unresolved: result.unresolved }));
+    }
     response.status(ok ? 200 : 503).json({ ok, ...receipt });
   } catch (error) {
     console.error(JSON.stringify({ event: "weekly_digest_failed", region: region.id, mode, message: error?.message }));

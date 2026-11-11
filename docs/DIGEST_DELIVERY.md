@@ -8,6 +8,17 @@ Confirmed weaknesses were a minute-only time gate (fixed in PR #46), serial proc
 
 The August 31 edition cannot be faithfully reconstructed from today's rolling eBird feed. Do not publish today's observations under an August 31 date or send a catch-up edition without Pat's explicit instruction.
 
+## November 2026 outage: retired image model
+
+No digest was sent on October 26, November 2, or November 9. The delivery receipts for all five regions ended each Monday as `awaiting_illustrations`. The single pinned image model, `openai/gpt-image-1`, was no longer in the AI Gateway model list, so every generation request failed and delivery kept waiting for artwork that could not arrive. Vercel logs were past retention, so the exact gateway response was not recovered; the model list and the receipts are the evidence.
+
+Two changes prevent a repeat:
+
+- Illustration generation tries an ordered list of models (`ILLUSTRATION_MODEL` if set, then `openai/gpt-image-1.5`, `openai/gpt-image-2`, `openai/gpt-image-1-mini`). A 400, 404, or 422 moves to the next model. Authentication, credit, rate-limit, and server errors do not, because they would fail the same way on every model.
+- The last delivery attempt of the hour (minute 45 or later) sends with whatever artwork exists. Birds without a drawing render as text-only cards in the email and the web archive, and the receipt records `partialArtwork: true`. Earlier attempts still wait for complete artwork.
+
+The three missed editions were not sent late or reconstructed. Their saved snapshots remain in `digest-delivery/`.
+
 ## Editorial policy
 
 Insights and roundups use `source-facts-v1`: deterministic selection by recency and geographic variety, followed by templates populated from the source's species, location, date, and count. No LLM writes or selects digest findings. eBird notable flags are local and date-specific, not a ranking of biological rarity or evidence of movement. Available source review status is preserved; missing status is labeled unavailable. Ask remains generative and can make mistakes. Illustration generation is unchanged.
@@ -22,7 +33,7 @@ The archive API and server renderer correct legacy web descriptions on read from
 - Every delivery acquires a conditional Blob lease that outlasts the 300-second function but expires before the next retry.
 - The first attempt saves a fixed roundup and archive. It creates a draft, saves the broadcast ID, then sends that ID. Retries reconcile provider state before sending, including after a lost create/send response. They never intentionally create another campaign for the same named edition.
 - A region with no subscribed recipients still gets an archive issue and a `no_recipients` receipt. It does not create an orphan draft. Failed recipient lookups remain failures.
-- An edition with missing artwork stays `awaiting_illustrations` and is not archived or sent. Preparation continues during the delivery hour so a later delivery retry can send once every bird has art. This also applies to empty-audience archive editions. The no-send check reports missing species instead of claiming readiness, and both handlers return HTTP 503 for incomplete art. Delivery only reads cached art; it never waits on image generation. If generation remains unavailable, delivery stays pending and requires repair rather than sending partial artwork. Digest prose uses templates and has no model timeout or fallback path; image field-mark generation retains its 10-second timeout.
+- An edition with missing artwork stays `awaiting_illustrations` and is not archived or sent until the final attempt of the hour, which sends with text-only cards for the missing birds (see the November 2026 outage above). Preparation continues during the delivery hour so a later delivery retry can send once every bird has art. This also applies to empty-audience archive editions. The no-send check reports missing species instead of claiming readiness, and both handlers return HTTP 503 for incomplete art. Delivery only reads cached art; it never waits on image generation. If generation remains unavailable, delivery stays pending and requires repair rather than sending partial artwork. Digest prose uses templates and has no model timeout or fallback path; image field-mark generation retains its 10-second timeout.
 
 ## Verify a Monday run
 

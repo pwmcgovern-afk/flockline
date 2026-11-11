@@ -33,7 +33,7 @@ export default function MobileMapHeader(props: Props) {
     <div className="mobile-header">
       <div className="mobile-brand-row">
         <button className="masthead-eyebrow" type="button" onClick={props.onHome} aria-label="Flockline home">
-          flockline
+          Flockline
         </button>
         <DigestSignup variant="header" defaultRegionId={props.digestRegionId} />
         <button id="map-controls" className="icon-btn menu-pill" type="button" onClick={props.onFilters} aria-label="States and filters" aria-expanded={props.filtersOpen}>

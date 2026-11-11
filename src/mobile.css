@@ -37,7 +37,7 @@
     gap: 8px;
     text-align: left;
     font-size: 21px;
-    letter-spacing: 0.025em;
+    letter-spacing: 0;
     line-height: 1.15;
     border: 1px solid var(--rule);
     border-radius: 12px;
@@ -57,10 +57,10 @@
     border-radius: 10px;
     padding: 0 8px;
     background: var(--paper-raised);
-    font-family: var(--mono);
+    font-family: var(--sans);
     font-size: 16px;
   }
-  .mobile-header .masthead-meta { justify-content: space-between; gap: 4px 8px; font-size: 10px; letter-spacing: 0; margin-top: 6px; }
+  .mobile-header .masthead-meta { justify-content: space-between; gap: 4px 8px; font-size: 12px; letter-spacing: 0; margin-top: 6px; }
   .mobile-data-note { font-size: 12px; color: var(--ink-2); margin-top: 4px; }
   .mobile-data-note summary { padding: 6px 0; cursor: pointer; }
   .mobile-data-note p { padding-bottom: 6px; }
@@ -92,7 +92,7 @@
     justify-content: center;
     gap: 4px;
     border-radius: 12px;
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0;
   }
 
@@ -110,7 +110,7 @@
   }
 
   .timeline-toggle span { display: flex; flex-direction: column; gap: 2px; }
-  .timeline-toggle strong { font-family: var(--mono); font-size: 11px; font-weight: 500; }
+  .timeline-toggle strong { font-family: var(--sans); font-size: 12px; font-weight: 500; }
   .timeline-toggle small { font-size: 14px; color: var(--ink-2); }
   .timeline-toggle svg { width: 18px; height: 18px; }
   .expanded .timeline-toggle svg { transform: rotate(180deg); }
@@ -137,7 +137,7 @@
   .day-rail::-webkit-slider-thumb { width: 24px; height: 24px; }
   .day-rail::-moz-range-thumb { width: 24px; height: 24px; }
   .scrubber-foot { flex-wrap: wrap; letter-spacing: 0; gap: 6px; }
-  .ramp-key { font-size: 9px; letter-spacing: 0; }
+  .ramp-key { font-size: 12px; letter-spacing: 0; }
 
   .drawer {
     inset: max(8px, env(safe-area-inset-top, 0px)) env(safe-area-inset-right, 0px) var(--mobile-nav-height) env(safe-area-inset-left, 0px);
@@ -153,7 +153,7 @@
   .drawer-head h2 { font-size: 22px; }
   .drawer-kicker { display: none; }
   .drawer-body { min-height: 0; padding: 16px; gap: 20px; overscroll-behavior: contain; }
-  .drawer-foot { flex: none; padding: 8px 16px; font-size: 9px; }
+  .drawer-foot { flex: none; padding: 8px 16px; font-size: 12px; }
   .icon-btn { width: 44px; height: 44px; }
   .chips button, .scope-select { min-height: 44px; }
   .scope-select, .search input, .chat-composer input { font-size: 16px; }

@@ -29,7 +29,7 @@ export default class ErrorBoundary extends Component<Props, State> {
     }
     return (
       <div className="app-error" role="alert">
-        <span className="app-error-mark">flockline</span>
+        <span className="app-error-mark">Flockline</span>
         <h1>Something went wrong.</h1>
         <p>
           The map hit an error it could not recover from. Reloading usually clears it. If it keeps
