@@ -59,6 +59,10 @@
     {
       "path": "/api/cron/weekly-digests?region=west",
       "schedule": "4,19,34,49 14,15 * * 1"
+    },
+    {
+      "path": "/api/cron/digest-alert",
+      "schedule": "15 16 * * 1"
     }
   ],
   "functions": {
