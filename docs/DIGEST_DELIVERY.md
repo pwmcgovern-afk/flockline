@@ -23,6 +23,10 @@ The three missed editions were not sent late or reconstructed. Their saved snaps
 
 `api/cron/digest-alert.js` runs at 16:15 UTC every Monday (retried at 17:15), after the delivery hour in both daylight-saving and standard time. It reads the five delivery receipts. If every region is `sent` or `no_recipients` with full artwork, it does nothing. Otherwise it emails `DIGEST_ALERT_EMAIL` (a production environment variable) once, listing each region that was held, failed, never ran, is still `submitted` in Resend, or went out (or was archived) with missing artwork. A `digest-alert/YYYY-MM-DD.json` record (no address) prevents a second alert for the same Monday. To check an earlier Monday by hand, run the job from Vercel with `?date=YYYY-MM-DD`.
 
+## Archive recovery
+
+`api/cron/archive-recovery.js` runs at 17:30 UTC every Monday, after the alert job. For each of the previous eight Mondays and each region, it looks for an edition that was saved but never published to the web archive (for example, one held for missing artwork). It draws any missing birds, then publishes the page through the same checks as `scripts/repair-missing-digest-archive.mjs`: same birds, checklists and observations as the saved snapshot, complete artwork, never replacing an existing page, never sending email. Editions that still lack artwork wait for the next run. The outcome of the last run is in the public Blob record `digest-archive-recovery/last.json`. It can be triggered again from the Vercel dashboard at any time.
+
 ## Editorial policy
 
 Insights and roundups use `source-facts-v1`: deterministic selection by recency and geographic variety, followed by templates populated from the source's species, location, date, and count. No LLM writes or selects digest findings. eBird notable flags are local and date-specific, not a ranking of biological rarity or evidence of movement. Available source review status is preserved; missing status is labeled unavailable. Ask remains generative and can make mistakes. Illustration generation still uses an image model for the plates only.

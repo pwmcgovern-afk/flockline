@@ -63,6 +63,10 @@
     {
       "path": "/api/cron/digest-alert",
       "schedule": "15 16,17 * * 1"
+    },
+    {
+      "path": "/api/cron/archive-recovery",
+      "schedule": "30 17 * * 1"
     }
   ],
   "functions": {
