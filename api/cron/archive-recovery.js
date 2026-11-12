@@ -7,7 +7,9 @@ import { DIGEST_REGIONS } from "../../shared/digestRegions.js";
 export const config = { maxDuration: 300 };
 
 const WEEKS_BACK = 8;
-const TIME_BUDGET_MS = 220_000;
+// Leave room for one slow edition (artwork can take ~2 minutes) before the
+// 300 s limit, so the summary record is always written.
+const TIME_BUDGET_MS = 120_000;
 
 // Mondays strictly before today (UTC), newest first.
 export function recentPastMondays(now = new Date(), weeks = WEEKS_BACK) {
@@ -49,9 +51,15 @@ export default async function handler(request, response) {
     ...process.env,
     VERCEL_OIDC_TOKEN: request.headers["x-vercel-oidc-token"] || process.env.VERCEL_OIDC_TOKEN
   };
-  const archived = new Set((await listArchivedRoundups()).map(({ scopeId, date }) => `${scopeId}/${date}`));
   const results = [];
-  for (const date of recentPastMondays()) {
+  let archived;
+  try {
+    archived = new Set((await listArchivedRoundups()).map(({ scopeId, date }) => `${scopeId}/${date}`));
+  } catch (error) {
+    results.push({ status: "failed", reason: `Archive listing failed: ${String(error?.message || "error").slice(0, 120)}` });
+    archived = null;
+  }
+  for (const date of archived ? recentPastMondays() : []) {
     for (const region of DIGEST_REGIONS) {
       if (archived.has(`${region.id}/${date}`)) continue;
       if (Date.now() - startedAt > TIME_BUDGET_MS) {
