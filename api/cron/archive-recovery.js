@@ -1,6 +1,6 @@
 import { put } from "@vercel/blob";
 import { addBirdIllustrations } from "../../lib/birdIllustrations.js";
-import { repairMissingDigestArchive } from "../../lib/digestArchiveRepair.js";
+import { digestDeliveryHourOver, repairMissingDigestArchive } from "../../lib/digestArchiveRepair.js";
 import { archiveConfigured, listArchivedRoundups } from "../../lib/roundupArchive.js";
 import { DIGEST_REGIONS } from "../../shared/digestRegions.js";
 
@@ -11,11 +11,13 @@ const WEEKS_BACK = 8;
 // 300 s limit, so the summary record is always written.
 const TIME_BUDGET_MS = 120_000;
 
-// Mondays strictly before today (UTC), newest first.
+// Recent Mondays (UTC), newest first. Today counts once its delivery hour is
+// over, so an edition held this morning is published the same afternoon.
 export function recentPastMondays(now = new Date(), weeks = WEEKS_BACK) {
   const day = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   const sinceMonday = (day.getUTCDay() + 6) % 7;
-  day.setUTCDate(day.getUTCDate() - (sinceMonday === 0 ? 7 : sinceMonday));
+  const includeToday = sinceMonday === 0 && digestDeliveryHourOver(now);
+  day.setUTCDate(day.getUTCDate() - (sinceMonday === 0 ? (includeToday ? 0 : 7) : sinceMonday));
   return Array.from({ length: weeks }, (_, index) => {
     const monday = new Date(day);
     monday.setUTCDate(day.getUTCDate() - index * 7);

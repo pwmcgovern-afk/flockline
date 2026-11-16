@@ -19,6 +19,19 @@ Two changes prevent a repeat:
 
 The three missed editions were not sent late or reconstructed. Their saved snapshots remain in `digest-delivery/`.
 
+## November 16, 2026: stale lease reads and a regressed empty-audience receipt
+
+The alert reported Nationwide `failed` and South `prepared`. Neither region has any subscribers (both 13:4x UTC checks recorded `hasRecipients: false`), so no reader missed an email. The web archive for South was missing.
+
+- **Nationwide** finished correctly at 15:30 UTC as `no_recipients`. The 15:45 retry re-checked the audience (intended, so a new subscriber still gets the issue), the Resend lookup failed with a network error (`fetch failed`), and the catch-all overwrote the finished receipt with `failed`. A failed re-check now keeps a finished `no_recipients` edition and records the error under `failure`.
+- **South** never got past the lease. Its receipt had `leaseUntil: 0` from 15:08 UTC on, yet every delivery attempt (15:03, 15:18, 15:33, 15:48) and several preparation attempts returned `busy` within about 100 ms. The receipt's `attempts` count stopped at 3, so those attempts never wrote. Public Blob reads go through the CDN: `get(..., { useCache: false })` only bypasses the cache for private stores, and query strings are not part of the cache key (verified November 16). A read that returns an older version carries an older ETag, and the conditional write that takes the lease then fails as a precondition error, which the code reported as `busy`. This is the most likely cause; the old code did not record which branch returned `busy`, so it is not proven. Earlier receipts that ended `prepared` without an archive (Midwest October 12, among others) fit the same signature.
+
+Changes:
+
+- `createDigestStore().read` compares the CDN copy's ETag with `head()`, which asks the Blob API directly and is never cached. A mismatched (or cached-404) copy is re-read with backoff (1, 2, 4, 8 s) and is never written back. If it stays stale the lease returns `busy` with `reason: "stale_read"`.
+- Lease acquisition retries once after a write conflict, and every `busy` carries a `reason`: `lease_held` (with the holder's `leaseOperation`), `write_conflict`, or `stale_read`. The final-attempt busy log includes it.
+- Archive recovery includes today once the Eastern delivery hour is over (11:00 a.m. Eastern), so an edition held on Monday morning is published at 17:30 UTC the same day instead of a week later. The same rule applies to `scripts/repair-missing-digest-archive.mjs`.
+
 ## Failure alert
 
 `api/cron/digest-alert.js` runs at 16:15 UTC every Monday (retried at 17:15), after the delivery hour in both daylight-saving and standard time. It reads the five delivery receipts. If every region is `sent` or `no_recipients` with full artwork, it does nothing. Otherwise it emails `DIGEST_ALERT_EMAIL` (a production environment variable) once, listing each region that was held, failed, never ran, is still `submitted` in Resend, or went out (or was archived) with missing artwork. A `digest-alert/YYYY-MM-DD.json` record (no address) prevents a second alert for the same Monday. To check an earlier Monday by hand, run the job from Vercel with `?date=YYYY-MM-DD`.
@@ -51,7 +64,7 @@ The archive API and server renderer correct legacy web descriptions on read from
 4. Open the saved broadcast ID in Resend, verify its recipient delivery metrics, and confirm the corresponding message in Pat's inbox. `sent` is provider acceptance/completion, not proof that every recipient received it.
 5. A retry during Monday's delivery hour resumes the saved broadcast. Do not create a replacement campaign when an earlier request had an uncertain result. Outside the delivery hour, the route skips sends.
 
-Records live at `digest-delivery/YYYY-MM-DD/REGION.json` and `digest-check/YYYY-MM-DD/REGION.json` in the existing Blob store. Preparation and delivery persist the attempt operation, start time, and last phase before external work. Failures record the operation, phase, time, and a sanitized HTTP/timeout/general failure code. A later successful retry retains the last failure for diagnosis; inspect it alongside the current status. Receipts contain no recipient addresses, credentials, or raw provider error bodies. Reads used for coordination bypass CDN caches, and updates use ETags. If the storage write itself fails or a function terminates abruptly, only the last successfully saved phase is available.
+Records live at `digest-delivery/YYYY-MM-DD/REGION.json` and `digest-check/YYYY-MM-DD/REGION.json` in the existing Blob store. Preparation and delivery persist the attempt operation, start time, and last phase before external work. Failures record the operation, phase, time, and a sanitized HTTP/timeout/general failure code. A later successful retry retains the last failure for diagnosis; inspect it alongside the current status. Receipts contain no recipient addresses, credentials, or raw provider error bodies. Reads used for coordination are checked against the uncached `head()` ETag (see November 16 above), and updates use ETags. If the storage write itself fails or a function terminates abruptly, only the last successfully saved phase is available.
 
 ## October 12 Midwest archive gap
 

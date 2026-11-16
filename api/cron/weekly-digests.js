@@ -82,7 +82,7 @@ export default async function handler(request, response) {
     // A lease still held during the fallback window means this attempt did
     // nothing. Say so: a quiet 200 here is how a missed week goes unnoticed.
     if (mode === "send" && result.status === "busy" && isFinalDigestAttempt()) {
-      console.error(JSON.stringify({ event: "weekly_digest_final_attempt_busy", region: region.id }));
+      console.error(JSON.stringify({ event: "weekly_digest_final_attempt_busy", region: region.id, reason: result.reason }));
     }
     response.status(ok ? 200 : 503).json({ ok, ...receipt });
   } catch (error) {
