@@ -8,7 +8,7 @@ export function digestExplanation(finding = {}) {
   )
     return null;
   try {
-    if (new URL(value.sourceUrl).protocol !== "https:") return null;
+    if (!["http:", "https:"].includes(new URL(value.sourceUrl).protocol)) return null;
   } catch {
     return null;
   }

@@ -1,5 +1,7 @@
 # Digest selection rollout
 
+The November 17 national expansion supersedes the initial twelve-state source inventory below. See [State source coverage](STATE_SOURCE_COVERAGE.md) for all fifty states and DC, conditional holds, Hawaii lifetime-record limitations, and North Dakota archived-source provenance.
+
 Implemented November 16-17, 2026. Policy `review-evidence-v1` applies to new weekly editions in all five regions. Existing sent editions retain their original selections.
 
 The selector evaluates individual reports against documented state review criteria before choosing one featured report per species. Only reports marked accepted by eBird automatically qualify. This is not committee confirmation. Unreviewed matching reports are held in the audit; rejected reports are excluded. At most six stories are featured, with no minimum. State review rules precede seasonal rules, then source local observation time and stable source identifiers break ties. There is no calibrated comparison of rarity severity within a category.
