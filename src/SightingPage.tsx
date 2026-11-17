@@ -1,3 +1,4 @@
+import { digestExplanation } from '../shared/digestExplanation.js';
 import { ArrowLeft, ArrowUpRight, Map, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ChecklistDetailsResponse, Insight } from "./types";
@@ -24,6 +25,8 @@ export type SightingReporting = {
   scopeLabel: string;
   back: number;
   asOf: string;
+  windowStart?: string;
+  windowEnd?: string;
   partial: boolean;
   reports: {
     subId: string;
@@ -181,6 +184,7 @@ function SightingArticle({
             : "Bird present · Count not supplied"}
         </strong>
         <p>Review status when featured: {reviewStatusLabel(finding)}</p>
+        {digestExplanation(finding) && <p>{finding.significance?.explanation} <a href={finding.significance?.sourceUrl} target="_blank" rel="noreferrer">Source</a></p>}
       </aside>
 
       <div className="sighting-actions">
@@ -379,7 +383,7 @@ function ReportingSummary({ reporting, featuredId, comName }: {
         {comName} across {reporting.scopeLabel} · {reporting.timing === "recent" ? "Current week" : "When featured"}
       </span>
       <h2>{outings.toLocaleString()} {outings === 1 ? "report group" : "report groups"}</h2>
-      <p className="sighting-reporting-total">On {total.toLocaleString()} eBird {total === 1 ? "checklist" : "checklists"} · {reporting.back}-day window ending {formatDate(reporting.asOf.slice(0, 10))}</p>
+      <p className="sighting-reporting-total">On {total.toLocaleString()} eBird {total === 1 ? "checklist" : "checklists"} · {reporting.windowStart && reporting.windowEnd ? `${formatDate(reporting.windowStart)} through ${formatDate(reporting.windowEnd)}` : `${reporting.back}-day window ending ${formatDate(reporting.asOf.slice(0, 10))}`}</p>
       <p className="sighting-small">
         {reporting.partial ? "Partial coverage. " : ""}Counts reflect the available eBird notable feed, which may omit other reports.
         {reporting.timing === "recent" ? " This recent snapshot may be newer than the featured visit." : ""}

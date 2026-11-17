@@ -104,6 +104,7 @@ export type ConfigResponse = {
 export type InsightKind = "notable" | "rarity" | "wide" | "surge";
 
 export type Insight = {
+  significance?: import("../shared/digestExplanation.js").DigestSignificance;
   kind: InsightKind;
   title: string;
   detail: string;
