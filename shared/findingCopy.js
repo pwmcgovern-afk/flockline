@@ -1,3 +1,5 @@
+import { digestExplanation } from './digestExplanation.js';
+
 const EDITORIAL_POLICY = "source-facts-v1";
 const CORRECTION_NOTE = "Descriptions updated to show recorded facts only. Original sightings and dates are unchanged.";
 
@@ -19,7 +21,7 @@ export function factualFinding(finding = {}, { count = finding.howMany } = {}) {
     ...finding,
     kind: "notable",
     title: name || "eBird report",
-    detail: `${description}${countText ? ` ${countText}` : ""}`,
+    detail: digestExplanation(finding)?.explanation || `${description}${countText ? ` ${countText}` : ""}`,
     generatedBy: "template",
   };
 }
@@ -30,11 +32,13 @@ export function factualEditorialPayload(payload = {}, { correctLegacy = false } 
   return {
     ...payload,
     generator: "template",
-    editorialPolicy: EDITORIAL_POLICY,
-    ...(correctLegacy && payload.editorialPolicy !== EDITORIAL_POLICY
+    editorialPolicy: payload.selection?.version === "review-evidence-v1" ? "review-evidence-v1" : EDITORIAL_POLICY,
+    ...(correctLegacy && ![EDITORIAL_POLICY, "review-evidence-v1"].includes(payload.editorialPolicy)
       ? { editorialNote: CORRECTION_NOTE }
       : {}),
-    summary: findings.length
+    summary: payload.selection?.version === "review-evidence-v1"
+      ? `Selected reports for ${payload.selection.week.start} through ${payload.selection.week.end}, with documented state review criteria and eBird acceptance. Selection coverage is limited; this is not an exhaustive list of rarities.${findings.length ? "" : " No reports qualified in the available data."}`
+      : findings.length
       ? "Selected reports from eBird's notable feed, with source checklist links where available. This selection is not a ranking of rarity."
       : "No reports are included in this edition. This does not establish that no birds were reported in the region.",
     findings,

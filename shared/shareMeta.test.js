@@ -39,10 +39,10 @@ describe("buildMeta", () => {
       "Weekly birding roundups · Flockline"
     );
     expect(buildMeta(new URL("https://flockline.app/roundup/northeast/2026-08-24")).title).toBe(
-      "Northeast birding roundup · week ending 2026-08-24 · Flockline"
+      "Northeast birding roundup · edition 2026-08-24 · Flockline"
     );
     expect(buildMeta(new URL("https://flockline.app/roundup/nationwide/2026-08-24")).title).toBe(
-      "U.S. birding roundup · week ending 2026-08-24 · Flockline"
+      "U.S. birding roundup · edition 2026-08-24 · Flockline"
     );
     // An unknown path still gets the default treatment.
     expect(buildMeta(new URL("https://flockline.app/nonsense")).title).toBe(

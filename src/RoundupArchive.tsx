@@ -1,3 +1,4 @@
+import { digestExplanation, type DigestSignificance } from '../shared/digestExplanation.js';
 import { sightingPath } from "../shared/sightingPath.js";
 import { findingKindLabel as kindLabel } from "../shared/findingKind.js";
 import { reviewStatusLabel } from "../shared/findingCopy.js";
@@ -18,6 +19,7 @@ import { US_REGION_PRESETS } from "../shared/usGeography.js";
 // each Monday's email leaves behind.
 
 type ArchiveFinding = {
+  significance?: DigestSignificance;
   kind?: string;
   title: string;
   detail: string;
@@ -43,6 +45,7 @@ export type ArchiveRoundup = {
   generatedAt: string;
   summary: string;
   editorialNote?: string;
+  selection?: { week?: {start: string; end: string}; uncoveredStates?: string[]; sourceStates?: string[] };
   coverage?: { failedRegions?: string[]; limitedRegions?: string[]; retryableRegions?: string[] };
   findings: ArchiveFinding[];
 };
@@ -138,7 +141,7 @@ function IndexView({ initial }: { initial?: ArchiveIndex }) {
               {issues.map((issue) => (
                 <li key={`${issue.scopeId}-${issue.date}`}>
                   <a href={`/roundup/${issue.scopeId}/${issue.date}`}>
-                    Week ending {formatIssueDate(issue.date)}
+                    Edition {formatIssueDate(issue.date)}
                   </a>
                 </li>
               ))}
@@ -198,7 +201,7 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
 
         <header className="methodology-head">
           <span className="script">
-            {regionName} · {roundup ? `week ending ${formatIssueDate(roundup.generatedAt)}` : "weekly roundup"}
+            {regionName} · {roundup ? `week ending ${formatIssueDate(roundup.selection?.week?.end || roundup.generatedAt)}` : "weekly roundup"}
           </span>
           <h1>The week in bird reports</h1>
         </header>
@@ -216,6 +219,7 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
         {roundup ? (
           <>
             <p className="newsletter-lede">{roundup.summary}</p>
+            {roundup.selection?.uncoveredStates?.length ? <p className="archive-meta">Selection rules currently cover {roundup.selection.sourceStates?.join(", ")}. Other states are not assessed for inclusion.</p> : null}
             {roundup.coverage?.failedRegions?.length || roundup.coverage?.limitedRegions?.length ? (
               <p className="archive-meta">
                 Partial source coverage. Some places or dates may be missing from the available
@@ -238,6 +242,7 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
                 <span className="archive-kind">{kindLabel(finding.kind)}</span>
                 <h2>{sightingPath(finding) ? <a href={sightingPath(finding)!}>{finding.title}</a> : finding.title}</h2>
                 <p>{finding.detail}</p>
+                {digestExplanation(finding) && <a href={finding.significance?.sourceUrl} target="_blank" rel="noreferrer">Why it qualifies</a>}
                 <HistoricalContext finding={finding} />
                 <p className="archive-meta">
                   {[finding.locName, finding.obsDt ? formatIssueDate(finding.obsDt) : "", Number.isFinite(finding.howMany) && (finding.howMany || 0) > 0 ? `${finding.howMany} ${finding.howMany === 1 ? "bird" : "birds"}` : ""].filter(Boolean).join(" · ")}

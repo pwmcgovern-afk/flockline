@@ -4,7 +4,7 @@ import { US_STATES } from "../shared/usGeography.js";
 vi.mock("../lib/sightingStore.js", () => ({ saveSightingFindings: vi.fn(async () => {}) }));
 
 const row = {
-  speciesCode: "sora", comName: "Sora", subId: "S402107527", locName: "Bryant Park",
+  speciesCode: "sora", comName: "Garganey", obsValid: true, subId: "S402107527", locName: "Bryant Park",
   locId: "L683555", obsDt: "2026-10-14 08:00", howMany: 1,
   lat: 40.7536729, lng: -73.9832322, subnational1Code: "US-NY",
 };
@@ -16,6 +16,7 @@ const response = () => ({ setHeader: vi.fn(), status: vi.fn().mockReturnThis(), 
 beforeEach(() => {
   vi.resetModules();
   vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-10-19T14:00:00Z"));
   vi.stubEnv("EBIRD_API_KEY", "test-key");
 });
 afterEach(() => {
