@@ -1154,7 +1154,7 @@ test("archive retries transient failures and rejects malformed issue links", asy
   failing = false;
   await page.getByRole("button", { name: "Try again", exact: true }).click();
   await page
-    .getByRole("link", { name: "Week ending August 24, 2026", exact: true })
+    .getByRole("link", { name: "Edition August 24, 2026", exact: true })
     .waitFor();
   const validRequests = count;
   for (const path of [
@@ -1449,5 +1449,23 @@ test("sighting failure can retry without leaving the detail page", async () => {
   available = true;
   await s.page.getByRole("button", { name: "Try again", exact: true }).click();
   await s.page.getByRole("heading", { name: "Osprey", exact: true }).waitFor();
+  await finish(s);
+});
+
+
+test("phone archive preserves editorial dates and source explanations", async () => {
+  const payload = roundup("northeast");
+  payload.generatedAt = "2026-11-16T15:00:00Z";
+  payload.selection = {week: {start: "2026-11-09", end: "2026-11-15"}};
+  payload.findings[0].detail = "A documented state review rule.";
+  payload.findings[0].significance = {policyVersion: "review-evidence-v1", explanation: "A documented state review rule.", sourceUrl: "https://nybirds.org/NYSARC/NYSARClist.htm", sourceTitle: "New York State Avian Records Committee"};
+  const s = await session({width: 390, height: 844, touch: true, handlers: {
+    "/api/roundup-archive": route => json(route, payload),
+  }});
+  await s.page.goto(base + "/roundup/northeast/2026-11-16");
+  await s.page.getByText("Northeast · week ending November 15, 2026", {exact: true}).waitFor();
+  await s.page.getByText("A documented state review rule.", {exact: true}).waitFor();
+  assert.equal(await s.page.getByRole("link", {name: "Why it qualifies"}).getAttribute("href"), "https://nybirds.org/NYSARC/NYSARClist.htm");
+  assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await finish(s);
 });

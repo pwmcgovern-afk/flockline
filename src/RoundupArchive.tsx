@@ -45,7 +45,7 @@ export type ArchiveRoundup = {
   generatedAt: string;
   summary: string;
   editorialNote?: string;
-  selection?: { uncoveredStates?: string[]; sourceStates?: string[] };
+  selection?: { week?: {start: string; end: string}; uncoveredStates?: string[]; sourceStates?: string[] };
   coverage?: { failedRegions?: string[]; limitedRegions?: string[]; retryableRegions?: string[] };
   findings: ArchiveFinding[];
 };
@@ -141,7 +141,7 @@ function IndexView({ initial }: { initial?: ArchiveIndex }) {
               {issues.map((issue) => (
                 <li key={`${issue.scopeId}-${issue.date}`}>
                   <a href={`/roundup/${issue.scopeId}/${issue.date}`}>
-                    Week ending {formatIssueDate(issue.date)}
+                    Edition {formatIssueDate(issue.date)}
                   </a>
                 </li>
               ))}
@@ -201,7 +201,7 @@ function IssueView({ scopeId, date, initial }: { scopeId: string; date: string |
 
         <header className="methodology-head">
           <span className="script">
-            {regionName} · {roundup ? `week ending ${formatIssueDate(roundup.generatedAt)}` : "weekly roundup"}
+            {regionName} · {roundup ? `week ending ${formatIssueDate(roundup.selection?.week?.end || roundup.generatedAt)}` : "weekly roundup"}
           </span>
           <h1>The week in bird reports</h1>
         </header>

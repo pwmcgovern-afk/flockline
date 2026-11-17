@@ -45,7 +45,7 @@ function buildPageMeta(pathname) {
   if (issue) {
     const regionName = REGION_NAMES.get(issue[1]);
     const scopeLabel = !regionName || issue[1] === "nationwide" ? "U.S." : regionName;
-    const dated = issue[2] ? ` · week ending ${issue[2]}` : "";
+    const dated = issue[2] ? ` · edition ${issue[2]}` : "";
     return {
       title: `${scopeLabel} birding roundup${dated} · ${SITE}`,
       description: `Selected eBird notable reports across the ${scopeLabel === "U.S." ? "United States" : scopeLabel} this week, with source checklists.`
