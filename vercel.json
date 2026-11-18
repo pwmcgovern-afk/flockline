@@ -92,7 +92,7 @@
   "functions": {
     "api/page.js": {
       "includeFiles": "{dist/index.html,server-render/**}",
-      "maxDuration": 30
+      "maxDuration": 60
     },
     "api/sitemap.js": {
       "maxDuration": 30

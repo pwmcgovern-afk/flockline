@@ -8,7 +8,7 @@ The first complete eBird snapshot for each region/date/window is immutable. Conc
 
 Daily generation runs for all five standard one-day editions at 9:00-9:04 a.m. America/New_York, with one retry at 9:30-9:34. UTC jobs cover both DST offsets; the handler exits outside the 9 a.m. Eastern hour. Each invocation handles one region in a bounded 60-second pass, requires the existing CRON_SECRET, and never sends email. Longer windows and custom scopes are generated when opened or shared.
 
-Reads of old dates never reconstruct an unsaved edition from today's rolling feed. Missing historical editions return 404. A current unsaved page renders a temporary, uncached, noindex shell, then creates its edition through the rate-limited POST API. Future and malformed addresses are rejected. Once saved, the page is rendered on the server with its exact dated canonical URL, share metadata, and Article data.
+Reads of old dates never reconstruct an unsaved edition from today's rolling feed. Missing historical editions return 404. Opening a current unsaved page creates its first edition through a rate-limited server render, so the first share already has full HTML and link metadata. Browser-only development pages use the rate-limited POST API instead. Future and malformed addresses are rejected. Once saved, the page is rendered on the server with its exact dated canonical URL, share metadata, and Article data.
 
 Storage uses immutable public Vercel Blob objects under daily-digests/{scope}/{date}/{window}d.json. This uses the existing configured Blob store. Cached/curated species illustrations are reused without new image generation, and their disclaimer is preserved. Sighting context continues through the existing source loader.
 

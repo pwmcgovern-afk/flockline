@@ -1,4 +1,5 @@
-import { getDailyDigest, listDailyDigests } from "../lib/dailyDigestArchive.js";
+import { enforceRateLimit } from "../lib/rateLimit.js";
+import { ensureDailyDigest, getDailyDigest, listDailyDigests } from "../lib/dailyDigestArchive.js";
 import { dailyDate, dailyDigestPath, parseDailyDigestPath } from "../shared/dailyDigest.js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -34,9 +35,14 @@ export default async function handler(request, response) {
         response.setHeader("Cache-Control", "no-store");
         return response.status(307).end();
       } else {
-        const dailyDigest = await getDailyDigest(parsed.scopeId, parsed.date, parsed.back);
+        let dailyDigest = await getDailyDigest(parsed.scopeId, parsed.date, parsed.back);
+        if (!dailyDigest && parsed.date === dailyDate()) {
+          if (!enforceRateLimit(request, response, { name: "daily-page-create", limit: 12, windowMs: 60 * 60 * 1000, message: "Too many new digest requests. Please try again later." })) return;
+          // Generate the first edition before responding so a newly shared URL
+          // already has complete server-rendered content and link metadata.
+          dailyDigest = await ensureDailyDigest({ scopeId: parsed.scopeId, date: parsed.date, back: parsed.back });
+        }
         if (dailyDigest) initial = { dailyDigest };
-        else if (parsed.date === dailyDate()) initial = { dailyPending: true };
         else status = 404;
       }
     } else if (path.startsWith("/sightings")) {
