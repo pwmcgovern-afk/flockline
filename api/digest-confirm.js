@@ -13,24 +13,25 @@ export default async function handler(request, response) {
   }
 
   response.setHeader("Cache-Control", "no-store");
-  const configuration = getDigestConfiguration();
-  if (!configuration.ready) {
-    response.status(503).send(renderStatusPage(
-      "Subscription unavailable",
-      "Flockline could not finish connecting the weekly digest. Please try the confirmation link again later.",
-      configuration.publicAppUrl
-    ));
-    return;
-  }
-
+  const base = getDigestConfiguration();
   const subscription = verifyDigestConfirmationToken(
     request.query?.token,
-    configuration.signingSecret
+    base.signingSecret
   );
   if (!subscription) {
     response.status(400).send(renderStatusPage(
       "That link has expired",
-      "Return to Flockline and request a new weekly digest confirmation.",
+      "Return to Flockline and request a new digest confirmation.",
+      base.publicAppUrl
+    ));
+    return;
+  }
+
+  const configuration = getDigestConfiguration(process.env, subscription.frequency);
+  if (!configuration.ready) {
+    response.status(503).send(renderStatusPage(
+      "Subscription unavailable",
+      "Flockline could not finish connecting the digest. Please try the confirmation link again later.",
       configuration.publicAppUrl
     ));
     return;
@@ -54,6 +55,7 @@ export default async function handler(request, response) {
     }
     const destination = new URL(configuration.publicAppUrl);
     destination.searchParams.set("digest", "confirmed");
+    destination.searchParams.set("frequency", subscription.frequency);
     destination.searchParams.set("digestRegions", subscription.regionIds.join(","));
     response.redirect(303, destination.toString());
   } catch (error) {

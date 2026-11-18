@@ -445,7 +445,7 @@ export default function App() {
     const editions = selected.length
       ? new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(selected)
       : "your selected regional editions";
-    return `You are subscribed to ${editions}. Your first digest arrives Monday.`;
+    return `You are subscribed to ${editions}. ${params.get("frequency") === "daily" ? "Your daily editions arrive each morning." : "Your first digest arrives Monday."}`;
   });
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");

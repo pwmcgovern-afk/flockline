@@ -603,7 +603,7 @@ test("signup fits mobile and short landscape screens, traps focus, and closes wi
     const launch = page.locator(".digest-header .digest-cta");
     await launch.click();
     const dialog = page.getByRole("dialog", {
-      name: "Weekly insights signup",
+      name: "Regional digest signup",
       exact: true,
     });
     const box = await dialog.boundingBox();
@@ -621,7 +621,7 @@ test("signup fits mobile and short landscape screens, traps focus, and closes wi
     await page.keyboard.press("Tab");
     assert.equal(
       await page
-        .getByRole("button", { name: "Close weekly insights signup" })
+        .getByRole("button", { name: "Close regional digest signup" })
         .evaluate((el) => el === document.activeElement),
       true,
     );
@@ -774,7 +774,7 @@ test("phone search and signup follow an offset visual viewport above the keyboar
   assert.ok(close.y >= 100 && close.y + close.height <= 480);
   await page.locator(".picker-close").tap();
   await page.locator(".digest-header .digest-cta").tap();
-  const signup = await page.getByRole("dialog", { name: "Weekly insights signup", exact: true }).boundingBox();
+  const signup = await page.getByRole("dialog", { name: "Regional digest signup", exact: true }).boundingBox();
   assert.ok(signup.y >= 100 && signup.y + signup.height <= 480);
   await finish(s);
 });
@@ -824,13 +824,17 @@ test("signup validates editions, freezes submitted values, and recovers from API
       .inputValue(),
     "audit@example.com",
   );
+  assert.equal(sent.frequency, "weekly");
   fail = false;
+  await page.getByRole("radio", { name: "Daily, around 9 AM ET" }).check();
   await page
     .getByRole("button", { name: "Get the free digest", exact: true })
     .click();
   await page.getByText("Check your inbox", { exact: true }).waitFor();
   assert.deepEqual(sent.regions, ["northeast"]);
   assert.equal(sent.src, "audit");
+  assert.equal(sent.frequency, "daily");
+  assert.match(await page.locator(".digest-success-content").innerText(), /each morning/);
   assert.match(
     await page.locator(".digest-success-content").innerText(),
     /audit@example.com/,

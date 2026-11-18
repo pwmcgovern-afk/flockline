@@ -2148,7 +2148,7 @@ button.pill:hover {
   cursor: pointer;
 }
 
-.digest-region-options label:first-child {
+.digest-region-options label:first-child:has(input[type="checkbox"]) {
   grid-column: 1 / -1;
 }
 

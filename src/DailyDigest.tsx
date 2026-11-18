@@ -7,6 +7,7 @@ import { reviewStatusLabel } from "../shared/findingCopy.js";
 import { sightingPath } from "../shared/sightingPath.js";
 import { requestJson } from "./request";
 import HistoricalContext from "./HistoricalContext";
+import DigestSignup from "./DigestSignup";
 import NotFound from "./NotFound";
 
 export type SavedDailyDigest = Omit<InsightsResponse, "findings"> & {
@@ -87,6 +88,7 @@ function DailyIndexPage({ initial }: { initial?: DailyIndex }) {
     <header className="methodology-head"><p>Daily digests</p><h1>Bird reports you can share</h1></header>
     <p className="newsletter-lede">A dated edition for each region, saved with its original reports. Open today's digest or browse a previous day.</p>
     <nav className="daily-region-links" aria-label="Today's daily digests">{US_REGION_PRESETS.map((region) => <a className="pill" key={region.id} href={dailyDigestPath(region.id, dailyDate())!}>{region.name}</a>)}</nav>
+    <section id="subscribe"><DigestSignup defaultRegionId="nationwide" defaultFrequency="daily" src="daily" startOpen /></section>
     {error && <p role="alert">{error}</p>}
     {!index && !error && <p role="status">Loading saved digests…</p>}
     {index && <section><h2>Saved editions</h2>{index.issues.length ? <ul className="archive-issue-list">{index.issues.slice(0, 150).map((issue) => <li key={issue.path}><a href={issue.path}>{scopeFromId(issue.scopeId)?.label} · {dateLabel(issue.date)}{issue.back !== 1 ? " · " + issue.back + "-day window" : ""}</a></li>)}</ul> : <p>The first editions will appear here as they are saved.</p>}</section>}
@@ -144,6 +146,7 @@ function DailyIssue({ scopeId, date, back, initial }: { scopeId: string; date: s
     {!digest && !error && !missing && <p role="status">Preparing this day's digest…</p>}
     {error && <p role="alert">{error} <button className="pill" type="button" onClick={() => setAttempt((value) => value + 1)}>Try again</button></p>}
     {missing && <p>No digest was saved for this day and window. <a href="/digest">Browse saved editions</a>.</p>}
+    <DigestSignup defaultRegionId={scopeId} defaultFrequency="daily" src="daily" />
     <footer className="methodology-foot"><a href="/">Explore the live map</a><a href="/newsletter">Get the weekly email</a><a href="/methodology">How reports are selected</a></footer>
   </div></main>;
 }
