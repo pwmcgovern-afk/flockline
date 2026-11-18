@@ -1,3 +1,4 @@
+import { DailyDigestActions } from "./DailyDigest";
 import { sightingPath } from "../shared/sightingPath.js";
 import { findingKindLabel } from "../shared/findingKind.js";
 import { reviewStatusLabel } from "../shared/findingCopy.js";
@@ -1981,7 +1982,7 @@ export default function App() {
   const shareableUrl = currentAppUrl;
 
   // A link that always lands on Insights at the scope currently on screen,
-  // whether or not the reader pinned it. This is the one people share.
+  // whether or not the reader pinned it. Saved daily pages have separate actions.
   const insightsShareUrl = useMemo(
     () =>
       buildAppUrl(
@@ -3465,6 +3466,7 @@ export default function App() {
               <div className="drawer-body">
                 <div className="insights-scope">
                   <p className="insights-intro">Selected reports from eBird's notable feed, chosen by recency and location. A species may be expected elsewhere in the region. <a href="/methodology">How these are selected</a></p>
+                  {insights && !insightsStale && !insightsLoading && <DailyDigestActions key={insightScopeKey} regions={effectiveInsightRegions} back={effectiveInsightBack} />}
                   <div className="insights-regions" role="group" aria-label="Insights region">
                       {US_REGION_PRESETS.map((region) => (
                         <button

@@ -1,9 +1,11 @@
+import DailyDigest, { type DailyInitial } from "./DailyDigest";
 import { StrictMode, Suspense, lazy, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { inject } from "@vercel/analytics";
 import "leaflet/dist/leaflet.css";
 import "./styles.css";
 import "./discovery.css";
+import "./daily.css";
 import ErrorBoundary from "./ErrorBoundary";
 import Methodology from "./Methodology";
 import NewsletterPage from "./NewsletterPage";
@@ -16,7 +18,7 @@ const App = lazy(() => import("./App"));
 inject();
 
 const initialElement = document.getElementById("flockline-page-data");
-const initial: ArchiveInitial & { status?: number; sighting?: SightingDetails } = initialElement ? JSON.parse(initialElement.textContent || "{}") : {};
+const initial: ArchiveInitial & DailyInitial & { status?: number; sighting?: SightingDetails } = initialElement ? JSON.parse(initialElement.textContent || "{}") : {};
 
 // Match editorial pages before App mounts: its map-state URL sync would
 // otherwise erase their paths and signup attribution. Keep old methodology
@@ -52,6 +54,7 @@ function Root() {
   if (path === "/newsletter") {
     return <NewsletterPage />;
   }
+  if (path === "/digest" || path.startsWith("/digest/")) return <DailyDigest initial={initial} />;
   if (path === "/roundup" || path.startsWith("/roundup/")) {
     return <RoundupArchive initial={initial} />;
   }

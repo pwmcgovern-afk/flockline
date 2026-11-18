@@ -1,3 +1,5 @@
+import { getDailyDigest, listDailyDigests } from "../lib/dailyDigestArchive.js";
+import { dailyDate, dailyDigestPath, parseDailyDigestPath } from "../shared/dailyDigest.js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
@@ -22,7 +24,22 @@ export default async function handler(request, response) {
   let status = 200;
   let initial = {};
   try {
-    if (path.startsWith("/sightings")) {
+    if (path === "/digest" || path.startsWith("/digest/")) {
+      const parsed = parseDailyDigestPath(path);
+      if (!parsed.valid || (parsed.date && parsed.date > dailyDate())) status = 404;
+      else if (!archiveConfigured()) throw new Error("Daily digest storage unavailable");
+      else if (!parsed.scopeId) initial = { dailyIndex: { issues: await listDailyDigests() } };
+      else if (!parsed.date) {
+        response.setHeader("Location", dailyDigestPath(parsed.scopeId, dailyDate(), parsed.back));
+        response.setHeader("Cache-Control", "no-store");
+        return response.status(307).end();
+      } else {
+        const dailyDigest = await getDailyDigest(parsed.scopeId, parsed.date, parsed.back);
+        if (dailyDigest) initial = { dailyDigest };
+        else if (parsed.date === dailyDate()) initial = { dailyPending: true };
+        else status = 404;
+      }
+    } else if (path.startsWith("/sightings")) {
       const address = parseSightingPath(path);
       if (!address) status = 404;
       else initial = { sighting: await getSightingDetails({ subId: address.subId, species: address.speciesCode }) };
@@ -66,13 +83,13 @@ export default async function handler(request, response) {
   response.setHeader("Content-Type", "text/html; charset=utf-8");
   response.setHeader(
     "X-Robots-Tag",
-    status === 200 && process.env.VERCEL_ENV !== "preview"
+    status === 200 && !initial.dailyPending && process.env.VERCEL_ENV !== "preview"
       ? "index, follow"
       : "noindex",
   );
   response.setHeader(
     "Cache-Control",
-    status === 200
+    status === 200 && !initial.dailyPending
       ? "public, max-age=0, s-maxage=300, stale-while-revalidate=3600"
       : "no-store",
   );
