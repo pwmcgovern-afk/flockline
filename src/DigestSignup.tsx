@@ -13,6 +13,7 @@ import { useDialogFocus } from "./useDialogFocus";
 
 type DigestSignupProps = {
   defaultRegionId: string;
+  defaultFrequency?: "daily" | "weekly";
   variant?: "card" | "header";
   // Channel attribution slug forwarded to the signup API (e.g. "newsletter",
   // "roundup"); the in-app surfaces default to "app".
@@ -25,6 +26,7 @@ type SignupState = "idle" | "sending" | "sent";
 
 export default function DigestSignup({
   defaultRegionId,
+  defaultFrequency = "weekly",
   variant = "card",
   src = "app",
   startOpen = false,
@@ -37,6 +39,7 @@ export default function DigestSignup({
   const [open, setOpen] = useState(startOpen);
   const [clientReady, setClientReady] = useState(false);
   useEffect(() => setClientReady(true), []);
+  const [frequency, setFrequency] = useState(defaultFrequency);
   const [email, setEmail] = useState("");
   const [selectedRegions, setSelectedRegions] = useState([validDefault]);
   const [state, setState] = useState<SignupState>("idle");
@@ -84,6 +87,7 @@ export default function DigestSignup({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             email,
+            frequency,
             regions: selectedRegions,
             src,
             website: form.get("website"),
@@ -114,7 +118,7 @@ export default function DigestSignup({
           <strong>Check your inbox</strong>
           <p>
             We sent a confirmation to {email}. Confirm your address to receive{" "}
-            {formatList(selectedNames)} on Monday mornings.
+            {formatList(selectedNames)} {frequency === "daily" ? "each morning" : "on Monday mornings"}.
           </p>
           <button type="button" onClick={() => setState("idle")}>
             Use a different email
@@ -136,11 +140,11 @@ export default function DigestSignup({
       <span>
         <strong>
           {variant === "header"
-            ? "Free weekly digest"
-            : "Make this your Monday read"}
+            ? "Free email digests"
+            : "Get regional digests by email"}
         </strong>
         {variant === "card" ? (
-          <small>Free · notable birds + map links · every Monday</small>
+          <small>Daily editions and Monday roundups</small>
         ) : null}
       </span>
     </button>
@@ -150,17 +154,24 @@ export default function DigestSignup({
       method="post"
       action="/api/digest-subscription"
       onSubmit={(event) => void submit(event)}
-      aria-label="Weekly insights signup"
+      aria-label="Regional digest signup"
     >
       <noscript>Enable JavaScript to subscribe securely.</noscript>
       <div className="digest-form-heading">
         <Mail aria-hidden="true" />
         <div>
-          <strong>The week's birds. In your inbox.</strong>
-          <p>Free, usually around 10 AM ET on Mondays. Each selected region arrives as a separate email.</p>
+          <strong>Choose your email digests</strong>
+          <p>Each selected region arrives as a separate email.</p>
         </div>
       </div>
 
+      <fieldset disabled={!clientReady || state === "sending"}>
+        <legend>Delivery schedule</legend>
+        <div className="digest-region-options">
+          <label><input type="radio" name="frequency" checked={frequency === "daily"} onChange={() => setFrequency("daily")} /><span>Daily, around 9 AM ET</span></label>
+          <label><input type="radio" name="frequency" checked={frequency === "weekly"} onChange={() => setFrequency("weekly")} /><span>Mondays, around 10 AM ET</span></label>
+        </div>
+      </fieldset>
       <fieldset disabled={!clientReady || state === "sending"}>
         <legend>Choose regional editions</legend>
         <div className="digest-region-options">
@@ -243,13 +254,13 @@ export default function DigestSignup({
                   ref={dialogRef}
                   role="dialog"
                   aria-modal="true"
-                  aria-label="Weekly insights signup"
+                  aria-label="Regional digest signup"
                   tabIndex={-1}
                 >
                   <button
                     type="button"
                     className="icon-btn digest-modal-close"
-                    aria-label="Close weekly insights signup"
+                    aria-label="Close regional digest signup"
                     onClick={close}
                   >
                     <X />

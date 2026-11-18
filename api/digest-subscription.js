@@ -43,13 +43,17 @@ export default async function handler(request, response) {
     return;
   }
 
-  const configuration = getDigestConfiguration();
+  const frequency = body.frequency ?? "weekly";
+  if (!["daily", "weekly"].includes(frequency)) {
+    return response.status(400).json({ error: "Choose daily or weekly delivery." });
+  }
+  const configuration = getDigestConfiguration(process.env, frequency);
   if (!configuration.ready) {
     console.error(JSON.stringify({
       event: "digest_configuration_missing",
       missing: configuration.missing
     }));
-    response.status(503).json({ error: "Weekly email signup is being connected. Please try again soon." });
+    response.status(503).json({ error: "Email signup is being connected. Please try again soon." });
     return;
   }
 
