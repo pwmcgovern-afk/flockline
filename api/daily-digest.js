@@ -31,6 +31,6 @@ export default async function handler(request, response) {
     return response.status(200).json(snapshot);
   } catch (error) {
     console.error("Daily digest request failed", error.message);
-    return response.status(error.statusCode || 503).json({ error: error.statusCode === 404 ? error.message : "The daily digest could not be loaded. Please try again shortly." });
+    return response.status(error.statusCode || 503).json({ error: [404, 413].includes(error.statusCode) ? error.message : "The daily digest could not be loaded. Please try again shortly." });
   }
 }

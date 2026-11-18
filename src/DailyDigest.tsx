@@ -35,11 +35,11 @@ export function DailyDigestActions({ regions, back, snapshot }: { regions: strin
     setBusy(true); setStatus(""); setFallback("");
     try {
       if (!snapshot) {
-        const { response } = await requestJson<SavedDailyDigest>("/api/daily-digest", {
+        const { response, body } = await requestJson<SavedDailyDigest & { error?: string }>("/api/daily-digest", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ scope: scope.id, date, back }),
         });
-        if (!response.ok) throw new Error("The digest could not be saved. Please try again.");
+        if (!response.ok) throw new Error(body.error || "The digest could not be saved. Please try again.");
       }
       if (!active.current) return;
       const url = new URL(path, window.location.origin).href;
@@ -105,15 +105,15 @@ function DailyIssue({ scopeId, date, back, initial }: { scopeId: string; date: s
     setError(""); setMissing(false);
     const current = date === dailyDate();
     const query = new URLSearchParams({ scope: scopeId, date, back: String(back) });
-    requestJson<SavedDailyDigest>(current ? "/api/daily-digest" : "/api/daily-digest?" + query, {
+    requestJson<SavedDailyDigest & { error?: string }>(current ? "/api/daily-digest" : "/api/daily-digest?" + query, {
       signal: controller.signal,
       ...(current ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ scope: scopeId, date, back }) } : {}),
     }).then(({ response, body }) => {
       if (controller.signal.aborted) return;
       if (response.status === 404) { setMissing(true); return; }
-      if (!response.ok || body.version !== "daily-v1") throw new Error();
+      if (!response.ok || body.version !== "daily-v1") throw new Error(body.error || "This digest could not be loaded. Please try again.");
       setDigest(body);
-    }).catch(() => { if (!controller.signal.aborted) setError("This digest could not be loaded. Please try again."); });
+    }).catch((error) => { if (!controller.signal.aborted) setError(error instanceof Error ? error.message : "This digest could not be loaded. Please try again."); });
     return () => controller.abort();
   }, [scopeId, date, back, initial, attempt]);
   const scope = scopeFromId(scopeId)!;
