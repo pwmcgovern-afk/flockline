@@ -8,8 +8,19 @@ import { pathToFileURL } from "node:url";
 export const DEVELOPMENT_ADVISORY = "https://github.com/advisories/GHSA-fc5q-39xc-vjpf";
 
 export function evaluateAudit(audit, lock) {
-  if (audit.error || !audit.vulnerabilities || !lock.packages)
+  const record = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+  if (!record(audit) || audit.error || !record(audit.vulnerabilities) || !record(lock?.packages))
     throw new Error("Dependency audit did not return a valid report and lockfile");
+  for (const finding of Object.values(audit.vulnerabilities)) {
+    if (!record(finding) || !["info", "low", "moderate", "high", "critical"].includes(finding.severity))
+      throw new Error("Dependency audit returned an invalid finding severity");
+    if (["high", "critical"].includes(finding.severity) &&
+        (!Array.isArray(finding.nodes) || !Array.isArray(finding.via) ||
+         !finding.nodes.every((path) => typeof path === "string") ||
+         !finding.via.every((cause) => typeof cause === "string" ||
+           (record(cause) && typeof cause.name === "string" && typeof cause.url === "string"))))
+      throw new Error("Dependency audit returned invalid finding evidence");
+  }
   const vulnerabilities = audit.vulnerabilities;
   function isDevelopmentException(name, ancestors = new Set()) {
     if (ancestors.has(name)) return false;
