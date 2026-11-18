@@ -2,6 +2,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { load } from "cheerio";
+import { reconcileHawaiiDigestRules } from "./reconcile-hawaii-digest-rules.mjs";
 const root = process.argv[2];
 if (!root) throw new Error("Supply the national source capture directory");
 const registry = JSON.parse(
@@ -711,7 +712,7 @@ registry.sources.find((s) => s.id === "RI").supportingSources = [
   "https://www.birdobserver.org/Issues/2026/October-2026/seventh-report-of-the-rhode-island-avian-records-committee",
 ];
 registry.unmatchedSourceTaxa = omitted;
-registry.version = "review-lists-2026-11-17";
+reconcileHawaiiDigestRules(registry);
 await writeFile(
   "shared/digestSelectionRules.json",
   JSON.stringify(registry, null, 2) + "\n",

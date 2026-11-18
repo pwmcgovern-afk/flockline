@@ -1,12 +1,14 @@
 # State source coverage
 
-Registry review-lists-2026-11-17 (7,524 species rules), retrieved November 17, 2026. All fifty states and DC have sourced entries. This inventories species-level rules, including explicit holds; it does not imply that every conditional taxon or breeding criterion can be decided from an eBird notable-feed row. Exact source captures, PDF tables, web renderings, and archive headers are retained in /Users/patrickmcgovern/Code/flockline-all-state-evidence-2026-11-17/.
+Registry review-lists-2026-11-17-hi-validation (7,533 species rules), retrieved November 17, 2026. All fifty states and DC have sourced entries. This inventories species-level rules, including explicit holds; it does not imply that every conditional taxon or breeding criterion can be decided from an eBird notable-feed row. Exact source captures, PDF tables, web renderings, and archive headers are retained in /Users/patrickmcgovern/Code/flockline-all-state-evidence-2026-11-17/.
 
 New Jersey uses the October 12, 2026 full review list, including partial R* entries held for review. Rhode Island uses its comprehensive 2022 report reconciled with reports published in 2023-2026: Sandhill Crane was removed, nominate Cackling Goose was removed (other forms held), and the three 2026 additions retain their actual report link.
 
 North Dakota uses the June 14, 2026 Internet Archive capture of the committee page. The live original domain redirects to unrelated content. The preserved URL is the published explanatory link; this is a dated source, not verification of changes since June.
 
-Hawaii's 2017 checklist used approximately five records within ten years, while its current committee page describes five lifetime records. Historical X entries remain held unless the 2025 report explicitly establishes a first, second, or third record. Common Gull and Snow Bunting have six records and remain held. The older list is therefore accounted for but not certified as a complete current automatic classifier. Alaska uses the official 2026 checklist's casual/accidental occurrence designations, with copy explicitly describing those statuses instead of claiming review-list membership.
+Hawaii now has a versioned [validation ledger](../../shared/hawaiiDigestValidation.json), reconciled against the committee's 2025 report and its current lifetime-record policy. There are 23 supported automatic rules and 99 holds. Common Gull and Snow Bunting each have six published records and are excluded from the current five-or-fewer rule. Mew Gull is superseded by its split species. Eleven formerly omitted historical entries are now explicitly held, including American Pipit's pending decision after its split. Iceland Gull has one accepted species record, identified as thayeri, in the 2025 report. Older Va status, old X membership, and absence of a later published account do not establish a current lifetime total. See [Hawaii and North Dakota validation](HAWAII_NORTH_DAKOTA_VALIDATION.md) for the evidence, remaining limits, and source search.
+
+Alaska uses the official 2026 checklist's casual/accidental occurrence designations, with copy describing those statuses instead of claiming review-list membership.
 
 Taxon groups, obsolete species splits, geographic exceptions, sex requirements, wild-origin restrictions, and nesting-only conditions need evidence and remain held or are recorded as unmatched source taxa. No field classifier guesses those facts. Ordinary source omissions are not a classification of a bird as common. Northeast nesting-only source criteria and all potential forms outside the matched species lists remain outside automatic eligibility.
 
@@ -23,7 +25,7 @@ Taxon groups, obsolete species splits, geographic exceptions, sex requirements, 
 | US-DE | 92 | 2 | [Source](https://www.dosbirds.org/citizen-science/bird-records-committee/state-bird-list/) |
 | US-FL | 165 | 1 | [Source](https://fosbirds.org/fos-bird-checklist/) |
 | US-GA | 105 | 0 | [Source](https://www.gos.org/review-list) |
-| US-HI | 113 | 91 | [Source](https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf) |
+| US-HI | 122 | 99 | [Source](https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf) |
 | US-IA | 97 | 1 | [Source](https://www.iowabirdrecords.org/ReviewList.aspx) |
 | US-ID | 322 | 193 | [Source](https://www.ibrc.idahobirds.net/sites/default/files/2021-11/Idaho%20Review%20Species%20AOS%2062-11-7.pdf) |
 | US-IL | 143 | 7 | [Source](https://illinoisbirdrecords.org/records/review-list-of-illinois-birds/) |
@@ -64,4 +66,4 @@ Taxon groups, obsolete species splits, geographic exceptions, sex requirements, 
 | US-WV | 78 | 0 | [Source](https://www.brooksbirdclub.org/uploads/5/2/8/3/52832773/2025_wvbrc_review_list_5-30-25__updated_.pdf) |
 | US-WY | 141 | 2 | [Source](https://wgfd.wyo.gov/media/29017/download?inline=) |
 
-Rebuild with the two original Northeast import scripts, then scripts/import-national-digest-rules.mjs with the national capture directory followed by the original Northeast capture directory. Raw source hashes are recorded in the registry. Inspect source-specific counts and conditions before accepting a source update.
+Rebuild with the two original Northeast import scripts, then scripts/import-national-digest-rules.mjs with the national capture directory followed by the original Northeast capture directory. Raw source hashes are recorded in the registry. The national import finishes with scripts/reconcile-hawaii-digest-rules.mjs, which replaces Hawaii's generated section from the checked-in validation ledger. Inspect source-specific counts and conditions before accepting a source update.

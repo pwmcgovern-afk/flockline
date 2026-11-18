@@ -1,5 +1,5 @@
 {
-  "version": "review-lists-2026-11-17",
+  "version": "review-lists-2026-11-17-hi-validation",
   "sources": [
     {
       "id": "CT",
@@ -215,12 +215,14 @@
       "retrieved": "2026-11-17",
       "sha256": "ef8c63e2f29ed3323e3848356737e8937c60f33082aa618719972b8d2704e0e9",
       "capture": "HI-web.txt",
-      "scope": "Species-level source rules. Conditional entries are held pending explicit evidence; no inferred eligibility.",
+      "scope": "Counts are published committee records through 2024, not a live census. Older checklist membership or Va status alone does not establish a current lifetime total. The committee area includes Midway Atoll, outside the state of Hawaii.",
       "verification": "source-checked",
       "supportingSources": [
         "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
         "https://westernfieldornithologists.org/hawaii-birds-records-committee/"
-      ]
+      ],
+      "validationCapture": "shared/hawaiiDigestValidation.json",
+      "validationReviewed": "2026-11-17"
     },
     {
       "id": "ID",
@@ -20957,1002 +20959,6 @@
       "name": "Painted Redstart",
       "sourceId": "GA",
       "kind": "state-review"
-    },
-    {
-      "id": "HI-emperor-goose",
-      "state": "US-HI",
-      "name": "Emperor Goose",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-baikal-teal",
-      "state": "US-HI",
-      "name": "Baikal Teal",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-redhead",
-      "state": "US-HI",
-      "name": "Redhead",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-harlequin-duck",
-      "state": "US-HI",
-      "name": "Harlequin Duck",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-surf-scoter",
-      "state": "US-HI",
-      "name": "Surf Scoter",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-long-tailed-duck",
-      "state": "US-HI",
-      "name": "Long-tailed Duck",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-common-goldeneye",
-      "state": "US-HI",
-      "name": "Common Goldeneye",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-common-merganser",
-      "state": "US-HI",
-      "name": "Common Merganser",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-ruddy-duck",
-      "state": "US-HI",
-      "name": "Ruddy Duck",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-horned-grebe",
-      "state": "US-HI",
-      "name": "Horned Grebe",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-red-necked-grebe",
-      "state": "US-HI",
-      "name": "Red-necked Grebe",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-eared-grebe",
-      "state": "US-HI",
-      "name": "Eared Grebe",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-yellow-billed-cuckoo",
-      "state": "US-HI",
-      "name": "Yellow-billed Cuckoo",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-common-nighthawk",
-      "state": "US-HI",
-      "name": "Common Nighthawk",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-sora",
-      "state": "US-HI",
-      "name": "Sora",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-sandhill-crane",
-      "state": "US-HI",
-      "name": "Sandhill Crane",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-black-winged-stilt",
-      "state": "US-HI",
-      "name": "Black-winged Stilt",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-american-avocet",
-      "state": "US-HI",
-      "name": "American Avocet",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-lesser-sand-plover",
-      "state": "US-HI",
-      "name": "Lesser Sand-Plover",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-common-ringed-plover",
-      "state": "US-HI",
-      "name": "Common Ringed Plover",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-eurasian-dotterel",
-      "state": "US-HI",
-      "name": "Eurasian Dotterel",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-far-eastern-curlew",
-      "state": "US-HI",
-      "name": "Far Eastern Curlew",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-black-tailed-godwit",
-      "state": "US-HI",
-      "name": "Black-tailed Godwit",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-hudsonian-godwit",
-      "state": "US-HI",
-      "name": "Hudsonian Godwit",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-marbled-godwit",
-      "state": "US-HI",
-      "name": "Marbled Godwit",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-surfbird",
-      "state": "US-HI",
-      "name": "Surfbird",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-stilt-sandpiper",
-      "state": "US-HI",
-      "name": "Stilt Sandpiper",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-red-necked-stint",
-      "state": "US-HI",
-      "name": "Red-necked Stint",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-little-stint",
-      "state": "US-HI",
-      "name": "Little Stint",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-white-rumped-sandpiper",
-      "state": "US-HI",
-      "name": "White-rumped Sandpiper",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-buff-breasted-sandpiper",
-      "state": "US-HI",
-      "name": "Buff-breasted Sandpiper",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-pin-tailed-snipe",
-      "state": "US-HI",
-      "name": "Pin-tailed Snipe",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-common-snipe",
-      "state": "US-HI",
-      "name": "Common Snipe",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-terek-sandpiper",
-      "state": "US-HI",
-      "name": "Terek Sandpiper",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-common-sandpiper",
-      "state": "US-HI",
-      "name": "Common Sandpiper",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-solitary-sandpiper",
-      "state": "US-HI",
-      "name": "Solitary Sandpiper",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-willet",
-      "state": "US-HI",
-      "name": "Willet",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-spotted-redshank",
-      "state": "US-HI",
-      "name": "Spotted Redshank",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-marsh-sandpiper",
-      "state": "US-HI",
-      "name": "Marsh Sandpiper",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-black-legged-kittiwake",
-      "state": "US-HI",
-      "name": "Black-legged Kittiwake",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-black-headed-gull",
-      "state": "US-HI",
-      "name": "Black-headed Gull",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-mew-gull",
-      "state": "US-HI",
-      "name": "Mew Gull",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-western-gull",
-      "state": "US-HI",
-      "name": "Western Gull",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-california-gull",
-      "state": "US-HI",
-      "name": "California Gull",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-lesser-black-backed-gull",
-      "state": "US-HI",
-      "name": "Lesser Black-backed Gull",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-glaucous-gull",
-      "state": "US-HI",
-      "name": "Glaucous Gull",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-bridled-tern",
-      "state": "US-HI",
-      "name": "Bridled Tern",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-gull-billed-tern",
-      "state": "US-HI",
-      "name": "Gull-billed Tern",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-white-winged-tern",
-      "state": "US-HI",
-      "name": "White-winged Tern",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-whiskered-tern",
-      "state": "US-HI",
-      "name": "Whiskered Tern",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-great-crested-tern",
-      "state": "US-HI",
-      "name": "Great Crested Tern",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-sandwich-tern",
-      "state": "US-HI",
-      "name": "Sandwich Tern",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-elegant-tern",
-      "state": "US-HI",
-      "name": "Elegant Tern",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-parasitic-jaeger",
-      "state": "US-HI",
-      "name": "Parasitic Jaeger",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-long-tailed-jaeger",
-      "state": "US-HI",
-      "name": "Long-tailed Jaeger",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-ancient-murrelet",
-      "state": "US-HI",
-      "name": "Ancient Murrelet",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-parakeet-auklet",
-      "state": "US-HI",
-      "name": "Parakeet Auklet",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-rhinoceros-auklet",
-      "state": "US-HI",
-      "name": "Rhinoceros Auklet",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-horned-puffin",
-      "state": "US-HI",
-      "name": "Horned Puffin",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-pacific-loon",
-      "state": "US-HI",
-      "name": "Pacific Loon",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-wilson-s-storm-petrel",
-      "state": "US-HI",
-      "name": "Wilson's Storm-Petrel",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-northern-fulmar",
-      "state": "US-HI",
-      "name": "Northern Fulmar",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-herald-petrel",
-      "state": "US-HI",
-      "name": "Herald Petrel",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-murphy-s-petrel",
-      "state": "US-HI",
-      "name": "Murphy's Petrel",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-stejneger-s-petrel",
-      "state": "US-HI",
-      "name": "Stejneger's Petrel",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-tahiti-petrel",
-      "state": "US-HI",
-      "name": "Tahiti Petrel",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-jouanin-s-petrel",
-      "state": "US-HI",
-      "name": "Jouanin's Petrel",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-streaked-shearwater",
-      "state": "US-HI",
-      "name": "Streaked Shearwater",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-pink-footed-shearwater",
-      "state": "US-HI",
-      "name": "Pink-footed Shearwater",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-flesh-footed-shearwater",
-      "state": "US-HI",
-      "name": "Flesh-footed Shearwater",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-american-bittern",
-      "state": "US-HI",
-      "name": "American Bittern",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-gray-heron",
-      "state": "US-HI",
-      "name": "Gray Heron",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-great-egret",
-      "state": "US-HI",
-      "name": "Great Egret",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-intermediate-egret",
-      "state": "US-HI",
-      "name": "Intermediate Egret",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-snowy-egret",
-      "state": "US-HI",
-      "name": "Snowy Egret",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-little-blue-heron",
-      "state": "US-HI",
-      "name": "Little Blue Heron",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-green-heron",
-      "state": "US-HI",
-      "name": "Green Heron",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-nazca-booby",
-      "state": "US-HI",
-      "name": "Nazca Booby",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-pelagic-cormorant",
-      "state": "US-HI",
-      "name": "Pelagic Cormorant",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-golden-eagle",
-      "state": "US-HI",
-      "name": "Golden Eagle",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-northern-harrier",
-      "state": "US-HI",
-      "name": "Northern Harrier",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-chinese-sparrowhawk",
-      "state": "US-HI",
-      "name": "Chinese Sparrowhawk",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-white-tailed-eagle",
-      "state": "US-HI",
-      "name": "White-tailed Eagle",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-steller-s-sea-eagle",
-      "state": "US-HI",
-      "name": "Steller's Sea-Eagle",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-rough-legged-hawk",
-      "state": "US-HI",
-      "name": "Rough-legged Hawk",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-snowy-owl",
-      "state": "US-HI",
-      "name": "Snowy Owl",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-merlin",
-      "state": "US-HI",
-      "name": "Merlin",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-common-raven",
-      "state": "US-HI",
-      "name": "Common Raven",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-cliff-swallow",
-      "state": "US-HI",
-      "name": "Cliff Swallow",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-barn-swallow",
-      "state": "US-HI",
-      "name": "Barn Swallow",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-eyebrowed-thrush",
-      "state": "US-HI",
-      "name": "Eyebrowed Thrush",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-olive-backed-pipit",
-      "state": "US-HI",
-      "name": "Olive-backed Pipit",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-red-throated-pipit",
-      "state": "US-HI",
-      "name": "Red-throated Pipit",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-snow-bunting",
-      "state": "US-HI",
-      "name": "Snow Bunting",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Six lifetime records in the 2025 report; current committee review policy needs explicit confirmation",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-savannah-sparrow",
-      "state": "US-HI",
-      "name": "Savannah Sparrow",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-brambling",
-      "state": "US-HI",
-      "name": "Brambling",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-common-redpoll",
-      "state": "US-HI",
-      "name": "Common Redpoll",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "condition": "Historical X membership uses approximately five records per decade; current committee policy uses five lifetime records. Lifetime count requires verification.",
-      "requiresReview": true
-    },
-    {
-      "id": "HI-eastern-spot-billed-duck",
-      "state": "US-HI",
-      "name": "Eastern Spot-billed Duck",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-purple-gallinule",
-      "state": "US-HI",
-      "name": "Purple Gallinule",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-northern-lapwing",
-      "state": "US-HI",
-      "name": "Northern Lapwing",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-little-ringed-plover",
-      "state": "US-HI",
-      "name": "Little Ringed Plover",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-temminck-s-stint",
-      "state": "US-HI",
-      "name": "Temminck's Stint",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-jack-snipe",
-      "state": "US-HI",
-      "name": "Jack Snipe",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-ross-s-gull",
-      "state": "US-HI",
-      "name": "Ross's Gull",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-inca-tern",
-      "state": "US-HI",
-      "name": "Inca Tern",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-ainley-s-storm-petrel",
-      "state": "US-HI",
-      "name": "Ainley's Storm-Petrel",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-magnificent-frigatebird",
-      "state": "US-HI",
-      "name": "Magnificent Frigatebird",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-bohemian-waxwing",
-      "state": "US-HI",
-      "name": "Bohemian Waxwing",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-white-wagtail",
-      "state": "US-HI",
-      "name": "White Wagtail",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-rustic-bunting",
-      "state": "US-HI",
-      "name": "Rustic Bunting",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-common-gull",
-      "state": "US-HI",
-      "name": "Common Gull",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
-      "requiresReview": true,
-      "condition": "Six lifetime records in the 2025 report; current committee review policy needs explicit confirmation"
-    },
-    {
-      "id": "HI-short-billed-gull",
-      "state": "US-HI",
-      "name": "Short-billed Gull",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
-    },
-    {
-      "id": "HI-siberian-pipit",
-      "state": "US-HI",
-      "name": "Siberian Pipit",
-      "sourceId": "HI",
-      "kind": "state-review",
-      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354"
     },
     {
       "id": "ID-emperor-goose",
@@ -55691,6 +54697,1249 @@
       "name": "European Goldfinch",
       "sourceId": "WY",
       "kind": "state-review"
+    },
+    {
+      "id": "HI-ainley-s-storm-petrel",
+      "state": "US-HI",
+      "name": "Ainley's Storm-Petrel",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-american-avocet",
+      "state": "US-HI",
+      "name": "American Avocet",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-american-bittern",
+      "state": "US-HI",
+      "name": "American Bittern",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 2,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-american-pipit",
+      "state": "US-HI",
+      "name": "American Pipit",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "requiresReview": true,
+      "condition": "The 2025 report leaves American Pipit under review after its split from Siberian Pipit; acceptance and lifetime total remain unverified."
+    },
+    {
+      "id": "HI-ancient-murrelet",
+      "state": "US-HI",
+      "name": "Ancient Murrelet",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 2,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-baikal-teal",
+      "state": "US-HI",
+      "name": "Baikal Teal",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 2,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-baird-s-sandpiper",
+      "state": "US-HI",
+      "name": "Baird's Sandpiper",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-barn-swallow",
+      "state": "US-HI",
+      "name": "Barn Swallow",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-black-kite",
+      "state": "US-HI",
+      "name": "Black Kite",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-black-scoter",
+      "state": "US-HI",
+      "name": "Black Scoter",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-black-headed-gull",
+      "state": "US-HI",
+      "name": "Black-headed Gull",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-black-legged-kittiwake",
+      "state": "US-HI",
+      "name": "Black-legged Kittiwake",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-black-tailed-godwit",
+      "state": "US-HI",
+      "name": "Black-tailed Godwit",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-black-winged-stilt",
+      "state": "US-HI",
+      "name": "Black-winged Stilt",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 3,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-bohemian-waxwing",
+      "state": "US-HI",
+      "name": "Bohemian Waxwing",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-brambling",
+      "state": "US-HI",
+      "name": "Brambling",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-bridled-tern",
+      "state": "US-HI",
+      "name": "Bridled Tern",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-bryan-s-shearwater",
+      "state": "US-HI",
+      "name": "Bryan's Shearwater",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-buff-breasted-sandpiper",
+      "state": "US-HI",
+      "name": "Buff-breasted Sandpiper",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-california-gull",
+      "state": "US-HI",
+      "name": "California Gull",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-chinese-sparrowhawk",
+      "state": "US-HI",
+      "name": "Chinese Sparrowhawk",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-cliff-swallow",
+      "state": "US-HI",
+      "name": "Cliff Swallow",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-common-cuckoo",
+      "state": "US-HI",
+      "name": "Common Cuckoo",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-common-goldeneye",
+      "state": "US-HI",
+      "name": "Common Goldeneye",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-common-merganser",
+      "state": "US-HI",
+      "name": "Common Merganser",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-common-nighthawk",
+      "state": "US-HI",
+      "name": "Common Nighthawk",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-common-pochard",
+      "state": "US-HI",
+      "name": "Common Pochard",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-common-raven",
+      "state": "US-HI",
+      "name": "Common Raven",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-common-redpoll",
+      "state": "US-HI",
+      "name": "Common Redpoll",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "The historical source taxon has since lumped. The combined taxon's current lifetime total requires verification."
+    },
+    {
+      "id": "HI-common-ringed-plover",
+      "state": "US-HI",
+      "name": "Common Ringed Plover",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-common-sandpiper",
+      "state": "US-HI",
+      "name": "Common Sandpiper",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-common-snipe",
+      "state": "US-HI",
+      "name": "Common Snipe",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-eared-grebe",
+      "state": "US-HI",
+      "name": "Eared Grebe",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-eastern-spot-billed-duck",
+      "state": "US-HI",
+      "name": "Eastern Spot-billed Duck",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-elegant-tern",
+      "state": "US-HI",
+      "name": "Elegant Tern",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 2,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-emperor-goose",
+      "state": "US-HI",
+      "name": "Emperor Goose",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-eurasian-dotterel",
+      "state": "US-HI",
+      "name": "Eurasian Dotterel",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-eyebrowed-thrush",
+      "state": "US-HI",
+      "name": "Eyebrowed Thrush",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-falcated-duck",
+      "state": "US-HI",
+      "name": "Falcated Duck",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-far-eastern-curlew",
+      "state": "US-HI",
+      "name": "Far Eastern Curlew",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-flesh-footed-shearwater",
+      "state": "US-HI",
+      "name": "Flesh-footed Shearwater",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-fork-tailed-swift",
+      "state": "US-HI",
+      "name": "Fork-tailed Swift",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-glaucous-gull",
+      "state": "US-HI",
+      "name": "Glaucous Gull",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-golden-eagle",
+      "state": "US-HI",
+      "name": "Golden Eagle",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-gray-heron",
+      "state": "US-HI",
+      "name": "Gray Heron",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 2,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-great-crested-tern",
+      "state": "US-HI",
+      "name": "Great Crested Tern",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-great-egret",
+      "state": "US-HI",
+      "name": "Great Egret",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-green-heron",
+      "state": "US-HI",
+      "name": "Green Heron",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-gull-billed-tern",
+      "state": "US-HI",
+      "name": "Gull-billed Tern",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-harlequin-duck",
+      "state": "US-HI",
+      "name": "Harlequin Duck",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-herald-petrel",
+      "state": "US-HI",
+      "name": "Herald Petrel",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-horned-grebe",
+      "state": "US-HI",
+      "name": "Horned Grebe",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-horned-puffin",
+      "state": "US-HI",
+      "name": "Horned Puffin",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-hudsonian-godwit",
+      "state": "US-HI",
+      "name": "Hudsonian Godwit",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-iceland-gull",
+      "state": "US-HI",
+      "name": "Iceland Gull",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-inca-tern",
+      "state": "US-HI",
+      "name": "Inca Tern",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-intermediate-egret",
+      "state": "US-HI",
+      "name": "Intermediate Egret",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "The historical source taxon has since split. Record reidentification and the current lifetime total require verification."
+    },
+    {
+      "id": "HI-jack-snipe",
+      "state": "US-HI",
+      "name": "Jack Snipe",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-jouanin-s-petrel",
+      "state": "US-HI",
+      "name": "Jouanin's Petrel",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-lesser-black-backed-gull",
+      "state": "US-HI",
+      "name": "Lesser Black-backed Gull",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-lesser-sand-plover",
+      "state": "US-HI",
+      "name": "Lesser Sand-Plover",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "The historical source taxon has since split. Record reidentification and the current lifetime total require verification."
+    },
+    {
+      "id": "HI-little-blue-heron",
+      "state": "US-HI",
+      "name": "Little Blue Heron",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-little-ringed-plover",
+      "state": "US-HI",
+      "name": "Little Ringed Plover",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-little-stint",
+      "state": "US-HI",
+      "name": "Little Stint",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-long-tailed-duck",
+      "state": "US-HI",
+      "name": "Long-tailed Duck",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-long-tailed-jaeger",
+      "state": "US-HI",
+      "name": "Long-tailed Jaeger",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-long-toed-stint",
+      "state": "US-HI",
+      "name": "Long-toed Stint",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-magnificent-frigatebird",
+      "state": "US-HI",
+      "name": "Magnificent Frigatebird",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-marbled-godwit",
+      "state": "US-HI",
+      "name": "Marbled Godwit",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-marsh-sandpiper",
+      "state": "US-HI",
+      "name": "Marsh Sandpiper",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-merlin",
+      "state": "US-HI",
+      "name": "Merlin",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-murphy-s-petrel",
+      "state": "US-HI",
+      "name": "Murphy's Petrel",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-nazca-booby",
+      "state": "US-HI",
+      "name": "Nazca Booby",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "The historical checklist includes breeding status. A current lifetime total within the committee's five-record threshold has not been established."
+    },
+    {
+      "id": "HI-northern-fulmar",
+      "state": "US-HI",
+      "name": "Northern Fulmar",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-northern-harrier",
+      "state": "US-HI",
+      "name": "Northern Harrier",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-northern-lapwing",
+      "state": "US-HI",
+      "name": "Northern Lapwing",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-olive-backed-pipit",
+      "state": "US-HI",
+      "name": "Olive-backed Pipit",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-pacific-loon",
+      "state": "US-HI",
+      "name": "Pacific Loon",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-parakeet-auklet",
+      "state": "US-HI",
+      "name": "Parakeet Auklet",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-parasitic-jaeger",
+      "state": "US-HI",
+      "name": "Parasitic Jaeger",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-pelagic-cormorant",
+      "state": "US-HI",
+      "name": "Pelagic Cormorant",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-pin-tailed-snipe",
+      "state": "US-HI",
+      "name": "Pin-tailed Snipe",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-pink-footed-shearwater",
+      "state": "US-HI",
+      "name": "Pink-footed Shearwater",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-purple-gallinule",
+      "state": "US-HI",
+      "name": "Purple Gallinule",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-red-necked-grebe",
+      "state": "US-HI",
+      "name": "Red-necked Grebe",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-red-necked-stint",
+      "state": "US-HI",
+      "name": "Red-necked Stint",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-red-throated-pipit",
+      "state": "US-HI",
+      "name": "Red-throated Pipit",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-redhead",
+      "state": "US-HI",
+      "name": "Redhead",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-rhinoceros-auklet",
+      "state": "US-HI",
+      "name": "Rhinoceros Auklet",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-ross-s-gull",
+      "state": "US-HI",
+      "name": "Ross's Gull",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-rough-legged-hawk",
+      "state": "US-HI",
+      "name": "Rough-legged Hawk",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-ruddy-duck",
+      "state": "US-HI",
+      "name": "Ruddy Duck",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-rustic-bunting",
+      "state": "US-HI",
+      "name": "Rustic Bunting",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-salvin-s-albatross",
+      "state": "US-HI",
+      "name": "Salvin's Albatross",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-sandhill-crane",
+      "state": "US-HI",
+      "name": "Sandhill Crane",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-sandwich-tern",
+      "state": "US-HI",
+      "name": "Sandwich Tern",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-savannah-sparrow",
+      "state": "US-HI",
+      "name": "Savannah Sparrow",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-short-billed-gull",
+      "state": "US-HI",
+      "name": "Short-billed Gull",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 3,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-siberian-pipit",
+      "state": "US-HI",
+      "name": "Siberian Pipit",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 2,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-snowy-egret",
+      "state": "US-HI",
+      "name": "Snowy Egret",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-snowy-owl",
+      "state": "US-HI",
+      "name": "Snowy Owl",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-solitary-sandpiper",
+      "state": "US-HI",
+      "name": "Solitary Sandpiper",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-sora",
+      "state": "US-HI",
+      "name": "Sora",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-spotted-redshank",
+      "state": "US-HI",
+      "name": "Spotted Redshank",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-stejneger-s-petrel",
+      "state": "US-HI",
+      "name": "Stejneger's Petrel",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-steller-s-sea-eagle",
+      "state": "US-HI",
+      "name": "Steller's Sea-Eagle",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-stilt-sandpiper",
+      "state": "US-HI",
+      "name": "Stilt Sandpiper",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-streaked-shearwater",
+      "state": "US-HI",
+      "name": "Streaked Shearwater",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-surf-scoter",
+      "state": "US-HI",
+      "name": "Surf Scoter",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-surfbird",
+      "state": "US-HI",
+      "name": "Surfbird",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-tahiti-petrel",
+      "state": "US-HI",
+      "name": "Tahiti Petrel",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-temminck-s-stint",
+      "state": "US-HI",
+      "name": "Temminck's Stint",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 1,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-terek-sandpiper",
+      "state": "US-HI",
+      "name": "Terek Sandpiper",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-western-gull",
+      "state": "US-HI",
+      "name": "Western Gull",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-whiskered-tern",
+      "state": "US-HI",
+      "name": "Whiskered Tern",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-white-wagtail",
+      "state": "US-HI",
+      "name": "White Wagtail",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 2,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-white-rumped-sandpiper",
+      "state": "US-HI",
+      "name": "White-rumped Sandpiper",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-white-tailed-eagle",
+      "state": "US-HI",
+      "name": "White-tailed Eagle",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-white-winged-tern",
+      "state": "US-HI",
+      "name": "White-winged Tern",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "documentedRecords": 2,
+      "recordsAsOf": "2024",
+      "reportYear": "2025"
+    },
+    {
+      "id": "HI-willet",
+      "state": "US-HI",
+      "name": "Willet",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-wilson-s-storm-petrel",
+      "state": "US-HI",
+      "name": "Wilson's Storm-Petrel",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
+    },
+    {
+      "id": "HI-yellow-billed-cuckoo",
+      "state": "US-HI",
+      "name": "Yellow-billed Cuckoo",
+      "sourceId": "HI",
+      "kind": "state-review",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "requiresReview": true,
+      "condition": "Current lifetime total unverified. Historical checklist membership or Va status alone does not establish the current five-record condition."
     }
   ],
   "unmatchedSourceTaxa": [
