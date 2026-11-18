@@ -67,12 +67,32 @@
     {
       "path": "/api/cron/archive-recovery",
       "schedule": "30 17 * * 1"
+    },
+    {
+      "path": "/api/cron/daily-digests?region=nationwide",
+      "schedule": "0,30 13,14 * * *"
+    },
+    {
+      "path": "/api/cron/daily-digests?region=northeast",
+      "schedule": "1,31 13,14 * * *"
+    },
+    {
+      "path": "/api/cron/daily-digests?region=midwest",
+      "schedule": "2,32 13,14 * * *"
+    },
+    {
+      "path": "/api/cron/daily-digests?region=south",
+      "schedule": "3,33 13,14 * * *"
+    },
+    {
+      "path": "/api/cron/daily-digests?region=west",
+      "schedule": "4,34 13,14 * * *"
     }
   ],
   "functions": {
     "api/page.js": {
       "includeFiles": "{dist/index.html,server-render/**}",
-      "maxDuration": 30
+      "maxDuration": 60
     },
     "api/sitemap.js": {
       "maxDuration": 30
@@ -84,6 +104,9 @@
       "maxDuration": 60
     },
     "api/sighting.js": {
+      "maxDuration": 60
+    },
+    "api/daily-digest.js": {
       "maxDuration": 60
     }
   },

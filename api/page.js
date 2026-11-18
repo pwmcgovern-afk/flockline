@@ -1,3 +1,6 @@
+import { enforceRateLimit } from "../lib/rateLimit.js";
+import { ensureDailyDigest, getDailyDigest, listDailyDigests } from "../lib/dailyDigestArchive.js";
+import { dailyDate, dailyDigestPath, parseDailyDigestPath } from "../shared/dailyDigest.js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
@@ -22,7 +25,27 @@ export default async function handler(request, response) {
   let status = 200;
   let initial = {};
   try {
-    if (path.startsWith("/sightings")) {
+    if (path === "/digest" || path.startsWith("/digest/")) {
+      const parsed = parseDailyDigestPath(path);
+      if (!parsed.valid || (parsed.date && parsed.date > dailyDate())) status = 404;
+      else if (!archiveConfigured()) throw new Error("Daily digest storage unavailable");
+      else if (!parsed.scopeId) initial = { dailyIndex: { issues: await listDailyDigests() } };
+      else if (!parsed.date) {
+        response.setHeader("Location", dailyDigestPath(parsed.scopeId, dailyDate(), parsed.back));
+        response.setHeader("Cache-Control", "no-store");
+        return response.status(307).end();
+      } else {
+        let dailyDigest = await getDailyDigest(parsed.scopeId, parsed.date, parsed.back);
+        if (!dailyDigest && parsed.date === dailyDate()) {
+          if (!enforceRateLimit(request, response, { name: "daily-page-create", limit: 12, windowMs: 60 * 60 * 1000, message: "Too many new digest requests. Please try again later." })) return;
+          // Generate the first edition before responding so a newly shared URL
+          // already has complete server-rendered content and link metadata.
+          dailyDigest = await ensureDailyDigest({ scopeId: parsed.scopeId, date: parsed.date, back: parsed.back });
+        }
+        if (dailyDigest) initial = { dailyDigest };
+        else status = 404;
+      }
+    } else if (path.startsWith("/sightings")) {
       const address = parseSightingPath(path);
       if (!address) status = 404;
       else initial = { sighting: await getSightingDetails({ subId: address.subId, species: address.speciesCode }) };
@@ -60,19 +83,20 @@ export default async function handler(request, response) {
       status = 404;
   } catch (error) {
     console.error("SEO page archive read failed", error.message);
-    status = error.statusCode === 404 ? 404 : 503;
+    status = [404, 413].includes(error.statusCode) ? error.statusCode : 503;
+    if (status === 413) initial = { dailyError: "This selection is too large to save. Choose a shorter report window." };
     response.setHeader("Retry-After", "60");
   }
   response.setHeader("Content-Type", "text/html; charset=utf-8");
   response.setHeader(
     "X-Robots-Tag",
-    status === 200 && process.env.VERCEL_ENV !== "preview"
+    status === 200 && !initial.dailyPending && process.env.VERCEL_ENV !== "preview"
       ? "index, follow"
       : "noindex",
   );
   response.setHeader(
     "Cache-Control",
-    status === 200
+    status === 200 && !initial.dailyPending
       ? "public, max-age=0, s-maxage=300, stale-while-revalidate=3600"
       : "no-store",
   );

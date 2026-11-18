@@ -1,3 +1,4 @@
+import { dailyDate, scopeFromId } from "../../shared/dailyDigest.js";
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import { chromium, webkit } from "playwright";
@@ -1468,4 +1469,60 @@ test("phone archive preserves editorial dates and source explanations", async ()
   assert.equal(await s.page.getByRole("link", {name: "Why it qualifies"}).getAttribute("href"), "https://nybirds.org/NYSARC/NYSARClist.htm");
   assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await finish(s);
+});
+
+test("desktop and phone Insights share a saved dated digest with clipboard fallback", async () => {
+  for (const width of [1280, 390]) {
+    const requests = [];
+    const date = dailyDate();
+    const s = await session({ width, height: 844, touch: width < 600, handlers: {
+      "/api/daily-digest": async (route) => {
+        const body = route.request().postDataJSON();
+        requests.push(body);
+        const scope = scopeFromId(body.scope);
+        return json(route, { ...insights(new URL(base + "/?regions=" + scope.regions.join(",") + "&back=" + body.back)), version: "daily-v1", scopeId: body.scope, scopeLabel: scope.label, date: body.date, publishedAt: new Date().toISOString() });
+      },
+    } });
+    await s.context.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("Clipboard blocked"); } } });
+    });
+    await openMap(s.page);
+    await s.page.locator(".tab-insights").click();
+    await s.page.getByRole("group", { name: "Insights region" }).getByRole("button", { name: "West", exact: true }).click();
+    await s.page.getByRole("group", { name: "Insights window" }).getByRole("button", { name: "1D", exact: true }).click();
+    const path = "/digest/west/" + date;
+    await s.page.waitForFunction((expected) => document.querySelector(".daily-actions a")?.getAttribute("href") === expected, path);
+    await s.page.getByRole("button", { name: "Share digest", exact: true }).click();
+    await s.page.getByRole("textbox", { name: "Digest address" }).waitFor();
+    assert.equal(await s.page.getByRole("textbox", { name: "Digest address" }).inputValue(), base + path);
+    assert.deepEqual(requests, [{ scope: "west", date, back: 1 }]);
+    await s.page.getByRole("link", { name: "Open digest", exact: true }).click();
+    assert.equal(new URL(s.page.url()).pathname, path);
+    await finish(s);
+  }
+});
+
+test("desktop and phone daily pages render saved reports and keep historical dates read-only", async () => {
+  for (const width of [1280, 390]) {
+    const methods = [];
+    const scope = scopeFromId("west");
+    const s = await session({ width, height: 844, touch: width < 600, handlers: {
+      "/api/daily-digest": async (route) => {
+        methods.push(route.request().method());
+        return json(route, {
+          ...insights(new URL(base + "/?regions=" + scope.regions.join(","))),
+          version: "daily-v1", scopeId: "west", scopeLabel: "West", date: "2026-11-16",
+          generatedAt: "2026-11-16T14:00:00Z", publishedAt: "2026-11-16T14:00:00Z", back: 1,
+          findings: [{ kind: "notable", title: "Saved Godwit", detail: "Original saved bird report.", comName: "Hudsonian Godwit", speciesCode: "hudgod", subId: "S123456789", obsReviewed: false, obsValid: false }],
+        });
+      },
+    } });
+    await s.page.goto(base + "/digest/west/2026-11-16");
+    await s.page.getByRole("heading", { name: "Saved Godwit" }).waitFor();
+    assert.ok(methods.length > 0 && methods.every((method) => method === "GET"), "Historical daily pages only read saved data, including StrictMode remounts");
+    assert.equal(await s.page.getByText("Not yet reviewed", { exact: true }).count(), 1);
+    assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
+    assert.equal(await s.page.getByRole("link", { name: "All daily digests", exact: true }).count(), 1);
+    await finish(s);
+  }
 });

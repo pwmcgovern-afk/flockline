@@ -1,3 +1,4 @@
+import dailyDigestHandler from "../api/daily-digest.js";
 import cors from "cors";
 import express from "express";
 import configHandler from "../api/config.js";
@@ -30,6 +31,7 @@ export function createApp() {
     "/api/sighting": sightingHandler,
     "/api/chat": chatHandler,
     "/api/roundup-archive": roundupArchiveHandler,
+    "/api/daily-digest": dailyDigestHandler,
   };
   for (const [path, handler] of Object.entries(dataRoutes)) app.all(path, handler);
 

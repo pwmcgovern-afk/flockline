@@ -1,3 +1,4 @@
+import DailyDigest, { type DailyInitial } from "./DailyDigest";
 import { renderToString } from "react-dom/server";
 import NewsletterPage from "./NewsletterPage";
 import Methodology from "./Methodology";
@@ -16,7 +17,7 @@ const ORIGIN = "https://flockline.app";
 export function renderPage(
   template: string,
   url: URL,
-  initial: ArchiveInitial & { sighting?: SightingDetails } = {},
+  initial: ArchiveInitial & DailyInitial & { sighting?: SightingDetails } = {},
   status = 200,
 ) {
   // Apply the same source-only descriptions to visible copy, metadata and the
@@ -40,6 +41,10 @@ export function renderPage(
               "Learn how Flockline maps eBird reports, how the timeline works, and what bird sightings can and cannot tell you.",
           }
         : buildMeta(url);
+  if (path === "/digest" || path.startsWith("/digest/")) {
+    meta.title = initial.dailyDigest ? `${initial.dailyDigest.scopeLabel} bird digest · ${initial.dailyDigest.date} · Flockline` : "Daily bird digests · Flockline";
+    meta.description = initial.dailyDigest ? `Saved ${initial.dailyDigest.date}: ${initial.dailyDigest.findings.length} selected eBird reports for ${initial.dailyDigest.scopeLabel}, covering the past ${initial.dailyDigest.back} ${initial.dailyDigest.back === 1 ? "day" : "days"}. Open the dated edition and original checklists.` : "Dated bird report pages for Nationwide, Northeast, Midwest, South, and West. Open and share a saved daily edition.";
+  }
   if (initial.roundup) meta.description = initial.roundup.summary;
   if (initial.sighting && status === 200) {
     const { finding, checklist } = initial.sighting;
@@ -55,7 +60,7 @@ export function renderPage(
         <div className="methodology-inner">
           <h1>Temporarily unavailable</h1>
           <p>
-            Please try again shortly. <a href="/">Open the bird map</a>.
+            {initial.dailyError || "Please try again shortly."} <a href="/">Open the bird map</a>.
           </p>
         </div>
       </main>
@@ -65,6 +70,8 @@ export function renderPage(
       <Methodology />
     ) : path.startsWith("/sightings/") ? (
       <SightingPage pathname={path} initial={initial.sighting} />
+    ) : path === "/digest" || path.startsWith("/digest/") ? (
+      <DailyDigest pathname={path} initial={initial} />
     ) : path.startsWith("/roundup") ? (
       <RoundupArchive pathname={path} initial={initial} />
     ) : (
@@ -130,16 +137,16 @@ export function renderPage(
   ];
   if (status === 200) {
     graph.push({
-      "@type": initial.roundup ? "Article" : "WebPage",
+      "@type": initial.roundup || initial.dailyDigest ? "Article" : "WebPage",
       "@id": `${canonical}#page`,
       url: canonical,
       name: meta.title,
       description: meta.description,
       isPartOf: { "@id": `${ORIGIN}/#website` },
-      ...(initial.roundup
+      ...(initial.roundup || initial.dailyDigest
         ? {
             headline: meta.title,
-            datePublished: initial.roundup.generatedAt,
+            datePublished: initial.roundup?.generatedAt || initial.dailyDigest?.publishedAt,
             author: { "@type": "Organization", name: "Flockline", url: ORIGIN },
             mainEntityOfPage: canonical,
           }
@@ -180,7 +187,7 @@ export function renderPage(
   html = html.replace(
     "</head>",
     () =>
-      `<meta name="robots" content="${status === 200 ? "index, follow, max-image-preview:large" : "noindex"}" /><script type="application/ld+json">${json({ "@context": "https://schema.org", "@graph": graph })}</script></head>`,
+      `<meta name="robots" content="${status === 200 && !initial.dailyPending ? "index, follow, max-image-preview:large" : "noindex"}" /><script type="application/ld+json">${json({ "@context": "https://schema.org", "@graph": graph })}</script></head>`,
   );
   html = html.replace(
     "</body>",
