@@ -1519,7 +1519,7 @@ test("desktop and phone daily pages render saved reports and keep historical dat
     } });
     await s.page.goto(base + "/digest/west/2026-11-16");
     await s.page.getByRole("heading", { name: "Saved Godwit" }).waitFor();
-    assert.deepEqual(methods, ["GET"]);
+    assert.ok(methods.length > 0 && methods.every((method) => method === "GET"), "Historical daily pages only read saved data, including StrictMode remounts");
     assert.equal(await s.page.getByText("Not yet reviewed", { exact: true }).count(), 1);
     assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
     assert.equal(await s.page.getByRole("link", { name: "All daily digests", exact: true }).count(), 1);
