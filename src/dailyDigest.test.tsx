@@ -22,6 +22,11 @@ describe("saved daily digest pages", () => {
     expect(html).toContain("Share digest");
     expect(html).toContain("All daily digests");
   });
+  it("explains an oversized selection without indexing the error page", () => {
+    const html = renderPage(template, new URL("https://flockline.app/digest/west/2026-11-17/30d"), { dailyError: "Choose a shorter report window." }, 413);
+    expect(html).toContain("Choose a shorter report window.");
+    expect(html).toContain('name="robots" content="noindex"');
+  });
   it("keeps a current unsaved shell out of indexing while it prepares the edition", () => {
     const html = renderPage(template, new URL("https://flockline.app/digest/west/2026-11-17"), { dailyPending: true });
     expect(html).toContain('name="robots" content="noindex"');

@@ -14,7 +14,7 @@ export type SavedDailyDigest = Omit<InsightsResponse, "findings"> & {
   findings: (Insight & { image?: { url: string; alt: string; kind: string } })[];
 };
 export type DailyIndex = { issues: { scopeId: string; date: string; back: number; path: string }[] };
-export type DailyInitial = { dailyDigest?: SavedDailyDigest; dailyIndex?: DailyIndex; dailyPending?: boolean };
+export type DailyInitial = { dailyDigest?: SavedDailyDigest; dailyIndex?: DailyIndex; dailyPending?: boolean; dailyError?: string };
 
 function dateLabel(date: string) {
   return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(date + "T12:00:00Z"));

@@ -60,7 +60,7 @@ export function renderPage(
         <div className="methodology-inner">
           <h1>Temporarily unavailable</h1>
           <p>
-            Please try again shortly. <a href="/">Open the bird map</a>.
+            {initial.dailyError || "Please try again shortly."} <a href="/">Open the bird map</a>.
           </p>
         </div>
       </main>

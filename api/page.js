@@ -83,7 +83,8 @@ export default async function handler(request, response) {
       status = 404;
   } catch (error) {
     console.error("SEO page archive read failed", error.message);
-    status = error.statusCode === 404 ? 404 : 503;
+    status = [404, 413].includes(error.statusCode) ? error.statusCode : 503;
+    if (status === 413) initial = { dailyError: "This selection is too large to save. Choose a shorter report window." };
     response.setHeader("Retry-After", "60");
   }
   response.setHeader("Content-Type", "text/html; charset=utf-8");
