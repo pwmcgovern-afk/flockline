@@ -1,0 +1,859 @@
+{
+  "reviewed": "2026-11-17",
+  "policyUrl": "https://westernfieldornithologists.org/hawaii-birds-records-committee/",
+  "reportUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+  "reportCoverageEnd": "2024",
+  "checklistUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+  "limits": "Counts are published committee records through 2024, not a live census. Older checklist membership or Va status alone does not establish a current lifetime total. The committee area includes Midway Atoll, outside the state of Hawaii.",
+  "entries": [
+    {
+      "name": "Ainley's Storm-Petrel",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 13
+    },
+    {
+      "name": "American Avocet",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "American Bittern",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 2,
+      "recordsAsOf": "2024",
+      "reportPage": 13
+    },
+    {
+      "name": "American Pipit",
+      "decision": "hold",
+      "reason": "pending_committee_decision_after_split",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "reportPage": 4
+    },
+    {
+      "name": "Ancient Murrelet",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 2,
+      "recordsAsOf": "2024",
+      "reportPage": 12
+    },
+    {
+      "name": "Baikal Teal",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 2,
+      "recordsAsOf": "2024",
+      "reportPage": 4
+    },
+    {
+      "name": "Baird's Sandpiper",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 4
+    },
+    {
+      "name": "Barn Swallow",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Black Kite",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 8
+    },
+    {
+      "name": "Black Scoter",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 3
+    },
+    {
+      "name": "Black-headed Gull",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Black-legged Kittiwake",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Black-tailed Godwit",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Black-winged Stilt",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 3,
+      "recordsAsOf": "2024",
+      "reportPage": 6
+    },
+    {
+      "name": "Bohemian Waxwing",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 15
+    },
+    {
+      "name": "Brambling",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Bridled Tern",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Bryan's Shearwater",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 7
+    },
+    {
+      "name": "Buff-breasted Sandpiper",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "California Gull",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Chinese Sparrowhawk",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Cliff Swallow",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Cocos Booby",
+      "decision": "exclude",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "reason": "breeding_population_without_supported_low_record_total",
+      "reportPage": 4
+    },
+    {
+      "name": "Common Cuckoo",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 3
+    },
+    {
+      "name": "Common Goldeneye",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Common Gull",
+      "decision": "exclude",
+      "reason": "above_current_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 6,
+      "reportPage": 9
+    },
+    {
+      "name": "Common Merganser",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Common Nighthawk",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Common Pochard",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 2
+    },
+    {
+      "name": "Common Raven",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Common Redpoll",
+      "decision": "hold",
+      "reason": "taxonomic_lump_requires_combined_record_total",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Common Ringed Plover",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Common Sandpiper",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Common Snipe",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Eared Grebe",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Eastern Spot-billed Duck",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 4
+    },
+    {
+      "name": "Elegant Tern",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 2,
+      "recordsAsOf": "2024",
+      "reportPage": 11
+    },
+    {
+      "name": "Emperor Goose",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Eurasian Dotterel",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Eyebrowed Thrush",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Falcated Duck",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 2
+    },
+    {
+      "name": "Far Eastern Curlew",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Flesh-footed Shearwater",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Fork-tailed Swift",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 4
+    },
+    {
+      "name": "Glaucous Gull",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Golden Eagle",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Gray Heron",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 2,
+      "recordsAsOf": "2024",
+      "reportPage": 13
+    },
+    {
+      "name": "Great Crested Tern",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Great Egret",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Green Heron",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Gull-billed Tern",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Harlequin Duck",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Herald Petrel",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Horned Grebe",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Horned Puffin",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Hudsonian Godwit",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Iceland Gull",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 11
+    },
+    {
+      "name": "Inca Tern",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 11
+    },
+    {
+      "name": "Intermediate Egret",
+      "decision": "hold",
+      "reason": "taxonomic_split_requires_record_reidentification",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Jack Snipe",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 8
+    },
+    {
+      "name": "Jouanin's Petrel",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Lesser Black-backed Gull",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Lesser Sand-Plover",
+      "decision": "hold",
+      "reason": "taxonomic_split_requires_record_reidentification",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Little Blue Heron",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Little Ringed Plover",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 6
+    },
+    {
+      "name": "Little Stint",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Long-tailed Duck",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Long-tailed Jaeger",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Long-toed Stint",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 4
+    },
+    {
+      "name": "Magnificent Frigatebird",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 14
+    },
+    {
+      "name": "Marbled Godwit",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Marsh Sandpiper",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Merlin",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Mew Gull",
+      "decision": "exclude",
+      "reason": "superseded_taxon",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "reportPage": 9
+    },
+    {
+      "name": "Murphy's Petrel",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Nazca Booby",
+      "decision": "hold",
+      "reason": "historical_breeding_status_and_current_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Northern Fulmar",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Northern Harrier",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Northern Lapwing",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 6
+    },
+    {
+      "name": "Olive-backed Pipit",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Pacific Loon",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Parakeet Auklet",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Parasitic Jaeger",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Pelagic Cormorant",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Pin-tailed Snipe",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Pink-footed Shearwater",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Purple Gallinule",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 5
+    },
+    {
+      "name": "Red-necked Grebe",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Red-necked Stint",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Red-throated Pipit",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Redhead",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Rhinoceros Auklet",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Ross's Gull",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 8
+    },
+    {
+      "name": "Rosy-faced Lovebird",
+      "decision": "exclude",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "reason": "established_introduced_population",
+      "reportPage": 15
+    },
+    {
+      "name": "Rough-legged Hawk",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Ruddy Duck",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Rustic Bunting",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 17
+    },
+    {
+      "name": "Salvin's Albatross",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf",
+      "checklistPage": 6
+    },
+    {
+      "name": "Sandhill Crane",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Sandwich Tern",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Savannah Sparrow",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Short-billed Gull",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 3,
+      "recordsAsOf": "2024",
+      "reportPage": 10
+    },
+    {
+      "name": "Siberian Pipit",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 2,
+      "recordsAsOf": "2024",
+      "reportPage": 17
+    },
+    {
+      "name": "Snow Bunting",
+      "decision": "exclude",
+      "reason": "above_current_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 6,
+      "reportPage": 17
+    },
+    {
+      "name": "Snowy Egret",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Snowy Owl",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Solitary Sandpiper",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Sora",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Spotted Redshank",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Stejneger's Petrel",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Steller's Sea-Eagle",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Stilt Sandpiper",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Streaked Shearwater",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Surf Scoter",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Surfbird",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Tahiti Petrel",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Temminck's Stint",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 1,
+      "recordsAsOf": "2024",
+      "reportPage": 7
+    },
+    {
+      "name": "Terek Sandpiper",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Western Gull",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Whiskered Tern",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "White Wagtail",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 2,
+      "recordsAsOf": "2024",
+      "reportPage": 16
+    },
+    {
+      "name": "White-rumped Sandpiper",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "White-tailed Eagle",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "White-winged Tern",
+      "decision": "eligible",
+      "reason": "published_lifetime_records_within_threshold",
+      "sourceUrl": "https://www.journal.westernfieldornithologists.org/index.php/westernbirds/article/view/354",
+      "records": 2,
+      "recordsAsOf": "2024",
+      "reportPage": 11
+    },
+    {
+      "name": "Willet",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Wilson's Storm-Petrel",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    },
+    {
+      "name": "Yellow-billed Cuckoo",
+      "decision": "hold",
+      "reason": "current_lifetime_total_unverified",
+      "sourceUrl": "https://westernfieldornithologists.org/wp-content/uploads/2020/06/Hawaiian_Islands_Bird_Checklist-Jan-2019.pdf"
+    }
+  ]
+}
