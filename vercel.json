@@ -69,6 +69,10 @@
       "schedule": "30 17 * * 1"
     },
     {
+      "path": "/api/cron/daily-illustrations",
+      "schedule": "6,21 13,14 * * *"
+    },
+    {
       "path": "/api/cron/daily-digests?region=nationwide",
       "schedule": "0,15,30,45 13,14 * * *"
     },

@@ -3,15 +3,16 @@ import { DIGEST_REGIONS } from "../../shared/digestRegions.js";
 import { ensureDailyDigest } from "../../lib/dailyDigestArchive.js";
 
 import { deliverDailyDigest } from "../../lib/dailyDigestDelivery.js";
+import { generationConfigured } from "../../lib/illustrationGeneration.js";
 
 export const config = { maxDuration: 300 };
 export function dailyGenerationHour(now = new Date()) {
   return Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "2-digit", hourCycle: "h23" }).format(now)) === 9;
 }
 // Four attempts per morning (:00, :15, :30, :45 plus a per-region offset).
-// The first two draw missing species art and wait for a complete set. The
-// last two send with whatever art is cached, so an image outage never cancels
-// the morning email and one missed attempt still leaves another.
+// :00 publishes the edition. Until :30, a bird the daily-illustrations job can
+// still draw holds the send; from :30 on, the email goes out with whatever art
+// is cached, so an image outage never cancels the morning email.
 export function isFinalDailyAttempt(now = new Date()) {
   return dailyGenerationHour(now) && now.getUTCMinutes() >= 30;
 }
@@ -29,13 +30,11 @@ export default async function handler(request, response) {
   try {
     const digest = await ensureDailyDigest({ scopeId, date: dailyDate(now), back: 1 }, { now });
     const final = isFinalDailyAttempt(now);
-    const receipt = await deliverDailyDigest(digest, {
-      generateMissing: !final, allowPartialArtwork: final,
-      // Vercel supplies fresh gateway credentials on the cron request; the
-      // environment token is for builds and can already be expired.
-      environment: { ...process.env, VERCEL_OIDC_TOKEN: request.headers["x-vercel-oidc-token"] || process.env.VERCEL_OIDC_TOKEN },
-    });
-    return response.status(200).json({ ok: true, delivery: receipt.status, scopeId, date: digest.date, findings: digest.findings.length, illustrations: receipt.illustrations, unresolved: receipt.unresolved });
+    const generationReady = generationConfigured({ ...process.env, VERCEL_OIDC_TOKEN: request.headers["x-vercel-oidc-token"] || process.env.VERCEL_OIDC_TOKEN });
+    const receipt = await deliverDailyDigest(digest, { allowPartialArtwork: final, generationReady });
+    const held = receipt.status === "awaiting_illustrations";
+    if (held) console.info(JSON.stringify({ event: "daily_digest_awaiting_illustrations", scopeId, unresolved: receipt.unresolved }));
+    return response.status(held ? 503 : 200).json({ ok: !held, delivery: receipt.status, scopeId, date: digest.date, findings: digest.findings.length, illustrations: receipt.illustrations, unresolved: receipt.unresolved });
   } catch (error) {
     console.error("Daily digest publication or delivery failed", scopeId, error.message);
     return response.status(503).json({ error: "Daily digest publication or delivery failed", scopeId });
