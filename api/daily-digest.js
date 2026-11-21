@@ -1,6 +1,6 @@
 import { waitUntil } from "@vercel/functions";
 import { dailyDate, dailyDigestPath } from "../shared/dailyDigest.js";
-import { ensureDailyDigest, getDailyDigest, listDailyDigests } from "../lib/dailyDigestArchive.js";
+import { ensureDailyDigest, getDailyDigest, listDailyDigests, withCurrentIllustrations } from "../lib/dailyDigestArchive.js";
 import { getInsights } from "../lib/ebirdCore.js";
 import { enforceRateLimit } from "../lib/rateLimit.js";
 
@@ -28,7 +28,7 @@ export default async function handler(request, response) {
       });
     } else snapshot = await getDailyDigest(scopeId, date, back);
     if (!snapshot) return response.status(404).json({ error: "No saved digest exists for this day." });
-    return response.status(200).json(snapshot);
+    return response.status(200).json(await withCurrentIllustrations(snapshot));
   } catch (error) {
     console.error("Daily digest request failed", error.message);
     return response.status(error.statusCode || 503).json({ error: [404, 413].includes(error.statusCode) ? error.message : "The daily digest could not be loaded. Please try again shortly." });
