@@ -70,7 +70,7 @@
     },
     {
       "path": "/api/cron/daily-illustrations",
-      "schedule": "6,21 13,14 * * *"
+      "schedule": "8,21 13,14 * * *"
     },
     {
       "path": "/api/cron/daily-digests?region=nationwide",

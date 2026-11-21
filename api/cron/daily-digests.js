@@ -34,7 +34,8 @@ export default async function handler(request, response) {
     const receipt = await deliverDailyDigest(digest, { allowPartialArtwork: final, generationReady });
     const held = receipt.status === "awaiting_illustrations";
     if (held) console.info(JSON.stringify({ event: "daily_digest_awaiting_illustrations", scopeId, unresolved: receipt.unresolved }));
-    return response.status(held ? 503 : 200).json({ ok: !held, delivery: receipt.status, scopeId, date: digest.date, findings: digest.findings.length, illustrations: receipt.illustrations, unresolved: receipt.unresolved });
+    // A hold is planned behavior, not a failure, so it does not report 5xx.
+    return response.status(200).json({ ok: true, held, delivery: receipt.status, scopeId, date: digest.date, findings: digest.findings.length, illustrations: receipt.illustrations, unresolved: receipt.unresolved });
   } catch (error) {
     console.error("Daily digest publication or delivery failed", scopeId, error.message);
     return response.status(503).json({ error: "Daily digest publication or delivery failed", scopeId });
