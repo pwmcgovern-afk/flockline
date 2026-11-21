@@ -1,5 +1,5 @@
 import { enforceRateLimit } from "../lib/rateLimit.js";
-import { ensureDailyDigest, getDailyDigest, listDailyDigests } from "../lib/dailyDigestArchive.js";
+import { ensureDailyDigest, getDailyDigest, listDailyDigests, withCurrentIllustrations } from "../lib/dailyDigestArchive.js";
 import { dailyDate, dailyDigestPath, parseDailyDigestPath } from "../shared/dailyDigest.js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -42,7 +42,7 @@ export default async function handler(request, response) {
           // already has complete server-rendered content and link metadata.
           dailyDigest = await ensureDailyDigest({ scopeId: parsed.scopeId, date: parsed.date, back: parsed.back });
         }
-        if (dailyDigest) initial = { dailyDigest };
+        if (dailyDigest) initial = { dailyDigest: await withCurrentIllustrations(dailyDigest) };
         else status = 404;
       }
     } else if (path.startsWith("/sightings")) {
