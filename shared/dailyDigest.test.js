@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dailyDate, dailyDigestPath, dailyScope, parseDailyDigestPath, scopeFromId } from "./dailyDigest.js";
-import { dailyGenerationHour } from "../api/cron/daily-digests.js";
+import { dailyGenerationHour, isFinalDailyAttempt } from "../api/cron/daily-digests.js";
 
 describe("daily digest addresses and Eastern dates", () => {
   it("uses the Eastern calendar across midnight and both DST offsets", () => {
@@ -8,6 +8,9 @@ describe("daily digest addresses and Eastern dates", () => {
     expect(dailyGenerationHour(new Date("2026-11-17T14:15:00Z"))).toBe(true);
     expect(dailyGenerationHour(new Date("2026-07-17T13:15:00Z"))).toBe(true);
     expect(dailyGenerationHour(new Date("2026-07-17T14:15:00Z"))).toBe(false);
+    expect(isFinalDailyAttempt(new Date("2026-11-17T14:16:00Z"))).toBe(false);
+    expect(isFinalDailyAttempt(new Date("2026-11-17T14:31:00Z"))).toBe(true);
+    expect(isFinalDailyAttempt(new Date("2026-11-17T13:31:00Z"))).toBe(false);
   });
   it("canonicalizes custom states and rejects aliases or malformed scopes", () => {
     expect(dailyScope(["US-NY", "US-CT", "US-NY"]).id).toBe("states-ct-ny");
